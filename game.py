@@ -43,7 +43,7 @@ class Player(Table):
             '''Check.'''
             pass
 
-        def bet(self, amount):
+        def bet(self, amount): # Currently working on this
             '''Raise.'''
             if self.balance - amount < 0:
                 print('Not enough chips.')
@@ -53,7 +53,6 @@ class Player(Table):
                 print('All-in')
                 Table.increase_pot(Table, amount)
 
-            
             else:
                 self.balance -= amount
                 Table.increase_pot(Table, amount)
