@@ -4,6 +4,9 @@ from game import *
 deck = Deck()
 table = Table(deck)
 
-print(deck)
-deck.shuffle()
-print(deck)
+player = Player('bob')
+player.receive(deck.draw())
+player.receive(deck.draw())
+print(player.hand())
+player.bet(500)
+print(table.pot)
