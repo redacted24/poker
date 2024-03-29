@@ -11,36 +11,38 @@ class Table():
         # 2 : turn
         # 3 : river
     
-    def __repr__(self):
-        '''Prints the cards on the board of the table'''
-        return str(self.board)
-
-    def deal(self):
-        '''Deal cards to player'''
-        pass
-    
-    def pre_flop(self):
-        '''Shuffle deck, then draw pre-flop cards, then return the burnt card.'''
-        self.deck.shuffle()
-        for i in range(3):
-            self.board.append(self.deck.draw())
-        return self.deck.burn()
-    
+    # Functionality
     def increase_pot(self, amount):
         '''Increase pot by certain amount.'''
         self.pot += amount
     
-    def add_board(self, cards):
-        '''Add cards on the board.'''
-        if isinstance(cards, list):
-            self.board.extend(cards)
-        else:
-            self.board.append(cards)
+    def view_state(self):
+        '''Prints the cards on the board of the table, as well as the state (pre-flop, flop, turn, or river).'''
+        states = ['PRE-FLOP', 'FLOP', 'TURN', 'RIVER']
+        print(f'### {states[self.state]} ###')
+        if self.state != 0:
+            print(f'The current cards on the table are: {self.board}')
+
+    def add_card(self):
+        '''Add a card from the top of the deck to the board, and return it'''
+        return self.board.append(self.deck.draw())
     
     def clear_board(self):
         '''Clears the current cards on the board.'''
         self.board.clear()
 
+    # Game Rounds
+    def pre_flop(self):
+        '''Shuffle deck, then draw pre-flop cards, then return the burnt card.'''
+        self.deck.shuffle()
+        for i in range(3):
+            self.add_card()
+        return self.deck.burn()
+
+
+# -------------------------- #
+
+# -------------------------- #
 class Player():
         def __init__(self, name, table, balance = 1000):
             self.name = name
@@ -51,9 +53,9 @@ class Player():
             self.is_big_blind = False
             self.is_small_blind = False
 
-        def hand(self):
+        def look(self):
             '''Returns player hand.'''
-            return self.__hand
+            print(f'Your hand is: {str(self.__hand)}')
         
         def receive(self, cards):
             '''Receives cards in hand.'''
@@ -89,6 +91,10 @@ class Player():
             else:
                 self.balance -= amount
                 self.table.increase_pot(amount)
+        
+        def all_in(self):
+            'All-in on your balance!'
+            self.table.increase_pot(self.balance)
 
         def fold(self):  
             '''Fold.'''

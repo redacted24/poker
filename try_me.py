@@ -4,16 +4,40 @@ from game import *
 deck = Deck()
 table = Table(deck)
 
-
 user = ''
 name = input("Welcome to poker! What's your name?: ")
 p1 = Player(name, table)
 print('You start with 1000 chips.')
+
+def deal_hands():
+    '''Deal hands to player'''
+    for i in range(2):
+        p1.receive(table.deck.draw())
+        table.deck.burn
+
 while user != 'wq':
-    # Pre-flop
-    table.pre_flop()
-    print(f'The current board is: {table}')
-    print(f'Your hand is: {p1.hand()}')
+    if table.state == 0:
+        # Pre-flop
+        table.pre_flop()
+        deal_hands()
+        table.view_state()
+        p1.look()
+    elif table.state == 1:
+        # Flop
+        table.view_state()
+        p1.look()
+    elif table.state == 2:
+        # Turn (4th street)
+        table.add_card()
+        table.view_state()
+        p1.look()
+    elif table.state == 3:
+        # River
+        table.add_card()
+        table.view_state()
+        p1.look()
+
+
     user = input('Would you like to bet, call/check or raise? ')
     if user == 'bet':
         try:
@@ -28,3 +52,4 @@ while user != 'wq':
         
         print(f'{p1.name} has bet {bet}$, the pot is now {table.pot}$')
         print(f'{p1.name} has {p1.balance}$ in chips remaining')
+        table.state += 1
