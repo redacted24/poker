@@ -75,6 +75,7 @@ class Player():
 
         def check(self):
             '''Check.'''
+            print('Player checks.')
             pass
 
         def bet(self, amount): # Currently working on this
@@ -98,6 +99,8 @@ class Player():
 
         def fold(self):  
             '''Fold.'''
+            print('Player has folded')
+            self.__hand.clear()
             pass
 
         def rake(self, pot):

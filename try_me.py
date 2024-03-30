@@ -38,7 +38,7 @@ while user != 'wq':
         p1.look()
 
 
-    user = input('Would you like to bet, call/check or raise? ')
+    user = input('Would you like to bet, fold or call/check? ')
     if user == 'bet':
         try:
             bet = int(input('Please enter the amount you would like to bet: '))
@@ -48,8 +48,15 @@ while user != 'wq':
         try:
             p1.bet(bet)
         except ValueError:
-            continue
+            break # Temporary
         
         print(f'{p1.name} has bet {bet}$, the pot is now {table.pot}$')
         print(f'{p1.name} has {p1.balance}$ in chips remaining')
-        table.state += 1
+
+    elif user == 'fold':
+        p1.fold()
+        
+    elif user == 'check':
+        p1.check()
+        
+    table.state += 1
