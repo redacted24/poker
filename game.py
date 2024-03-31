@@ -22,6 +22,11 @@ class Table():
         print(f'### {states[self.state]} ###')
         if self.state != 0:
             print(f'The current cards on the table are: {self.board}')
+            print(f'The current pot is {self.pot}$')
+    
+    def burn(self):
+        '''Burn top deck card.'''
+        self.deck.burn()
 
     def add_card(self):
         '''Add a card from the top of the deck to the board, and return it'''
@@ -52,9 +57,18 @@ class Player():
             self.active = True # Whether the player is stil in round (hasn't folded yet).
             self.is_big_blind = False
             self.is_small_blind = False
+        
+        # WIP
+        def compute_hand(self):
+            '''Return the highest scoring hand pattern of player + board.'''
+            def _compute_hand(hand):
+                '''Helper function for compute hand. Returns highest scoring pattern of specified hand.'''
+            board = self.table.board
+
+
 
         def look(self):
-            '''Returns player hand.'''
+            '''Prints player hand.'''
             print(f'Your hand is: {str(self.__hand)}')
         
         def receive(self, cards):
