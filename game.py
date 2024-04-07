@@ -62,7 +62,19 @@ class Player():
         def compute_hand(self):
             '''Return the highest scoring hand pattern of player + board.'''
             def _compute_hand(hand):
-                '''Helper function for compute hand. Returns highest scoring pattern of specified hand.'''
+                '''Helper function for compute hand. 
+                Takes in a list of card objects, and returns [int, int] where first int is the hand, last int is the value of the highest card in that hand.
+                1. Royal Flush
+                2. Straight Flush
+                3. Four of a Kind
+                4. Full House
+                5. Flush
+                6. Straight
+                7. Three of a kind
+                8. Two Pair
+                9. Pair
+                10. High Card
+                '''
             board = self.table.board
 
 
@@ -120,3 +132,6 @@ class Player():
         def rake(self, pot):
             '''Take the pot amount. Player has won.'''
             self.balance += pot
+
+if __name__ == "__main__":
+    
