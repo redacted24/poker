@@ -138,6 +138,7 @@ class Player():
         def all_in(self):
             'All-in on your balance!'
             self.table.increase_pot(self.balance)
+            self.balance = 0
 
         def fold(self):  
             '''Fold.'''
@@ -155,7 +156,7 @@ if __name__ == "__main__":
     p1 = Player('Haha', table)
 
     # Check for flushes
-    assert Player.handEval([deck._('9s'), deck._('Ts'), deck._('Js'), deck._('Ks'), deck._('As')])
-    assert not Player.handEval([deck._('9d'), deck._('Ts'), deck._('Js'), deck._('Ks'), deck._('As')])
+    assert Player.handEval([deck.get('9s'), deck.get('Ts'), deck.get('Js'), deck.get('Ks'), deck.get('As')]) == [5, 14]
+    assert not Player.handEval([deck.get('9d'), deck.get('Ts'), deck.get('Js'), deck.get('Ks'), deck.get('As')]) == []
     
     print('All tests passed.')
