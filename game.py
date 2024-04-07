@@ -6,6 +6,7 @@ class Table():
         self.board = []
         self.pot = 0
         self.state = 0 
+        self.players = 0
         # 0 : pre-flop
         # 1 : flop
         # 2 : turn
@@ -55,8 +56,10 @@ class Player():
             self.__hand = []
             self.balance = balance
             self.active = True # Whether the player is stil in round (hasn't folded yet).
+            self.bot = False # Whether the player is a bot (computer) or not
             self.is_big_blind = False
             self.is_small_blind = False
+            self.table.players += 1
         
         # WIP
         def compute_hand(self):
@@ -76,8 +79,6 @@ class Player():
                 10. High Card
                 '''
             board = self.table.board
-
-
 
         def look(self):
             '''Prints player hand.'''

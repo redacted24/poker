@@ -11,6 +11,7 @@ print('You start with 1000 chips.')
 
 def deal_hands():
     '''Deal hands to a player or all players'''
+    # WIP. Currently only deals hands to p1. (hardcoded)
     for i in range(2):
         p1.receive(table.deck.draw())
         table.deck.burn()
@@ -21,7 +22,7 @@ while user != 'wq' and table.state < 4:
     # Flop: 3 first cards on the table are shown.
     # Turn (4th street): A card is burned (optional), and the 4th card is shown on the table.
     # River: A card is burned (optional), and the 5th card is shown on the table.
-
+    
     # Pre-flop
     if table.state == 0:
         table.pre_flop()
