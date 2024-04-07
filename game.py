@@ -62,23 +62,38 @@ class Player():
             self.table.players += 1
         
         # WIP
-        def compute_hand(self):
+            
+        @staticmethod
+        def handEval(hand):
+            '''Compute strength of a certain hand of a certain size. 
+            Takes in a list of card objects, and returns [int, int] where first int is the hand, last int is the value of the highest card in that hand.
+            1. Royal Flush
+            2. Straight Flush
+            3. Four of a Kind
+            4. Full House
+            5. Flush
+            6. Straight
+            7. Three of a kind
+            8. Two Pair
+            9. Pair
+            10. High Card'''
+
+            def isFlush(hand):
+                '''Check if hand is a flush'''
+                hand.sort(key=lambda x : x.value)
+                if hand[0].suit == hand[-1].suit:
+                    return True
+                return False
+
+            output = []
+            if isFlush(hand):
+                output.extend([4,max(hand, key=lambda x : x.value)])
+            
+            return output
+
+        def riverEval(self):
             '''Return the highest scoring hand pattern of player + board.'''
-            def _compute_hand(hand):
-                '''Helper function for compute hand. 
-                Takes in a list of card objects, and returns [int, int] where first int is the hand, last int is the value of the highest card in that hand.
-                1. Royal Flush
-                2. Straight Flush
-                3. Four of a Kind
-                4. Full House
-                5. Flush
-                6. Straight
-                7. Three of a kind
-                8. Two Pair
-                9. Pair
-                10. High Card
-                '''
-            board = self.table.board
+            pass
 
         def look(self):
             '''Prints player hand.'''
@@ -135,4 +150,12 @@ class Player():
             self.balance += pot
 
 if __name__ == "__main__":
+    deck = Deck()
+    table = Table(deck)
+    p1 = Player('Haha', table)
+
+    # Check for flushes
+    assert Player.handEval([deck._('9s'), deck._('Ts'), deck._('Js'), deck._('Ks'), deck._('As')])
+    assert not Player.handEval([deck._('9d'), deck._('Ts'), deck._('Js'), deck._('Ks'), deck._('As')])
     
+    print('All tests passed.')
