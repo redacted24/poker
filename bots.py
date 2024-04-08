@@ -8,7 +8,7 @@ class Better(Player):
         elif self.balance == 0:
             raise ValueError('you broke ahh')       # If bot doesn't have anymore money, they lose.
         else:
-            self.bet(self.balance)  # Otherwise, bet the remaining balance of the bot.
+            self.bet(self.balance)  # Otherwise, bet the remaining balance of the bot, as an all-in.
 
 class ScaryCat(Player):
     '''A bot that folds if the opponent bets.'''
@@ -34,12 +34,10 @@ if __name__ == "__main__":
         better.receive(table.deck.draw())
     better.play()           # Better bot plays (bets 99)
     better.play()           # Better bot plays (bets 99)
-
     assert better.balance == 1000-99*2
     assert table.pot == 99*2
-
-    for i in range(8):
+    for i in range(9):
         better.play()
-    
+    assert better.balance == 0
 
     print('All tests passed')

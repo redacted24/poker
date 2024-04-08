@@ -134,7 +134,7 @@ class Player():
                 raise ValueError
 
             elif self.balance - amount <= 0:
-                print('All-in')
+                print(self, 'goes all-in')
                 self.stats['all-in'] += 1       # Increase number of times all-ined
                 self.table.increase_pot(self.balance)
                 self.balance = 0
