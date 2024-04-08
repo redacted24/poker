@@ -11,9 +11,9 @@ class Better(Player):
             self.bet(self.balance)  # Otherwise, bet the remaining balance of the bot, as an all-in.
 
 class ScaryCat(Player):
-    '''A bot that folds if the opponent bets.'''
-    def test(self):
-        return self.name
+    '''A bot that folds if a single opponent bets. Otherwise, checks.'''
+    def play(self):
+        
 
 class Joker(Player):
     '''A bot that only does random actions. Can bet a random multiplier of the small blind'''

@@ -11,6 +11,13 @@ class Table():
         # 1 : flop
         # 2 : turn
         # 3 : river
+        self.stats = {
+            'bet': 0,
+            'raise': 0,
+            'call': 0,
+            'check': 0,
+            'all-in': 0
+        }
 
     # Functionality
     def increase_pot(self, amount):
@@ -34,7 +41,9 @@ class Table():
         return self.board.append(self.deck.draw())
 
     def reset(self):
-        '''Clears current cards on the board, restets deck, and removes all player handheld cards. Pot is left unchanged because it should be handled by the player "rake" func.'''
+        '''Clears current cards on the board, restets deck, and removes all player handheld cards. 
+        Pot is left unchanged because it should be handled by the player "rake" func.
+        Players are still on the table.'''
         self.board.clear()
         self.deck.reset()
         for i in self.players():
@@ -138,7 +147,8 @@ class Player():
             pass
 
         def bet(self, amount):      # Currently working on this
-            '''Raise. Also modifies player stats, #times betted + 1'''
+            '''Raise. Prints a message stating that the current player has bet a certain amount.
+            Also modifies player stats, #times betted + 1'''
             if self.balance <= 0:
                 print('Not enough chips.')
                 raise ValueError
