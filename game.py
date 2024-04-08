@@ -50,13 +50,13 @@ class Table():
 
 # -------------------------- #
 class Player():
-        def __init__(self, name, table, balance = 1000):
+        def __init__(self, name, table, bot=False, balance = 1000):
             self.name = name
             self.table = table # Which table they are at
             self.__hand = []
             self.balance = balance
             self.active = True # Whether the player is stil in round (hasn't folded yet).
-            self.bot = False # Whether the player is a bot (computer) or not
+            self.bot = bot # Whether the player is a bot (computer) or not
             self.is_big_blind = False
             self.is_small_blind = False
             self.table.players += 1
@@ -94,7 +94,7 @@ class Player():
             output = []
             if isFlush(hand):
                 output.extend([4,max(hand, key=lambda x : x.value)])
-                
+
             return output
 
         def riverEval(self):
@@ -167,4 +167,6 @@ if __name__ == "__main__":
     assert Player.handEval([deck.get('9s'), deck.get('Ts'), deck.get('Js'), deck.get('Ks'), deck.get('As')]) == [5, 14]
     assert not Player.handEval([deck.get('9d'), deck.get('Ts'), deck.get('Js'), deck.get('Ks'), deck.get('As')]) == []
     
+
+
     print('All tests passed.')
