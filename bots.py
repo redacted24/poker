@@ -13,7 +13,7 @@ class Better(Player):
 class ScaryCat(Player):
     '''A bot that folds if a single opponent bets. Otherwise, checks.'''
     def play(self):
-        if self.table.stats[]
+        pass
 
 class Joker(Player):
     '''A bot that only does random actions. Can bet a random multiplier of the small blind'''
