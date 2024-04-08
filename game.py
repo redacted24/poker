@@ -6,7 +6,7 @@ class Table():
         self.board = []
         self.pot = 0
         self.state = 0
-        self.players = 0
+        self.players = []
         # 0 : pre-flop
         # 1 : flop
         # 2 : turn
@@ -33,9 +33,14 @@ class Table():
         '''Add a card from the top of the deck to the board, and return it'''
         return self.board.append(self.deck.draw())
 
-    def clear_board(self):
-        '''Clears the current cards on the board.'''
+    def reset(self):
+        '''Clears current cards on the board, restets deck, and removes all player handheld cards. Pot is left unchanged because it should be handled by the player "rake" func.'''
         self.board.clear()
+        self.deck.reset()
+        for i in self.players():
+            i.clear_hand()
+        print('Table has been cleared.')
+
 
     # Game Rounds
     def pre_flop(self):
@@ -67,6 +72,8 @@ class Player():
                 'check': 0,
                 'all-in': 0
             }
+
+            table.players.append(self)      # Add self to the table player list.
         
         def __repr__(self):
             return self.name
@@ -116,7 +123,7 @@ class Player():
             else:
                 self.__hand.append(cards)
 
-        def clear(self):
+        def clear_hand(self):
             '''Removes all cards held in hand.'''
             self.__hand.clear()
 
@@ -132,20 +139,21 @@ class Player():
 
         def bet(self, amount):      # Currently working on this
             '''Raise. Also modifies player stats, #times betted + 1'''
-            if self.balance - amount < 0:
+            if self.balance <= 0:
                 print('Not enough chips.')
                 raise ValueError
 
             elif self.balance - amount <= 0:
-                print(self, 'goes all-in')
                 self.stats['all-in'] += 1       # Increase number of times all-ined
                 self.table.increase_pot(self.balance)
                 self.balance = 0
+                print(self, 'goes all-in')
 
             else:
                 self.balance -= amount
                 self.stats['bet'] += 1      # Increase number of times bet
                 self.table.increase_pot(amount)
+                print(self, 'bets', str(amount)+'$')
 
         def all_in(self):
             'All-in on your balance!'

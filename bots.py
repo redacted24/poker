@@ -24,9 +24,9 @@ if __name__ == "__main__":
     table = Table(deck)
     scary_cat = ScaryCat('Cat', table)
     better = Better('Better', table)
-
     assert scary_cat.name == 'Cat'
 
+    # --- Test 1 ---
     table.pre_flop()        # Pre-flop
     for i in range(2):
         scary_cat.receive(table.deck.draw())
@@ -39,5 +39,8 @@ if __name__ == "__main__":
     for i in range(9):
         better.play()
     assert better.balance == 0
+    table.reset()
+
+    # --- Test 2 ---
 
     print('All tests passed')
