@@ -67,6 +67,9 @@ class Player():
                 'check': 0,
                 'all-in': 0
             }
+        
+        def __repr__(self):
+            return self.name
 
         # WIP
         @staticmethod
