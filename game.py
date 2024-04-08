@@ -60,9 +60,15 @@ class Player():
             self.is_big_blind = False
             self.is_small_blind = False
             self.table.players += 1
+            self.stats = {
+                'bet': 0,
+                'raise': 0,
+                'call': 0,
+                'check': 0,
+                'all-in': 0
+            }
         
         # WIP
-            
         @staticmethod
         def handEval(hand):
             '''Compute strength of a certain hand of a certain size. 
@@ -88,7 +94,7 @@ class Player():
             output = []
             if isFlush(hand):
                 output.extend([4,max(hand, key=lambda x : x.value)])
-            
+                
             return output
 
         def riverEval(self):
@@ -121,7 +127,7 @@ class Player():
             pass
 
         def bet(self, amount): # Currently working on this
-            '''Raise.'''
+            '''Raise. Also modifies player stats, #times betted + 1'''
             if self.balance - amount < 0:
                 print('Not enough chips.')
                 raise ValueError
@@ -129,10 +135,12 @@ class Player():
             elif self.balance - amount == 0:
                 self.balance -= amount
                 print('All-in')
+                self.stats['all-in'] += 1 # Increase number of times all-ined
                 self.table.increase_pot(amount)
 
             else:
                 self.balance -= amount
+                self.stats['bet'] += 1 # Increase number of times bet
                 self.table.increase_pot(amount)
         
         def all_in(self):
