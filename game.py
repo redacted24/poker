@@ -5,18 +5,18 @@ class Table():
         self.deck = deck
         self.board = []
         self.pot = 0
-        self.state = 0 
+        self.state = 0
         self.players = 0
         # 0 : pre-flop
         # 1 : flop
         # 2 : turn
         # 3 : river
-    
+
     # Functionality
     def increase_pot(self, amount):
         '''Increase pot by certain amount.'''
         self.pot += amount
-    
+
     def view_state(self):
         '''Prints the cards on the board of the table, as well as the state (pre-flop, flop, turn, or river).'''
         states = ['PRE-FLOP', 'FLOP', 'TURN', 'RIVER']
@@ -24,7 +24,7 @@ class Table():
         if self.state != 0:
             print(f'The current cards on the table are: {self.board}')
             print(f'The current pot is {self.pot}$')
-    
+
     def burn(self):
         '''Burn top deck card.'''
         self.deck.burn()
@@ -32,7 +32,7 @@ class Table():
     def add_card(self):
         '''Add a card from the top of the deck to the board, and return it'''
         return self.board.append(self.deck.draw())
-    
+
     def clear_board(self):
         '''Clears the current cards on the board.'''
         self.board.clear()
@@ -67,12 +67,12 @@ class Player():
                 'check': 0,
                 'all-in': 0
             }
-        
+
         # WIP
         @staticmethod
         def handEval(hand):
-            '''Compute strength of a certain hand of a certain size. 
-            Takes in a list of card objects, and returns [int, int] where first int is the hand, last int is the value of the highest card in that hand.
+            '''Compute strength of a certain hand of a certain size.
+            Takes in a list of 7 card objects, and returns [int, int] where first int is the hand, last int is the value of the highest card in that hand.
             1. Royal Flush
             2. Straight Flush
             3. Four of a Kind
@@ -84,18 +84,19 @@ class Player():
             9. Pair
             10. High Card'''
 
-            def isFlush(hand):
-                '''Check if hand is a flush'''
-                hand.sort(key=lambda x : x.value)
+            def isFlush(hand):                                              #takes in a list of 7 cards
+                '''Check if hand is a flush and whether it's a Royal Flush, a Straight Flush or a regular Flush'''
+                hand.sort(key=lambda x : x.value)                           #sorts the hand by suits to check whether there are 5 of the same suits
                 if hand[0].suit == hand[-1].suit:
                     return True
                 return False
 
             output = []
             if isFlush(hand):
-                output.extend([4,max(hand, key=lambda x : x.value)])
+                output.extend([5,max(hand, key=lambda x : x.value)])        #making a list containing the type of hand and the max value of the player's hand
 
             return output
+
 
         def riverEval(self):
             '''Return the highest scoring hand pattern of player + board.'''
@@ -104,14 +105,14 @@ class Player():
         def look(self):
             '''Prints player hand.'''
             print(f'Your hand is: {str(self.__hand)}')
-        
+
         def receive(self, cards):
             '''Receives cards in hand.'''
             if isinstance(cards, list):
                 self.__hand.extend(cards)
             else:
                 self.__hand.append(cards)
-                
+
         def clear(self):
             '''Removes all cards held in hand.'''
             self.__hand.clear()
@@ -142,13 +143,13 @@ class Player():
                 self.balance -= amount
                 self.stats['bet'] += 1 # Increase number of times bet
                 self.table.increase_pot(amount)
-        
+
         def all_in(self):
             'All-in on your balance!'
             self.table.increase_pot(self.balance)
             self.balance = 0
 
-        def fold(self):  
+        def fold(self):
             '''Fold.'''
             print('Player has folded')
             self.__hand.clear()
@@ -166,7 +167,7 @@ if __name__ == "__main__":
     # Check for flushes
     assert Player.handEval([deck.get('9s'), deck.get('Ts'), deck.get('Js'), deck.get('Ks'), deck.get('As')]) == [5, 14]
     assert not Player.handEval([deck.get('9d'), deck.get('Ts'), deck.get('Js'), deck.get('Ks'), deck.get('As')]) == []
-    
+
 
 
     print('All tests passed.')
