@@ -72,7 +72,7 @@ class Player():
         @staticmethod
         def handEval(hand):
             '''Compute strength of a certain hand of a certain size. 
-            Takes in a list of card objects, and returns [int, int] where first int is the hand, last int is the value of the highest card in that hand.
+            Takes in a list of 7 card objects, and returns [int, int] where first int is the hand, last int is the value of the highest card in that hand.
             1. Royal Flush
             2. Straight Flush
             3. Four of a Kind
@@ -84,18 +84,19 @@ class Player():
             9. Pair
             10. High Card'''
 
-            def isFlush(hand):
-                '''Check if hand is a flush'''
-                hand.sort(key=lambda x : x.value)
+            def isFlush(hand):                                              #takes in a list of 7 cards
+                '''Check if hand is a flush and whether it's a Royal Flush, a Straight Flush or a regular Flush'''
+                hand.sort(key=lambda x : x.value)                           #sorts the hand by suits to check whether there are 5 of the same suits
                 if hand[0].suit == hand[-1].suit:
                     return True
                 return False
 
             output = []
             if isFlush(hand):
-                output.extend([4,max(hand, key=lambda x : x.value)])
+                output.extend([5,max(hand, key=lambda x : x.value)])        #making a list containing the type of hand and the max value of the player's hand
                 
             return output
+
 
         def riverEval(self):
             '''Return the highest scoring hand pattern of player + board.'''
