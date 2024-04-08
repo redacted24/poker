@@ -127,21 +127,21 @@ class Player():
             print('Player checks.')
             pass
 
-        def bet(self, amount): # Currently working on this
+        def bet(self, amount):      # Currently working on this
             '''Raise. Also modifies player stats, #times betted + 1'''
             if self.balance - amount < 0:
                 print('Not enough chips.')
                 raise ValueError
 
-            elif self.balance - amount == 0:
-                self.balance -= amount
+            elif self.balance - amount <= 0:
                 print('All-in')
-                self.stats['all-in'] += 1 # Increase number of times all-ined
-                self.table.increase_pot(amount)
+                self.stats['all-in'] += 1       # Increase number of times all-ined
+                self.table.increase_pot(self.balance)
+                self.balance = 0
 
             else:
                 self.balance -= amount
-                self.stats['bet'] += 1 # Increase number of times bet
+                self.stats['bet'] += 1      # Increase number of times bet
                 self.table.increase_pot(amount)
 
         def all_in(self):
