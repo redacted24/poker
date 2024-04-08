@@ -1,5 +1,5 @@
 [project]
-name = "PokerLab"
+name = "poker"
 version = "1.0.0"
 description = "The playground for exciting poker plays!"
 dependencies = [
