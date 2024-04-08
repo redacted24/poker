@@ -24,7 +24,7 @@ if __name__ == "__main__":
     table = Table(deck)
     scary_cat = ScaryCat('ScaryCat', table)
     better = Better('Better', table)
-    assert scary_cat.name == 'Cat'
+    assert scary_cat.name == 'ScaryCat'
 
     # --- Test 1 ---
     table.pre_flop()        # Pre-flop
