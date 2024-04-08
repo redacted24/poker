@@ -13,7 +13,7 @@ class Better(Player):
 class ScaryCat(Player):
     '''A bot that folds if a single opponent bets. Otherwise, checks.'''
     def play(self):
-        pass
+        if self.table.stats[]
 
 class Joker(Player):
     '''A bot that only does random actions. Can bet a random multiplier of the small blind'''
@@ -22,7 +22,7 @@ class Joker(Player):
 if __name__ == "__main__":
     deck = Deck()
     table = Table(deck)
-    scary_cat = ScaryCat('Cat', table)
+    scary_cat = ScaryCat('ScaryCat', table)
     better = Better('Better', table)
     assert scary_cat.name == 'Cat'
 
@@ -38,12 +38,13 @@ if __name__ == "__main__":
     assert table.pot == 99*2
     for i in range(9):
         better.play()
-    assert better.balance == 0
+    assert better.balance == 0              # Check if all stats match
     assert table.stats['bet'] == 10
     assert table.stats['all-in'] == 1
     assert better.stats['all-in'] == 1
     assert better.stats['bet'] == 10
     table.reset()
+    print(table.players)
 
     # --- Test 2 ---
 

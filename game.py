@@ -16,7 +16,8 @@ class Table():
             'raise': 0,
             'call': 0,
             'check': 0,
-            'all-in': 0
+            'all-in': 0,
+            'fold': 0
         }
 
     # Functionality
@@ -79,7 +80,8 @@ class Player():
                 'raise': 0,
                 'call': 0,
                 'check': 0,
-                'all-in': 0
+                'all-in': 0,
+                'fold': 0
             }
 
         
@@ -157,8 +159,7 @@ class Player():
             elif self.balance - amount <= 0:
                 self.stats['all-in'] += 1       # Increase number of times all-ined for player stats
                 self.table.stats['all-in'] += 1     # Increase number of times all-ined for table stats
-                self.table.increase_pot(self.balance)
-                self.balance = 0
+                self.all_in()
                 print(self, 'goes all-in')
 
             else:
@@ -175,8 +176,10 @@ class Player():
 
         def fold(self):
             '''Fold.'''
-            print('Player has folded')
+            self.stats['fold'] += 1
+            self.table.stats['fold'] += 1
             self.__hand.clear()
+            print('Player has folded')
             pass
 
         def rake(self, pot):

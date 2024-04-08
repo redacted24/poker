@@ -1,0 +1,1 @@
+- add stats for entire game, and stats per round, so that computers can decide what to do either on round stats or game stats
