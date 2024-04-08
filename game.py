@@ -41,13 +41,13 @@ class Table():
         return self.board.append(self.deck.draw())
 
     def reset(self):
-        '''Clears current cards on the board, restets deck, and removes all player handheld cards. 
+        '''Clears current cards on the board, resets deck, and removes all player handheld cards. 
         Pot is left unchanged because it should be handled by the player "rake" func.
         Players are still on the table.'''
         self.board.clear()
         self.deck.reset()
-        for i in self.players():
-            i.clear_hand()
+        for player in self.players:
+            player.clear_hand()
         print('Table has been cleared.')
 
 
@@ -73,7 +73,7 @@ class Player():
             self.bot = bot # Whether the player is a bot (computer) or not
             self.is_big_blind = False
             self.is_small_blind = False
-            self.table.players += 1
+            self.table.players.append(self)      # Add self to the table player list.
             self.stats = {
                 'bet': 0,
                 'raise': 0,
@@ -82,7 +82,6 @@ class Player():
                 'all-in': 0
             }
 
-            table.players.append(self)      # Add self to the table player list.
         
         def __repr__(self):
             return self.name
@@ -139,11 +138,13 @@ class Player():
         # Game moves
         def call(self):
             '''Call.'''
+            self.table.stats['call'] += 1
             pass
 
         def check(self):
             '''Check.'''
-            print('Player checks.')
+            self.table.stats['check'] += 1
+            print(self, 'checks.')
             pass
 
         def bet(self, amount):      # Currently working on this
@@ -154,14 +155,16 @@ class Player():
                 raise ValueError
 
             elif self.balance - amount <= 0:
-                self.stats['all-in'] += 1       # Increase number of times all-ined
+                self.stats['all-in'] += 1       # Increase number of times all-ined for player stats
+                self.table.stats['all-in'] += 1     # Increase number of times all-ined for table stats
                 self.table.increase_pot(self.balance)
                 self.balance = 0
                 print(self, 'goes all-in')
 
             else:
                 self.balance -= amount
-                self.stats['bet'] += 1      # Increase number of times bet
+                self.stats['bet'] += 1      # Increase number of times bet for player stats
+                self.table.stats['bet'] += 1        # Increase number of times bet for table stats
                 self.table.increase_pot(amount)
                 print(self, 'bets', str(amount)+'$')
 
