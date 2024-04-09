@@ -149,9 +149,10 @@ class Player():
 
             def isFlush(hand):                                              #takes in a list of 7 cards
                 '''Check if hand is a flush and whether it's a Royal Flush, a Straight Flush or a regular Flush'''
-                hand.sort(key=lambda x : x.value)                           #sorts the hand by suits to check whether there are 5 of the same suits
-                if hand[0].suit == hand[-1].suit:
-                    return True
+                hand.sort(key=lambda x : x.suit)                            #sorts the hand by suits to check whether there are 5 of the same suits
+                for i in range(len(hand) - 5):
+                    if hand[i].suit == hand[i+5].suit:                      #this should work
+                        return True
                 return False
 
             output = []
