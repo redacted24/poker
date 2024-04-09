@@ -5,8 +5,9 @@ class Table():
         self.deck = deck
         self.board = []
         self.pot = 0
-        self.state = 0      # Pre-flop (0), flop (1), turn (2), river (3)
-        self.players = []   # [PlayerObject,'move']
+        self.state = 0              # Pre-flop (0), flop (1), turn (2), river (3)
+        self.players = []           # [PlayerObject,'move']
+        self.required_bet = 0       # How much money is required to stay in the game.
         self.last_move = []
         self.round_stats = {
             'bet': 0,
