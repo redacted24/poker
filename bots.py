@@ -44,8 +44,16 @@ if __name__ == "__main__":
     assert better.stats['all-in'] == 1
     assert better.stats['bet'] == 10
     table.reset()
+    assert table.round_stats['bet'] == 0        # Round stats should be reset.
+    assert table.round_stats['all-in'] == 0
+    assert table.game_stats['bet'] == 10        # Game stats shouldn't be reset.
+    assert table.game_stats['all-in'] == 1
     print(table.players)
 
     # --- Test 2 ---
 
+
+
+    # --- End tests ---
+    print('################')
     print('All tests passed')

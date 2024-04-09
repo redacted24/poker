@@ -50,11 +50,14 @@ class Table():
         return self.board.append(self.deck.draw())
 
     def reset(self):
-        '''Clears current cards on the board, resets deck, and removes all player handheld cards. 
+        '''Clears current cards on the board, resets deck, and removes all player handheld cards.
+        Clears current round stats. Game stats are left unchanged.
         Pot is left unchanged because it should be handled by the player "rake" func.
         Players are still on the table.'''
         self.board.clear()
         self.deck.reset()
+        for stat in self.game_stats.keys():
+            self.round_stats[stat] = 0
         for player in self.players:
             player.clear_hand()
         print('Table has been cleared.')
@@ -148,12 +151,13 @@ class Player():
         # Game moves
         def call(self):
             '''Call.'''
-            self.table.stats['call'] += 1
+            self.table.game_stats['call'] += 1
             pass
 
         def check(self):
             '''Check.'''
-            self.table.stats['check'] += 1
+            self.table.game_stats['check'] += 1
+            self.table.round_stats['check'] += 1
             print(self, 'checks.')
             pass
 
@@ -166,6 +170,7 @@ class Player():
 
             elif self.balance - amount <= 0:
                 self.stats['all-in'] += 1       # Increase number of times all-ined for player stats
+                self.table.round_stats['all-in'] += 1    # Increase number of times all-ined for round stats
                 self.table.game_stats['all-in'] += 1     # Increase number of times all-ined for table stats
                 self.all_in()
                 print(self, 'goes all-in')
@@ -174,6 +179,7 @@ class Player():
                 self.balance -= amount
                 self.stats['bet'] += 1      # Increase number of times bet for player stats
                 self.table.game_stats['bet'] += 1        # Increase number of times bet for table stats
+                self.table.round_stats['bet'] += 1       # Increase number of times bet for round stats
                 self.table.increase_pot(amount)
                 print(self, 'bets', str(amount)+'$')
 
@@ -185,6 +191,7 @@ class Player():
         def fold(self):
             '''Fold.'''
             self.stats['fold'] += 1
+            self.table.round_stats['fold'] += 1    # Increase number of times folds for round stats
             self.table.game_stats['fold'] += 1
             self.__hand.clear()
             print('Player has folded')
