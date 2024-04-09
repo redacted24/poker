@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import Card from './Card'
 import './playground.css'
 import { useState } from 'react'
+import pokerService from '../../services/poker'
 
 
 const Playground = () => {
@@ -43,19 +44,24 @@ const Playground = () => {
     }])
   }, [])
 
+  const test = async () => {
+    const response = await pokerService.test()
+    console.log(response)
+  }
+
   return (
     <>
       <div id='room'>
         <div id='table'>
           <div id='river'>
-            {river.map(card => <Card {...card} />)}
+            {river.map(card => <Card key={`${card.rank}${card.suit}`} {...card} />)}
           </div>
         </div>
         <div id='hand'>
-          {hand.map(card => <Card {...card} />)}
+          {hand.map(card => <Card key={`${card.rank}${card.suit}`} {...card} />)}
         </div>
         <div id='buttons'>
-          <button className='action'>Call</button>
+          <button className='action' onClick={test}>Call</button>
           <button className='action'>Check</button>
           <button className='action'>Fold</button>
           <button className='action'>Bet</button>
