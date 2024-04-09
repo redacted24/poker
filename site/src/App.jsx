@@ -3,8 +3,8 @@ import {
   Routes, Route
 } from 'react-router-dom'
 
-import Intro from './Pages/intro/Intro'
-import Playground from './Pages/playground/Playground'
+import Intro from './pages/intro/Intro'
+import Playground from './pages/playground/Playground'
 
 const App = () => {
   return (
