@@ -68,7 +68,6 @@ class Table():
             self.game_stats[stat] = 0
 
 
-
     # Game Rounds
     def pre_flop(self):
         '''Ready game for the pre-flop.'''

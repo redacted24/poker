@@ -67,6 +67,8 @@ if __name__ == "__main__":
     table.flop()
     table.turn()
     table.river()
+    table.deck.shuffle()
+    print(deck.original)
     assert len(table.board) == 5        # Check if table has 5 cards after river
 
 
