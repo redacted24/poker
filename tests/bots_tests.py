@@ -1,3 +1,5 @@
+import sys
+sys.path.append('../poker')
 from bots import *
 
 if __name__ == "__main__":
