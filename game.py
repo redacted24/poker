@@ -7,7 +7,7 @@ class Table():
         self.pot = 0
         self.state = 0              # Pre-flop (0), flop (1), turn (2), river (3)
         self.players = []           # [PlayerObject,'move']
-        self.required_bet = 0       # How much money is required to stay in the game.
+        self.required_bet = 0       # How much money is required to stay in the game. Very useful to program the call function
         self.last_move = []
         self.round_stats = {
             'bet': 0,
@@ -61,8 +61,9 @@ class Table():
         print('Table has been cleared.')
 
     def end(self):
-        '''Finish the current game. Clears game_stats. Basically a harder reset than the reset method.'''
+        '''A method that ends the current game. Clears game_stats. Players leave the table. Basically a harder reset than the reset method.'''
         self.reset()
+        self.players.clear()
         for stat in self.game_stats.keys():
             self.game_stats[stat] = 0
 
@@ -81,13 +82,13 @@ class Table():
 
 # -------------------------- #
 class Player():
-        def __init__(self, name, table, bot=False, balance = 1000):
+        def __init__(self, name, table, balance = 1000):
             self.name = name
-            self.table = table # Which table they are at
+            self.table = table                  # Which table they are at
             self.__hand = []
             self.balance = balance
-            self.active = True # Whether the player is stil in round (hasn't folded yet).
-            self.bot = bot # Whether the player is a bot (computer) or not
+            self.current_bet = 0                # Balance of the player's bet for the current round
+            self.active = True                  # Whether the player is stil in round (hasn't folded yet).
             self.is_big_blind = False
             self.is_small_blind = False
             self.table.players.append(self)      # Add self to the table player list.
@@ -181,12 +182,14 @@ class Player():
 
             elif self.balance - amount <= 0:
                 self.update_table_stats('all-in')
+                self.current_bet += self.balance
                 self.all_in()
 
             else:
+                self.current_bet += amount
                 self.balance -= amount
-                self.update_table_stats('bet')
                 self.table.increase_pot(amount)
+                self.update_table_stats('bet')
                 print(self, 'bets', str(amount)+'$')
 
         def all_in(self):

@@ -43,8 +43,8 @@ if __name__ == "__main__":
         scary_cat.receive(table.deck.draw())
         table.deck.burn
         better.receive(table.deck.draw())
-    better.play()           # Better bot plays (bets 99)
-    better.play()           # Better bot plays (bets 99)
+    better.play()                           # Better bot plays (bets 99)
+    better.play()                           # Better bot plays (bets 99)
     assert better.balance == 1000-99*2
     assert table.pot == 99*2
     for i in range(9):
@@ -59,7 +59,8 @@ if __name__ == "__main__":
     assert table.round_stats['all-in'] == 0
     assert table.game_stats['bet'] == 10        # Game stats shouldn't be reset.
     assert table.game_stats['all-in'] == 1
-    print(table.players)
+    table.end()
+    assert not table.players
 
     # --- Test 2 ---
 
