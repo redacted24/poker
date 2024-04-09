@@ -18,6 +18,8 @@ class ScaryCat(Player):
 class Joker(Player):
     '''A bot that only does random actions. Can bet a random multiplier of the small blind'''
     
+# ----------------------------------------    
+# Tests
 
 if __name__ == "__main__":
     deck = Deck()

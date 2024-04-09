@@ -5,12 +5,9 @@ class Table():
         self.deck = deck
         self.board = []
         self.pot = 0
-        self.state = 0
-        self.players = []
-        # 0 : pre-flop
-        # 1 : flop
-        # 2 : turn
-        # 3 : river
+        self.state = 0      # Pre-flop (0), flop (1), turn (2), river (3)
+        self.players = []   # [PlayerObject,'move']
+        self.last_move = []
         self.round_stats = {
             'bet': 0,
             'raise': 0,
@@ -147,17 +144,23 @@ class Player():
         def clear_hand(self):
             '''Removes all cards held in hand.'''
             self.__hand.clear()
+        
+        def update_table_stats(self, move:str):
+            '''Updates all table stats, based on the move. Used in all possible game moves.'''
+            self.table.game_stats[move] += 1
+            self.table.round_stats[move] += 1
+            self.stats[move] += 1
+            self.table.last_move = [self,move]
 
         # Game moves
         def call(self):
             '''Call.'''
-            self.table.game_stats['call'] += 1
+            self.update_table_stats('call')
             pass
 
         def check(self):
             '''Check.'''
-            self.table.game_stats['check'] += 1
-            self.table.round_stats['check'] += 1
+            self.update_table_stats('check')
             print(self, 'checks.')
             pass
 
@@ -169,17 +172,12 @@ class Player():
                 raise ValueError
 
             elif self.balance - amount <= 0:
-                self.stats['all-in'] += 1       # Increase number of times all-ined for player stats
-                self.table.round_stats['all-in'] += 1    # Increase number of times all-ined for round stats
-                self.table.game_stats['all-in'] += 1     # Increase number of times all-ined for table stats
+                self.update_table_stats('all-in')
                 self.all_in()
-                print(self, 'goes all-in')
 
             else:
                 self.balance -= amount
-                self.stats['bet'] += 1      # Increase number of times bet for player stats
-                self.table.game_stats['bet'] += 1        # Increase number of times bet for table stats
-                self.table.round_stats['bet'] += 1       # Increase number of times bet for round stats
+                self.update_table_stats('bet')
                 self.table.increase_pot(amount)
                 print(self, 'bets', str(amount)+'$')
 
@@ -187,6 +185,7 @@ class Player():
             'All-in on your balance!'
             self.table.increase_pot(self.balance)
             self.balance = 0
+            print(self,'goes all-in.')
 
         def fold(self):
             '''Fold.'''
