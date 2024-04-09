@@ -5,12 +5,26 @@ class Table():
         self.deck = deck
         self.board = []
         self.pot = 0
-        self.state = 0
-        self.players = 0
-        # 0 : pre-flop
-        # 1 : flop
-        # 2 : turn
-        # 3 : river
+        self.state = 0              # Pre-flop (0), flop (1), turn (2), river (3)
+        self.players = []           # [PlayerObject,'move']
+        self.required_bet = 0       # How much money is required to stay in the game. Very useful to program the call function
+        self.last_move = []
+        self.round_stats = {
+            'bet': 0,
+            'raise': 0,
+            'call': 0,
+            'check': 0,
+            'all-in': 0,
+            'fold': 0
+        }
+        self.game_stats = {
+            'bet': 0,
+            'raise': 0,
+            'call': 0,
+            'check': 0,
+            'all-in': 0,
+            'fold': 0
+        }
 
     # Functionality
     def increase_pot(self, amount):
@@ -33,40 +47,89 @@ class Table():
         '''Add a card from the top of the deck to the board, and return it'''
         return self.board.append(self.deck.draw())
 
-    def clear_board(self):
-        '''Clears the current cards on the board.'''
+    def reset(self):
+        '''Clears current cards on the board, resets deck, and removes all player handheld cards.
+        Clears current round stats. Game stats are left unchanged.
+        Pot is left unchanged because it should be handled by the player "rake" func.
+        Players are still on the table.'''
         self.board.clear()
+        self.deck.reset()
+        for stat in self.game_stats.keys():
+            self.round_stats[stat] = 0
+        for player in self.players:
+            player.clear_hand()
+        print('Table has been cleared.')
+
+    def end(self):
+        '''A method that ends the current game. Clears game_stats. Players leave the table. Basically a harder reset than the reset method.'''
+        self.reset()
+        self.players.clear()
+        for stat in self.game_stats.keys():
+            self.game_stats[stat] = 0
+
 
     # Game Rounds
     def pre_flop(self):
-        '''Shuffle deck, then draw pre-flop cards, then return the burnt card.'''
+        '''Ready game for the pre-flop.'''
+        print('Pre-flop')
         self.deck.shuffle()
+        self.current_bet = 0
+        self.last_move.clear()
+        self.state = 0
         for i in range(3):
             self.add_card()
-        return self.deck.burn()
+
+    def flop(self):
+        '''Ready game for the flop.'''
+        print('Flop')
+        self.current_bet = 0
+        self.state = 1
+        self.last_move.clear()
+        # show flop cards
+
+    def turn(self):
+        '''Ready game for the turn.'''
+        print('Turn')
+        self.current_bet = 0
+        self.state = 2
+        self.last_move.clear()
+        self.add_card()
+    
+    def river(self):
+        '''Ready game for the river.'''
+        print('River')
+        self.current_bet = 0
+        self.state = 3
+        self.last_move.clear()
+        self.add_card()
 
 
 # -------------------------- #
 
 # -------------------------- #
 class Player():
-        def __init__(self, name, table, bot=False, balance = 1000):
+        def __init__(self, name, table, balance = 1000):
             self.name = name
-            self.table = table # Which table they are at
+            self.table = table                  # Which table they are at
             self.__hand = []
             self.balance = balance
-            self.active = True # Whether the player is stil in round (hasn't folded yet).
-            self.bot = bot # Whether the player is a bot (computer) or not
+            self.current_bet = 0                # Balance of the player's bet for the current round
+            self.active = True                  # Whether the player is stil in round (hasn't folded yet).
             self.is_big_blind = False
             self.is_small_blind = False
-            self.table.players += 1
+            self.table.players.append(self)      # Add self to the table player list.
             self.stats = {
                 'bet': 0,
                 'raise': 0,
                 'call': 0,
                 'check': 0,
-                'all-in': 0
+                'all-in': 0,
+                'fold': 0
             }
+
+        
+        def __repr__(self):
+            return self.name
 
         # WIP
         @staticmethod
@@ -106,6 +169,10 @@ class Player():
         def look(self):
             '''Prints player hand.'''
             print(f'Your hand is: {str(self.__hand)}')
+        
+        def hand(self):
+            '''Returns player hand'''
+            return self.__hand
 
         def receive(self, cards):
             '''Receives cards in hand.'''
@@ -114,46 +181,61 @@ class Player():
             else:
                 self.__hand.append(cards)
 
-        def clear(self):
+        def clear_hand(self):
             '''Removes all cards held in hand.'''
             self.__hand.clear()
+        
+        def update_table_stats(self, move:str):
+            '''Updates all table stats, based on the move. Used in all possible game moves.'''
+            self.table.game_stats[move] += 1
+            self.table.round_stats[move] += 1
+            self.stats[move] += 1
+            self.table.last_move = [self,move]
 
         # Game moves
         def call(self):
             '''Call.'''
+            self.update_table_stats('call')
             pass
 
         def check(self):
             '''Check.'''
-            print('Player checks.')
+            self.update_table_stats('check')
+            print(self, 'checks.')
             pass
 
         def bet(self, amount):      # Currently working on this
-            '''Raise. Also modifies player stats, #times betted + 1'''
-            if self.balance - amount < 0:
+            '''Raise. Prints a message stating that the current player has bet a certain amount.
+            Also modifies player stats, #times betted + 1'''
+            if self.balance <= 0:
                 print('Not enough chips.')
                 raise ValueError
 
             elif self.balance - amount <= 0:
-                print('All-in')
-                self.stats['all-in'] += 1       # Increase number of times all-ined
-                self.table.increase_pot(self.balance)
-                self.balance = 0
+                self.update_table_stats('all-in')
+                self.current_bet += self.balance
+                self.all_in()
 
             else:
+                self.current_bet += amount
                 self.balance -= amount
-                self.stats['bet'] += 1      # Increase number of times bet
                 self.table.increase_pot(amount)
+                self.update_table_stats('bet')
+                print(self, 'bets', str(amount)+'$')
 
         def all_in(self):
             'All-in on your balance!'
             self.table.increase_pot(self.balance)
             self.balance = 0
+            print(self,'goes all-in.')
 
         def fold(self):
             '''Fold.'''
-            print('Player has folded')
+            self.stats['fold'] += 1
+            self.table.round_stats['fold'] += 1    # Increase number of times folds for round stats
+            self.table.game_stats['fold'] += 1
             self.__hand.clear()
+            print('Player has folded')
             pass
 
         def rake(self, pot):
