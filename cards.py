@@ -66,3 +66,7 @@ class Deck:
     def reset(self):
         '''Resets the deck, all discarded and played cards are put back into the deck.'''
         self.deck = self.original.copy()
+
+if __name__ == "__main__":
+    deck = Deck()
+    print(deck.draw())

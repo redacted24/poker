@@ -63,7 +63,11 @@ if __name__ == "__main__":
     assert not table.players
 
     # --- Test 2 ---
-
+    table.pre_flop()
+    table.flop()
+    table.turn()
+    table.river()
+    assert len(table.board) == 5        # Check if table has 5 cards after river
 
 
     # --- End tests ---

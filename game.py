@@ -71,11 +71,38 @@ class Table():
 
     # Game Rounds
     def pre_flop(self):
-        '''Shuffle deck, then draw pre-flop cards, then return the burnt card.'''
+        '''Ready game for the pre-flop.'''
+        print('Pre-flop')
         self.deck.shuffle()
+        self.current_bet = 0
+        self.last_move.clear()
+        self.state = 0
         for i in range(3):
             self.add_card()
-        return self.deck.burn()
+
+    def flop(self):
+        '''Ready game for the flop.'''
+        print('Flop')
+        self.current_bet = 0
+        self.state = 1
+        self.last_move.clear()
+        # show flop cards
+
+    def turn(self):
+        '''Ready game for the turn.'''
+        print('Turn')
+        self.current_bet = 0
+        self.state = 2
+        self.last_move.clear()
+        self.add_card()
+    
+    def river(self):
+        '''Ready game for the river.'''
+        print('River')
+        self.current_bet = 0
+        self.state = 3
+        self.last_move.clear()
+        self.add_card()
 
 
 # -------------------------- #
