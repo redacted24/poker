@@ -39,8 +39,8 @@ if __name__ == "__main__":
     for i in range(9):
         better.play()
     assert better.balance == 0              # Check if all stats match
-    assert table.stats['bet'] == 10
-    assert table.stats['all-in'] == 1
+    assert table.game_stats['bet'] == 10
+    assert table.game_stats['all-in'] == 1
     assert better.stats['all-in'] == 1
     assert better.stats['bet'] == 10
     table.reset()

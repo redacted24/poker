@@ -11,7 +11,15 @@ class Table():
         # 1 : flop
         # 2 : turn
         # 3 : river
-        self.stats = {
+        self.round_stats = {
+            'bet': 0,
+            'raise': 0,
+            'call': 0,
+            'check': 0,
+            'all-in': 0,
+            'fold': 0
+        }
+        self.game_stats = {
             'bet': 0,
             'raise': 0,
             'call': 0,
@@ -158,14 +166,14 @@ class Player():
 
             elif self.balance - amount <= 0:
                 self.stats['all-in'] += 1       # Increase number of times all-ined for player stats
-                self.table.stats['all-in'] += 1     # Increase number of times all-ined for table stats
+                self.table.game_stats['all-in'] += 1     # Increase number of times all-ined for table stats
                 self.all_in()
                 print(self, 'goes all-in')
 
             else:
                 self.balance -= amount
                 self.stats['bet'] += 1      # Increase number of times bet for player stats
-                self.table.stats['bet'] += 1        # Increase number of times bet for table stats
+                self.table.game_stats['bet'] += 1        # Increase number of times bet for table stats
                 self.table.increase_pot(amount)
                 print(self, 'bets', str(amount)+'$')
 
@@ -177,7 +185,7 @@ class Player():
         def fold(self):
             '''Fold.'''
             self.stats['fold'] += 1
-            self.table.stats['fold'] += 1
+            self.table.game_stats['fold'] += 1
             self.__hand.clear()
             print('Player has folded')
             pass
