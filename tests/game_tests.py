@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../poker')
-from bots import *
+from poker.classes.bots import *
 
 if __name__ == "__main__":
     deck = Deck()

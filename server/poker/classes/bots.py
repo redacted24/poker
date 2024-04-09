@@ -1,4 +1,4 @@
-from game import *
+from poker.classes.game import *
 
 # Meme bots
 class Better(Player):
