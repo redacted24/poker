@@ -37,13 +37,19 @@ if __name__ == "__main__":
     # --- Test 2 ---
     table.pre_flop()
     assert len(table.board) == 3
+    assert table.state == 0
     table.flop()
     assert len(table.board) == 3
     table.turn()
     assert len(table.board) == 4
     table.river()
     assert len(table.board) == 5        # Check if table has 5 cards after river
+    table.reset()
+    for player in table.players:        # Check that all cards have been cleared
+        assert not player.hand()
+    assert not table.board              # Check that there is nothing on the board.
     table.end()
+    assert not table.players            # Check if players have been cleared
 
     # --- Test 3 ---
     

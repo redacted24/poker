@@ -169,6 +169,10 @@ class Player():
         def look(self):
             '''Prints player hand.'''
             print(f'Your hand is: {str(self.__hand)}')
+        
+        def hand(self):
+            '''Returns player hand'''
+            return self.__hand
 
         def receive(self, cards):
             '''Receives cards in hand.'''
