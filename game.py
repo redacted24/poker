@@ -60,6 +60,13 @@ class Table():
             player.clear_hand()
         print('Table has been cleared.')
 
+    def end(self):
+        '''Finish the current game. Clears game_stats. Basically a harder reset than the reset method.'''
+        self.reset()
+        for stat in self.game_stats.keys():
+            self.game_stats[stat] = 0
+
+
 
     # Game Rounds
     def pre_flop(self):
