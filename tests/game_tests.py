@@ -43,7 +43,7 @@ class TestTableMethods(unittest.TestCase):
         self.table.add_card()
         self.assertEqual(len(self.table.board), 1, 'adding card does not add a card to the board correctly')
     
-    def test_roundStats(self):
+    def test_roundStats(self): 
         self.p1.bet(100)
         self.p1.bet(100)
         self.p1.check()
@@ -58,7 +58,7 @@ class TestTableMethods(unittest.TestCase):
             'all-in': 1,
             'fold': 1
         }
-        self.assertEqual(self.table.round_stats, output, 'Incoherent round stats')
+        self.assertDictEqual(self.table.round_stats, output, 'Incoherent round stats')
     
     def test_roundStatsReset(self):
         self.p1.bet(100)
@@ -76,6 +76,7 @@ class TestTableMethods(unittest.TestCase):
             'all-in': 0,
             'fold': 0
         }
+        self.assertDictEqual(output, self.table.round_stats, 'Round stats reset does not work.')
 
     def test_gameStats(self):
         self.p1.bet(100)
@@ -92,7 +93,7 @@ class TestTableMethods(unittest.TestCase):
             'all-in': 0,
             'fold': 0
         }
-        self.assertEqual(self.table.round_stats, output, 'Incoherent round stats')
+        self.assertDictEqual(self.table.round_stats, output, 'Incoherent round stats')
     
     def test_lastMoveBet(self):
         self.p1.bet(100)
@@ -118,6 +119,22 @@ class TestTableMethods(unittest.TestCase):
         self.p2 = Player('p2', self.table)
         self.p3 = Player('p3', self.table)
         self.assertEqual([self.p1, self.p2, self.p3], self.table.players, 'Incorrect players on table')
+    
+    def test_gameStatePreflop(self):
+        self.table.pre_flop()
+        self.assertEqual(self.table.state, 0, 'Incoherent game state')
+    
+    def test_gameStateFlop(self):
+        self.table.flop()
+        self.assertEqual(self.table.state, 1, 'Incoherent game state')
+    
+    def test_gameStateTurn(self):
+        self.table.turn()
+        self.assertEqual(self.table.state, 2, 'Incoherent game state')
+    
+    def test_gameStateRiver(self):
+        self.table.river()
+        self.assertEqual(self.table.state, 3, 'Incoherent game state')
 
 
 # ---
@@ -129,6 +146,80 @@ class TestPlayerMethods(unittest.TestCase):
 
     def tearDown(self):
         self.table.end()
+    
+    def test_playerInTable(self):
+        self.assertIn(self.p1, self.table.players, 'Players not included by table')
+    
+    def test_playerStatBet(self):
+        self.p1.bet(100)
+        d1 = {
+            'bet': 1,
+            'raise': 0,
+            'call': 0,
+            'check': 0,
+            'all-in': 0,
+            'fold': 0
+        }
+        self.assertDictEqual(d1, self.p1.stats, 'Incoherent game stats (bet)')
+
+    def test_playerStatFold(self):
+        self.p1.fold()
+        d1 = {
+            'bet': 0,
+            'raise': 0,
+            'call': 0,
+            'check': 0,
+            'all-in': 0,
+            'fold': 1
+        }
+        self.assertDictEqual(d1, self.p1.stats, 'Incoherent game stats (fold)')
+
+    def test_playerStatCheck(self):
+        self.p1.check()
+        d1 = {
+            'bet': 0,
+            'raise': 0,
+            'call': 0,
+            'check': 1,
+            'all-in': 0,
+            'fold': 0
+        }
+        self.assertDictEqual(d1, self.p1.stats, 'Incoherent game stats (check)')
+
+    def test_playerStatCall(self):
+        self.p1.call()
+        d1 = {
+            'bet': 0,
+            'raise': 0,
+            'call': 1,
+            'check': 0,
+            'all-in': 0,
+            'fold': 0
+        }
+        self.assertDictEqual(d1, self.p1.stats, 'Incoherent game stats (call)')
+
+    def test_playerStatAllIn(self):
+        self.p1.all_in()
+        d1 = {
+            'bet': 0,
+            'raise': 0,
+            'call': 0,
+            'check': 0,
+            'all-in': 1,
+            'fold': 0
+        }
+        self.assertDictEqual(d1, self.p1.stats, 'Incoherent game stats (all-in)')
+
+    def test_receivingCards(self):
+        self.p1.receive(self.table.deck.get('As'))
+        self.assertEqual(self.p1.hand(), [self.table.deck.get('As')], 'Player hand does not match what is received')
+    
+    def test_clearingHand(self):
+        self.p1.receive(self.table.deck.get('As'))
+        self.p1.clear_hand()
+        self.assertFalse(self.p1.hand(), 'Clearing player hand does not function properly')
+    
+    
 
 # ---
 class TestBetterBot(unittest.TestCase):
