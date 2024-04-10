@@ -12,6 +12,7 @@ const Playground = () => {
   const [balance, setBalance] = useState(0)
   const [hand, setHand] = useState([])
   const [board, setBoard] = useState([])
+  const [requiredBet, setRequiredBet] = useState(0)
 
   useEffect(() => {
     const init = async () => {
@@ -33,7 +34,7 @@ const Playground = () => {
     setHand(data.hand.map(card => { 
       return { name: card, facedown: false }
     }))
-    
+    setRequiredBet(data.required_bet)
     setBoard([{ facedown: true }, { facedown: true }, { facedown: true }])
   }
 
@@ -53,10 +54,22 @@ const Playground = () => {
     const data = await pokerService.call({ name })
     setBalance(data.balance)
     setPot(data.pot)
+    setRequiredBet(data.required_bet)
     setBoard(data.board.map(card => {
       return { name: card, facedown: false }
     }))
   }
+
+  const check = async () => {
+    const data = await pokerService.call({ name })
+    setPot(data.pot)
+    setRequiredBet(data.required_bet)
+    setBoard(data.board.map(card => {
+      return { name: card, facedown: false }
+    }))
+  }
+
+  console.log(requiredBet)
 
   return (
     <>
@@ -71,8 +84,9 @@ const Playground = () => {
           {hand.map(card => <Card key={`${card.name}`} {...card} />)}
         </div>
         <div id='buttons'>
-          <button className='action' onClick={call}>Call</button>
-          <button className='action' onClick={() => {}}>Fold</button>
+          {!!requiredBet && <button className='action' onClick={call}>Call ({requiredBet}$)</button>}
+          {!requiredBet && <button className='action' onClick={check}>Check</button>}
+          <button className='action' onClick={() => {console.log(requiredBet)}}>Fold</button>
           <button className='action' onClick={() => {}}>Bet</button>
         </div>
         <p id='balance'>Balance: {balance}$</p>

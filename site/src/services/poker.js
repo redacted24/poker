@@ -26,4 +26,9 @@ const call = async (player) => {
   return response.data
 }
 
-export default { test, init, clear, start, call }
+const check = async (player) => {
+  const response = await axios.post(`${baseUrl}/check`, player)
+  return response.data
+}
+
+export default { test, init, clear, start, call, check }

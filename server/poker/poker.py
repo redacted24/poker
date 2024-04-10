@@ -35,7 +35,7 @@ def init():
 @bp.post('/start')
 def start():
   '''Beings the pre-flop phase of the game. Deals 3 cards on the table and a hand to each player.'''
-  table = pickle.loads(session['table'])
+  table: Table = pickle.loads(session['table'])
 
   table.pre_flop()
 
@@ -44,7 +44,7 @@ def start():
 
   session['table'] = pickle.dumps(table)
 
-  return { 'hand': [c.shortName for c in hand] }
+  return { 'hand': [c.shortName for c in hand], 'required_bet': table.required_bet, 'pot': table.pot }
 
 @bp.post('/call')
 def call():
@@ -63,7 +63,35 @@ def call():
 
   session['table'] = pickle.dumps(table)
 
-  return { 'pot': table.pot, 'balance': player.balance, 'board': [c.shortName for c in board] }
+  return {
+    'required_bet': table.required_bet,
+    'pot': table.pot,
+    'balance': player.balance,
+    'board': [c.shortName for c in board]
+  }
+
+@bp.post('/check')
+def check():
+  'Player checks, passing the turn without betting.'
+  table: Table = pickle.dumps(table)
+
+  req = request.get_json()
+
+  player = next(player for player in table.players if player.name == req['name'])
+
+  table.check(player)
+
+  table.play()
+
+  board = table.board
+
+  session['table'] = pickle.dumps(table)
+
+  return {
+    'required_bet': table.required_bet,
+    'pot': table.pot,
+    'board': [c.shortName for c in board]
+    }
 
 @bp.post('/clear')
 def clear():
