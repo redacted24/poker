@@ -73,7 +73,7 @@ def call():
 @bp.post('/check')
 def check():
   'Player checks, passing the turn without betting.'
-  table: Table = pickle.dumps(table)
+  table: Table = pickle.loads(session['table'])
 
   req = request.get_json()
 
@@ -90,6 +90,30 @@ def check():
   return {
     'required_bet': table.required_bet,
     'pot': table.pot,
+    'board': [c.shortName for c in board]
+    }
+
+@bp.post('/bet')
+def bet():
+  'Player bets, raising the required bet to stay in for the entire table.'
+  table: Table = pickle.loads(session['table'])
+
+  req = request.get_json()
+
+  player = next(player for player in table.players if player.name == req['name'])
+
+  table.bet(player, req['amount'])
+
+  table.play()
+
+  board = table.board
+
+  session['table'] = pickle.dumps(table)
+
+  return {
+    'required_bet': table.required_bet,
+    'pot': table.pot,
+    'balance': player.balance,
     'board': [c.shortName for c in board]
     }
 

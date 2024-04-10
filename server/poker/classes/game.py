@@ -112,7 +112,6 @@ class Table():
             self.round_stats[stat] = 0
         for player in self.players:
             player.clear_hand()
-        print('Table has been cleared.')
 
 
     # Player actions
@@ -126,9 +125,9 @@ class Table():
     def call(self, player):
         '''Player calls, matching the current bet.'''
         if player == self.player_queue[0]:
+            self.update_table_stats(player, 'call')
             player.balance -= self.required_bet
             self.pot += self.required_bet
-            self.update_table_stats(player, 'call')
             self.player_queue.pop(0)
         else:
             raise(ValueError, 'Not your turn yet!')
@@ -141,20 +140,18 @@ class Table():
         else:
             raise(ValueError, 'Not your turn yet!')
 
-    # def bet(self, amount):      # Currently working on this
-    #     '''Raise. Prints a message stating that the current player has bet a certain amount.
-    #     Also modifies player stats, #times betted + 1'''
-    #     if self.balance - amount <= 0:
-    #         self.update_table_stats('all-in')
-    #         self.current_bet += self.balance
-    #         self.all_in()
-
-    #     else:
-    #         self.current_bet += amount
-    #         self.balance -= amount
-    #         self.table.increase_pot(amount)
-    #         self.update_table_stats('bet')
-    #         print(self, 'bets', str(amount)+'$')
+    def bet(self, player, amount):
+        '''Raise. Prints a message stating that the current player has bet a certain amount.
+        Also modifies player stats, #times betted + 1'''
+        if player == self.player_queue[0]:
+            self.update_table_stats(player, 'bet')
+            player.balance -= amount
+            player.current_bet += amount
+            self.increase_pot(amount)
+            self.required_bet == amount
+            self.player_queue.pop(0)
+        else:
+            raise(ValueError, 'Not your turn yet!')
 
     #     def all_in(self):
     #         'All-in on your balance!'
@@ -288,6 +285,13 @@ class Player():
 
         def check(self):
             self.table.check(self)
+
+        def bet(self, amount):
+            if self.balance >= amount:
+                self.table.bet(self, amount)
+
+        def rake(self):
+            self.balance += table.pot
 
 
 

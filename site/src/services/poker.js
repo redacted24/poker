@@ -31,4 +31,9 @@ const check = async (player) => {
   return response.data
 }
 
-export default { test, init, clear, start, call, check }
+const bet = async (player, amount) => {
+  const response = await axios.post(`${baseUrl}/bet`, player)
+  return response.data
+}
+
+export default { test, init, clear, start, call, check , bet }

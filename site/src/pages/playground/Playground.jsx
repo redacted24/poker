@@ -69,6 +69,18 @@ const Playground = () => {
     }))
   }
 
+  const bet = async () => {
+    const amount = parseInt(prompt('Enter your bet: '), 10)
+
+    const data = await pokerService.bet({ name, amount })
+    setBalance(data.balance)
+    setPot(data.pot)
+    setRequiredBet(data.required_bet)
+    setBoard(data.board.map(card => {
+      return { name: card, facedown: false }
+    }))
+  }
+
   console.log(requiredBet)
 
   return (
@@ -87,7 +99,7 @@ const Playground = () => {
           {!!requiredBet && <button className='action' onClick={call}>Call ({requiredBet}$)</button>}
           {!requiredBet && <button className='action' onClick={check}>Check</button>}
           <button className='action' onClick={() => {console.log(requiredBet)}}>Fold</button>
-          <button className='action' onClick={() => {}}>Bet</button>
+          <button className='action' onClick={bet}>Bet</button>
         </div>
         <p id='balance'>Balance: {balance}$</p>
       </div>
