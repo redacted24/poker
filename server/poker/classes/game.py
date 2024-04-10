@@ -1,4 +1,4 @@
-from poker.classes.cards import *
+from cards import *
 
 class Table():
     def __init__(self, deck):
@@ -187,6 +187,7 @@ class Player():
         
         def update_table_stats(self, move:str):
             '''Updates all table stats, based on the move. Used in all possible game moves.'''
+            self.table.last_move = [self, move]
             self.table.game_stats[move] += 1
             self.table.round_stats[move] += 1
             self.stats[move] += 1
@@ -226,14 +227,13 @@ class Player():
         def all_in(self):
             'All-in on your balance!'
             self.table.increase_pot(self.balance)
+            self.update_table_stats('all-in')
             self.balance = 0
             print(self,'goes all-in.')
 
         def fold(self):
             '''Fold.'''
-            self.stats['fold'] += 1
-            self.table.round_stats['fold'] += 1    # Increase number of times folds for round stats
-            self.table.game_stats['fold'] += 1
+            self.update_table_stats('fold')
             self.__hand.clear()
             print('Player has folded')
             pass
