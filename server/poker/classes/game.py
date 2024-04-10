@@ -4,8 +4,9 @@ class Table():
     def __init__(self, deck):
         self.deck = deck
         self.board = []
+        self._cards = []
         self.pot = 0
-        self.state = 0              # Pre-flop (0), flop (1), turn (2), river (3)
+        self.state = 0              # Pre-flop (0), flop (1), turn (2), river (3), showdown(4)
         self.players = []           # [PlayerObject,'move']
         self.player_queue = []
         self.required_bet = 0       # How much money is required to stay in the game. Very useful to program the call function
@@ -36,9 +37,13 @@ class Table():
         '''Burn top deck card.'''
         self.deck.burn()
 
-    def add_card(self):
+    def add_card(self, hide=False):
         '''Add a card from the top of the deck to the board, and return it'''
-        return self.board.append(self.deck.draw())
+        self._cards.append(self.deck.draw())
+        if hide:
+            self.board.append(False)
+        else:
+            self.board.append(self._cards[-1])
     
     def deal_hands(self):
         '''Deal two cards to all players in the table'''
@@ -59,7 +64,7 @@ class Table():
         self.deck.shuffle()
         self.deal_hands()
         for _ in range(3):
-            self.add_card()
+            self.add_card(hide=True)
 
     def flop(self):
         '''Ready game for the flop.'''
@@ -67,7 +72,7 @@ class Table():
         self.required_bet = 0
         self.last_move.clear()
         self.player_queue = self.players[:]
-        # show flop cards
+        self.board = self._cards[:]
 
     def turn(self):
         '''Ready game for the turn.'''
@@ -76,6 +81,7 @@ class Table():
         self.last_move.clear()
         self.player_queue = self.players[:]
         self.add_card()
+        self.board = self._cards[:]
     
     def river(self):
         '''Ready game for the river.'''
@@ -84,6 +90,22 @@ class Table():
         self.last_move.clear()
         self.player_queue = self.players[:]
         self.add_card()
+        self.board = self._cards[:]
+
+    def showdown(self):
+        '''Checks who will win.'''
+        print('Showdown')
+        winning_player = self.players[0]
+
+        for player in self.players:
+            if player.pts() > winning_player.pts():
+                winning_player = player
+        
+        print(winning_player.name)
+        winning_player.rake()
+        self.reset()
+        
+        return player
 
     def play(self):
         '''Lets all the computers play their turn, then starts the next round.'''
@@ -95,8 +117,8 @@ class Table():
                 break
         
         if len(self.player_queue) == 0:
-            self.state = (self.state + 1) % 4
-            rounds = [self.pre_flop, self.flop, self.turn, self.river]
+            self.state = (self.state + 1) % 5
+            rounds = [self.pre_flop, self.flop, self.turn, self.river, self.showdown]
             
             rounds[self.state]()
 
@@ -106,8 +128,11 @@ class Table():
         Clears current round stats. Game stats are left unchanged.
         Pot is left unchanged because it should be handled by the player "rake" func.
         Players are still on the table.'''
+        self.pot = 0
         self.board.clear()
+        self._cards.clear()
         self.deck.reset()
+        self.player_queue = self.players[:]
         for stat in self.game_stats.keys():
             self.round_stats[stat] = 0
         for player in self.players:
@@ -258,6 +283,11 @@ class Player():
             '''Return the highest scoring hand pattern of player + board.'''
             pass
 
+        def pts(self):
+            from random import randint
+
+            return randint(1, 100)
+
         def look(self):
             '''Prints player hand.'''
             print(f'Your hand is: {str(self.__hand)}')
@@ -291,7 +321,7 @@ class Player():
                 self.table.bet(self, amount)
 
         def rake(self):
-            self.balance += table.pot
+            self.balance += self.table.pot
 
 
 

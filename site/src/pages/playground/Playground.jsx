@@ -15,16 +15,21 @@ const Playground = () => {
   const [requiredBet, setRequiredBet] = useState(0)
 
   useEffect(() => {
-    const init = async () => {
+    const reset = async () => {
       await pokerService.clear()
+      const username = prompt('Please enter your username.', 'Bob')
+      setName(username)
+    }
+    reset()
+  }, [])
 
-      setName(prompt('Please enter your username.', 'Bob'))
+  useEffect(() => {
+    const init = async () => {
       const data = await pokerService.init({ name })
-
       setBalance(data.balance)
     }
     init()
-  }, [])
+  }, [name])
 
   const start = async () => {
     const data = await pokerService.start()
@@ -35,7 +40,13 @@ const Playground = () => {
       return { name: card, facedown: false }
     }))
     setRequiredBet(data.required_bet)
-    setBoard([{ facedown: true }, { facedown: true }, { facedown: true }])
+    setBoard(data.board.map(card => {
+      if (card) {
+        return { name: card, facedown: false }
+      } else {
+        return { name: null, facedown: true }
+      }
+    }))
   }
 
   if (!inGame) {
@@ -55,17 +66,32 @@ const Playground = () => {
     setBalance(data.balance)
     setPot(data.pot)
     setRequiredBet(data.required_bet)
-    setBoard(data.board.map(card => {
+    setHand(data.hand.map(card => { 
       return { name: card, facedown: false }
+    }))
+    setBoard(data.board.map(card => {
+      if (card) {
+        return { name: card, facedown: false }
+      } else {
+        return { name: null, facedown: true }
+      }
     }))
   }
 
   const check = async () => {
-    const data = await pokerService.call({ name })
+    const data = await pokerService.check({ name })
+    setBalance(data.balance)
     setPot(data.pot)
     setRequiredBet(data.required_bet)
-    setBoard(data.board.map(card => {
+    setHand(data.hand.map(card => { 
       return { name: card, facedown: false }
+    }))
+    setBoard(data.board.map(card => {
+      if (card) {
+        return { name: card, facedown: false }
+      } else {
+        return { name: null, facedown: true }
+      }
     }))
   }
 
@@ -76,6 +102,9 @@ const Playground = () => {
     setBalance(data.balance)
     setPot(data.pot)
     setRequiredBet(data.required_bet)
+    setHand(data.hand.map(card => { 
+      return { name: card, facedown: false }
+    }))
     setBoard(data.board.map(card => {
       return { name: card, facedown: false }
     }))

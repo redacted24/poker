@@ -44,7 +44,12 @@ def start():
 
   session['table'] = pickle.dumps(table)
 
-  return { 'hand': [c.shortName for c in hand], 'required_bet': table.required_bet, 'pot': table.pot }
+  return {
+    'hand': [c.shortName for c in hand],
+    'required_bet': table.required_bet,
+    'board': table.board,
+    'pot': table.pot
+  }
 
 @bp.post('/call')
 def call():
@@ -67,6 +72,7 @@ def call():
     'required_bet': table.required_bet,
     'pot': table.pot,
     'balance': player.balance,
+    'hand': [c.shortName for c in player.hand()],
     'board': [c.shortName for c in board]
   }
 
@@ -90,6 +96,8 @@ def check():
   return {
     'required_bet': table.required_bet,
     'pot': table.pot,
+    'balance': player.balance,
+    'hand': [c.shortName for c in player.hand()],
     'board': [c.shortName for c in board]
     }
 
@@ -114,6 +122,7 @@ def bet():
     'required_bet': table.required_bet,
     'pot': table.pot,
     'balance': player.balance,
+    'hand': [c.shortName for c in player.hand()],
     'board': [c.shortName for c in board]
     }
 
