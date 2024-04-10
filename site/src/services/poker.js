@@ -2,8 +2,28 @@ import axios from 'axios'
 const baseUrl = '/api/poker'
 
 const test = async () => {
-  const response = await axios.get(`${baseUrl}/hi`)
-  return response
+  const response = await axios.post(`${baseUrl}/count`)
+  return response.data
 }
 
-export default { test }
+const init = async (player) => {
+  const response = await axios.post(`${baseUrl}/init`, player)
+  return response.data
+}
+
+const clear = async () => {
+  const response = await axios.post(`${baseUrl}/clear`)
+  return response.data
+}
+
+const start = async () => {
+  const response = await axios.post(`${baseUrl}/start`)
+  return response.data
+}
+
+const call = async (player) => {
+  const response = await axios.post(`${baseUrl}/call`, player)
+  return response.data
+}
+
+export default { test, init, clear, start, call }

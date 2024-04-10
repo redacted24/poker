@@ -19,6 +19,33 @@
   background-color: green;
 }
 
+#start-button {
+  position: absolute;
+  box-sizing: border-box;
+  width: 160px;
+  height: 40px;
+  font-size: 1.5rem;
+  top: calc(50% - 20px);
+  left: calc(50% - 80px); 
+}
+
+#pot {
+  position: absolute;
+  top: 10%;
+  width: 100%;
+  text-align: center;
+  color: white;
+  font-size: 1.6rem;
+}
+
+#balance {
+  position: absolute;
+  top: 90%;
+  width: 100%;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
 #hand {
   position: absolute;
   top: 60%;
@@ -32,17 +59,18 @@
   margin: 0 -38px;
 }
 
-#river {
+#board {
+  position: absolute;
   height: 100%;
-  width: 100%;
+  left: calc(50% - (5 * 110px + 4 * 32px) / 2);
+  top: calc(60% - (159.75px / 2));
   display: flex;
-  justify-content: center;
   gap: 32px;
 }
 
 #buttons {
   position: absolute;
-  top: 84%;
+  top: 82%;
   display: flex;
   width: 100%;
   justify-content: center;
