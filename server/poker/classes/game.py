@@ -1,4 +1,4 @@
-from cards import *
+from .cards import *
 
 class Board():
     def __init__(self):
@@ -188,9 +188,9 @@ class Table():
         player.stats[move] += 1
         self.last_move = [player.name, move]
         
-        player.actions_done = sum(self.stats.values())
-        player.aggro_factor = 0 if self.stats['call'] == 0 else (self.stats['bet']+self.stats['raise'])/self.stats['call'] # Aggression factor ((bets+raises)/calls   
-        player.aggro_frequency = 0 if self.actions_done == 0 else (self.stats['bet']+self.stats['raise'])/(self.stats['call'] + self.stats['bet'] + self.stats['raise'] + self.stats['fold']) # Aggression frequency ([(bets + raises)/(bets + raises + calls + folds)] * 100)
+        player.actions_done = sum(player.stats.values())
+        player.aggro_factor = 0 if player.stats['call'] == 0 else (player.stats['bet']+player.stats['raise'])/player.stats['call'] # Aggression factor ((bets+raises)/calls   
+        player.aggro_frequency = 0 if player.actions_done == 0 else (player.stats['bet']+player.stats['raise'])/(player.stats['call'] + player.stats['bet'] + player.stats['raise'] + player.stats['fold']) # Aggression frequency ([(bets + raises)/(bets + raises + calls + folds)] * 100)
         
 
     def call(self, player):
@@ -319,6 +319,7 @@ class Player():
             10. High Card'''
                                                     #takes in a list of 7 cards
             '''Check if hand is a flush and whether it's a Royal Flush, a Straight Flush or a regular Flush'''
+
             hand.sort(reverse = True)                                   #sorts the cards in descending order so the deck can be read from highest value to lowest value                                                #sorts the hand by value initially to have 
             suitHand = sorted(hand, key = lambda x: x. suit)                                     #sorts the hand by suits to check whether there are 5 of the same suits
             for i in range(len(hand) - 2):

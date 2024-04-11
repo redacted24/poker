@@ -3,7 +3,7 @@ import pickle
 
 from poker.classes.cards import *
 from poker.classes.game import *
-from poker.classes.bots import Better
+from poker.classes.bots import *
 
 # define /api/poker to be the point of contact for backend logic
 bp = Blueprint('poker', __name__, url_prefix='/api/poker')
@@ -27,7 +27,7 @@ def init():
   table = Table(deck)
 
   table.add_player(player)
-  table.add_player(Better('computer', True))
+  table.add_player(ScaryCat('computer', True))
 
   session['table'] = pickle.dumps(table)  
 
