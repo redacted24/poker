@@ -1,11 +1,9 @@
 import './card.css'
 
-const Card = ({ rank, suit, facedown }) => {
-  if (facedown) {
-    return <img className='card' src='./src/assets/cards/back.png' />
+const Card = ({ card }) => {
+  if (card) {
+    return <img className='card' src={`./src/assets/cards/${card}.svg`} />
   } else {
-    return <img className='card' src={`./src/assets/cards/${rank}${suit}.svg`} />
-  } 
-}
+    return <img className='card' src='./src/assets/cards/back.png' />
 
 export default Card

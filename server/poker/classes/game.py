@@ -1,12 +1,44 @@
 from cards import *
 
+class Board():
+    def __init__(self):
+        self.cards: list[Cards] = []
+        self._show_cards: bool = False
+
+    def place_card(self, card: Cards):
+        '''Places a card onto the board'''
+        self.cards.append(card)
+    
+    def reveal(self):
+        '''Reveals all cards on the board'''
+        self._show_cards = True
+    
+    def hide(self):
+        '''Hides all cards on the board'''
+        self._show_cards = False
+
+    def display(self):
+        '''Returns a list containing all cards on the board.
+        A card is represented as false if it is not revealed.'''
+        if self._show_cards:
+            return [card.shortName for card in self.cards]
+        else:
+            return [False for _ in self.cards]
+    
+    def clear(self):
+        '''Clears and resets the board to its initial state'''
+        self.cards = []
+        self._show_cards = False
+
 class Table():
     def __init__(self, deck):
         self.deck = deck
-        self.board = []
+        self.board = Board()
         self.pot = 0
-        self.state = 0              # Pre-flop (0), flop (1), turn (2), river (3)
+        self.state = 0              # Pre-flop (0), flop (1), turn (2), river (3), showdown(4)
         self.players = []           # [PlayerObject,'move']
+        self.player_queue = []
+        self.winning_player = None
         self.required_bet = 0       # How much money is required to stay in the game. Very useful to program the call function
         self.last_move = []
         self.round_stats = {
@@ -31,6 +63,184 @@ class Table():
         '''Increase pot by certain amount.'''
         self.pot += amount
 
+    def burn(self):
+        '''Burn top deck card.'''
+        self.deck.burn()
+
+    def add_card(self):
+        '''Add a card from the top of the deck to the board'''
+        self.board.place_card(self.deck.draw())
+    
+    def deal_hands(self):
+        '''Deal two cards to all players in the table'''
+        for p in self.players:
+            p.receive(self.deck.draw())
+            p.receive(self.deck.draw())
+            self.deck.burn()
+
+    def clear_bets(self):
+        for p in self.active_players():
+            p.current_bet = 0
+
+    def active_players(self):
+        '''Returns a list of the active players in the round'''
+        return [p for p in self.players if p.active]
+
+    def start_queue(self):
+        '''Adds a queue for the players' turn to play'''
+        self.player_queue = self.active_players()[:]
+
+        
+    # Game Rounds
+    def pre_flop(self):
+        '''Ready game for the pre-flop.'''
+        print('Pre-flop')
+        self.required_bet = 10
+        self.clear_bets()
+        self.last_move.clear()
+        self.start_queue()
+
+        self.deck.shuffle()
+        self.deal_hands()
+        for _ in range(3):
+            self.add_card()
+
+    def flop(self):
+        '''Ready game for the flop.'''
+        print('Flop')
+        self.required_bet = 0
+        self.clear_bets()
+        self.last_move.clear()
+        self.start_queue()
+        self.board.reveal()
+
+    def turn(self):
+        '''Ready game for the turn.'''
+        print('Turn')
+        self.required_bet = 0
+        self.clear_bets()
+        self.last_move.clear()
+        self.start_queue()
+        self.add_card()
+    
+    def river(self):
+        '''Ready game for the river.'''
+        print('River')
+        self.required_bet = 0
+        self.clear_bets()
+        self.last_move.clear()
+        self.start_queue()
+        self.add_card()
+
+    def showdown(self):
+        '''Checks who will win.'''
+        print('Showdown')
+        winning_player = self.active_players()[0]
+
+        for player in self.active_players():
+            if player.pts() > winning_player.pts():
+                winning_player = player
+
+        winning_player.rake()
+        self.winning_player = winning_player
+
+
+    def play(self):
+        '''Lets all the computers play their turn, then starts the next round.'''
+        while len(self.player_queue) != 0:
+            current_player = self.player_queue[0]
+            if (current_player.is_computer):
+                current_player.play()
+            else:
+                break
+        
+        if len(self.player_queue) == 0:
+            self.state = (self.state + 1) % 6
+            rounds = [self.pre_flop, self.flop, self.turn, self.river, self.showdown, self.reset]
+            
+            rounds[self.state]()
+
+    def reset(self):
+        '''Clears current cards on the board, resets deck, and removes all player handheld cards.
+        Clears current round stats. Game stats are left unchanged.
+        Pot is left unchanged because it should be handled by the player "rake" func.
+        Players are still on the table.'''
+        print('Reset')
+        self.pot = 0
+        self.state = 0
+        self.board.clear()
+        self.deck.reset()
+        self.start_queue()
+        self.clear_bets()
+        self.winning_player = None
+        for stat in self.game_stats.keys():
+            self.round_stats[stat] = 0
+        for player in self.players:
+            player.active = True
+            player.clear_hand()
+
+
+    # Player actions
+    def update_table_stats(self, player, move):
+        '''Updates all table stats, based on the move. Used in all possible game moves.'''
+        self.game_stats[move] += 1
+        self.round_stats[move] += 1
+        player.stats[move] += 1
+        self.last_move = [player.name, move]
+        
+        player.actions_done = sum(self.stats.values())
+        player.aggro_factor = 0 if self.stats['call'] == 0 else (self.stats['bet']+self.stats['raise'])/self.stats['call'] # Aggression factor ((bets+raises)/calls   
+        player.aggro_frequency = 0 if self.actions_done == 0 else (self.stats['bet']+self.stats['raise'])/(self.stats['call'] + self.stats['bet'] + self.stats['raise'] + self.stats['fold']) # Aggression frequency ([(bets + raises)/(bets + raises + calls + folds)] * 100)
+        
+
+    def call(self, player):
+        '''Player calls, matching the current bet.'''
+        if player == self.player_queue[0]:
+            self.update_table_stats(player, 'call')
+            player.balance -= self.required_bet
+            self.pot += self.required_bet
+            self.player_queue.pop(0)
+        else:
+            raise(ValueError, 'Not your turn yet!')
+
+    def check(self, player):
+        '''Player checks, passing the turn without betting.'''
+        if player == self.player_queue[0]:
+            self.update_table_stats(player, 'check')
+            self.player_queue.pop(0)
+        else:
+            raise(ValueError, 'Not your turn yet!')
+
+    def fold(self, player):
+        '''Player folds, giving up their hand.'''
+        if player == self.player_queue[0]:
+            self.update_table_stats(player, 'fold')
+            self.player_queue.pop(0)
+            if len(self.active_players()) == 1:
+                self.player_queue.clear()
+                self.state = 4
+                self.showdown()
+        else:
+            raise(ValueError, 'Not your turn yet!')
+
+    def bet(self, player, amount):
+        '''Player bets, raising the required bet to stay in for the entire table.'''
+        if player == self.player_queue[0]:
+            self.update_table_stats(player, 'bet')
+            player.balance -= amount
+            player.current_bet += amount
+            self.increase_pot(amount)
+            self.required_bet = amount
+            self.player_queue.extend([p for p in self.players if p not in self.player_queue])
+            self.player_queue.pop(0)
+        else:
+            raise(ValueError, 'Not your turn yet!')
+
+    # Misc
+    def add_player(self, player):
+        self.players.append(player)
+        player.join(self)
+
     def view_state(self):
         '''Prints the cards on the board of the table, as well as the state (pre-flop, flop, turn, or river).'''
         states = ['PRE-FLOP', 'FLOP', 'TURN', 'RIVER']
@@ -39,87 +249,38 @@ class Table():
             print(f'The current cards on the table are: {self.board}')
             print(f'The current pot is {self.pot}$')
 
-    def burn(self):
-        '''Burn top deck card.'''
-        self.deck.burn()
-
-    def add_card(self):
-        '''Add a card from the top of the deck to the board, and return it'''
-        return self.board.append(self.deck.draw())
-
-    def reset(self):
-        '''Clears current cards on the board, resets deck, and removes all player handheld cards.
-        Clears current round stats. Game stats are left unchanged.
-        Pot is left unchanged because it should be handled by the player "rake" func.
-        Players are still on the table.'''
-        self.board.clear()
-        self.deck.reset()
-        for stat in self.game_stats.keys():
-            self.round_stats[stat] = 0
-        for player in self.players:
-            player.clear_hand()
-        print('Table has been cleared.')
+    def toJSON(self):
+        return {
+            'board': self.board.display(),
+            'pot': self.pot,
+            'players': [p.toJSON() for p in self.players],
+            'player_queue': [p.toJSON() for p in self.player_queue],
+            'required_bet': self.required_bet,
+            'last_move': self.last_move,
+            'winning_player': self.winning_player and self.winning_player.toJSON()
+        }
 
     def end(self):
         '''A method that ends the current game. Clears game_stats. Players leave the table. Basically a harder reset than the reset method.'''
         self.reset()
-        for player in self.players:
-            player.clear_all_stats()
         self.players.clear()
         for stat in self.game_stats.keys():
             self.game_stats[stat] = 0
-
-
-    # Game Rounds
-    def pre_flop(self):
-        '''Ready game for the pre-flop.'''
-        print('Pre-flop')
-        self.deck.shuffle()
-        self.current_bet = 0
-        self.last_move.clear()
-        self.state = 0
-        for i in range(3):
-            self.add_card()
-
-    def flop(self):
-        '''Ready game for the flop.'''
-        print('Flop')
-        self.current_bet = 0
-        self.state = 1
-        self.last_move.clear()
-        # show flop cards
-
-    def turn(self):
-        '''Ready game for the turn.'''
-        print('Turn')
-        self.current_bet = 0
-        self.state = 2
-        self.last_move.clear()
-        self.add_card()
-    
-    def river(self):
-        '''Ready game for the river.'''
-        print('River')
-        self.current_bet = 0
-        self.state = 3
-        self.last_move.clear()
-        self.add_card()
-
 
 # -------------------------- #
 
 # -------------------------- #
 class Player():
-        def __init__(self, name, table, balance = 1000):
+        def __init__(self, name, is_computer, balance = 1000):
             self.name = name
-            self.table = table                  # Which table they are at
+            self.is_computer = is_computer
+            self.table: Table | None = None
             self.__hand = []
             self.balance = balance
             self.current_bet = 0                # Balance of the player's bet for the current round
             self.active = True                  # Whether the player is stil in round (hasn't folded yet).
             self.is_big_blind = False
             self.is_small_blind = False
-            self.table.players.append(self)     # Add self to the table player list.
             self.stats = {
                 'bet': 0,
                 'raise': 0,
@@ -137,6 +298,9 @@ class Player():
         
         def __repr__(self):
             return self.name
+        
+        def join(self, table: Table):
+            self.table = table
 
         # WIP
         @staticmethod
@@ -180,6 +344,11 @@ class Player():
             '''Return the highest scoring hand pattern of player + board.'''
             pass
 
+        def pts(self):
+            from random import randint
+
+            return randint(1, 100)
+
         def look(self):
             '''Prints player hand.'''
             print(f'Your hand is: {str(self.__hand)}')
@@ -198,72 +367,47 @@ class Player():
         def clear_hand(self):
             '''Removes all cards held in hand.'''
             self.__hand.clear()
+
+
+        # Player moves
+        def call(self):
+            if self.balance >= self.table.required_bet:
+                self.current_bet = self.table.required_bet
+                self.table.call(self)
+
+        def check(self):
+            self.table.check(self)
         
-        def update_all_stats(self, move:str):
-            '''Updates all table stats, based on the move. Used in all possible game moves.'''
-            self.table.last_move = [self, move]
-            self.table.game_stats[move] += 1
-            self.table.round_stats[move] += 1
-            self.stats[move] += 1
-            self.table.last_move = [self,move]
-            self.aggro_factor = 0 if self.stats['call'] == 0 else (self.stats['bet']+self.stats['raise'])/self.stats['call'] # Aggression factor ((bets+raises)/calls   
-            self.aggro_frequency = 0 if self.actions_done == 0 else (self.stats['bet']+self.stats['raise'])/(self.stats['call'] + self.stats['bet'] + self.stats['raise'] + self.stats['fold'])*100 # Aggression frequency ([(bets + raises)/(bets + raises + calls + folds)] * 100)
-            self.actions_done = sum(self.stats.values())
+        def fold(self):
+            self.active = False
+            self.table.fold(self)
+
+        def bet(self, amount):
+            if self.balance >= amount:
+                self.table.bet(self, amount)
+
+        def rake(self):
+            self.balance += self.table.pot
+
+
+        # Misc
+        def toJSON(self):
+            return {
+                'name': self.name,
+                'is_computer': self.is_computer,
+                'hand': [c.shortName for c in self.hand()],
+                'balance': self.balance,
+                'current_bet': self.current_bet,
+                'active': self.active,
+                'is_big_blind': self.is_big_blind,
+                'is_small_blind': self.is_small_blind,
+            }
 
         def clear_all_stats(self):
             '''Clears all player stats.'''
             for stat in self.stats.keys():
                 self.stats[stat] = 0
 
-
-        # Game moves
-        def call(self):
-            '''Call.'''
-            self.update_all_stats('call')
-            pass
-
-        def check(self):
-            '''Check.'''
-            self.update_all_stats('check')
-            print(self, 'checks.')
-            pass
-
-        def bet(self, amount):      # Currently working on this
-            '''Raise. Prints a message stating that the current player has bet a certain amount.
-            Also modifies player stats, #times betted + 1'''
-            if self.balance <= 0:
-                print('Not enough chips.')
-                raise ValueError
-
-            elif self.balance - amount <= 0:
-                self.update_all_stats('all-in')
-                self.current_bet += self.balance
-                self.all_in()
-
-            else:
-                self.current_bet += amount
-                self.balance -= amount
-                self.table.increase_pot(amount)
-                self.update_all_stats('bet')
-                print(self, 'bets', str(amount)+'$')
-
-        def all_in(self):
-            'All-in on your balance!'
-            self.table.increase_pot(self.balance)
-            self.update_all_stats('all-in')
-            self.balance = 0
-            print(self,'goes all-in.')
-
-        def fold(self):
-            '''Fold.'''
-            self.update_all_stats('fold')
-            self.__hand.clear()
-            print('Player has folded')
-            pass
-
-        def rake(self, pot):
-            '''Take the pot amount. Player has won.'''
-            self.balance += pot
 
 if __name__ == "__main__":
     deck = Deck()

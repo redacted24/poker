@@ -1,0 +1,40 @@
+#player {
+  position: absolute;
+  top: 70%;
+  height: 30%;
+  width: 100%;
+}
+
+#hand {
+  position: absolute;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: -19px
+}
+
+#hand > .card {
+  margin: 0 -38px;
+}
+
+#balance {
+  position: absolute;
+  top: 80%;
+  width: 100%;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+#buttons {
+  position: absolute;
+  top: 68%;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  gap: 16px;
+}
+
+.action {
+  width: 80px;
+  height: 24px;
+}
