@@ -53,20 +53,11 @@ def call():
 
   player = next(player for player in table.players if player.name == req['name'])
 
-  table.call(player)
+  player.call()
 
   table.play()
 
   session['table'] = pickle.dumps(table)
-
-  print({
-    'board': table.board.display(),
-    'pot': table.pot,
-    'players': [p.toJSON() for p in table.players],
-    'player_queue': [p.toJSON() for p in table.player_queue],
-    'required_bet': table.required_bet,
-    'last_move': table.last_move,
-  })
 
   return table.toJSON()
 
@@ -79,9 +70,26 @@ def check():
 
   player = next(player for player in table.players if player.name == req['name'])
 
-  table.check(player)
+  player.check()
 
   table.play()
+
+  session['table'] = pickle.dumps(table)
+
+  return table.toJSON()
+
+@bp.post('/fold')
+def fold():
+  'Player folds, giving up their current hand.'
+  table: Table = pickle.loads(session['table'])
+
+  req = request.get_json()
+
+  player = next(player for player in table.players if player.name == req['name'])
+
+  player.fold()
+
+  if table.state != 4: table.play()
 
   session['table'] = pickle.dumps(table)
 
@@ -96,10 +104,18 @@ def bet():
 
   player = next(player for player in table.players if player.name == req['name'])
 
-  table.bet(player, req['amount'])
+  player.bet(req['amount'])
 
   table.play()
 
+  session['table'] = pickle.dumps(table)
+
+  return table.toJSON()
+
+@bp.post('/go_next')
+def go_next():
+  table: Table = pickle.loads(session['table'])
+  table.play()
   session['table'] = pickle.dumps(table)
 
   return table.toJSON()

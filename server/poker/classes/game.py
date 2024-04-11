@@ -38,6 +38,7 @@ class Table():
         self.state = 0              # Pre-flop (0), flop (1), turn (2), river (3), showdown(4)
         self.players = []           # [PlayerObject,'move']
         self.player_queue = []
+        self.winning_player = None
         self.required_bet = 0       # How much money is required to stay in the game. Very useful to program the call function
         self.last_move = []
         self.round_stats = {
@@ -77,9 +78,13 @@ class Table():
             p.receive(self.deck.draw())
             self.deck.burn()
 
+    def active_players(self):
+        '''Returns a list of the active players in the round'''
+        return [p for p in self.players if p.active]
+
     def start_queue(self):
         '''Adds a queue for the players' turn to play'''
-        self.player_queue = self.players[:]
+        self.player_queue = self.active_players()[:]
 
     # Game Rounds
     def pre_flop(self):
@@ -121,17 +126,15 @@ class Table():
     def showdown(self):
         '''Checks who will win.'''
         print('Showdown')
-        winning_player = self.players[0]
+        winning_player = self.active_players()[0]
 
-        for player in self.players:
+        for player in self.active_players():
             if player.pts() > winning_player.pts():
                 winning_player = player
-        
-        print(winning_player.name)
+
         winning_player.rake()
-        self.reset()
-        
-        return player
+        self.winning_player = winning_player
+
 
     def play(self):
         '''Lets all the computers play their turn, then starts the next round.'''
@@ -143,8 +146,8 @@ class Table():
                 break
         
         if len(self.player_queue) == 0:
-            self.state = (self.state + 1) % 5
-            rounds = [self.pre_flop, self.flop, self.turn, self.river, self.showdown]
+            self.state = (self.state + 1) % 6
+            rounds = [self.pre_flop, self.flop, self.turn, self.river, self.showdown, self.reset]
             
             rounds[self.state]()
 
@@ -153,6 +156,7 @@ class Table():
         Clears current round stats. Game stats are left unchanged.
         Pot is left unchanged because it should be handled by the player "rake" func.
         Players are still on the table.'''
+        print('Reset')
         self.pot = 0
         self.board.clear()
         self.deck.reset()
@@ -160,6 +164,7 @@ class Table():
         for stat in self.game_stats.keys():
             self.round_stats[stat] = 0
         for player in self.players:
+            player.active = True
             player.clear_hand()
 
 
@@ -189,9 +194,20 @@ class Table():
         else:
             raise(ValueError, 'Not your turn yet!')
 
+    def fold(self, player):
+        '''Player folds, giving up their hand.'''
+        if player == self.player_queue[0]:
+            self.update_table_stats(player, 'fold')
+            self.player_queue.pop(0)
+            if len(self.active_players()) == 1:
+                self.player_queue.clear()
+                self.state = 4
+                self.showdown()
+        else:
+            raise(ValueError, 'Not your turn yet!')
+
     def bet(self, player, amount):
-        '''Raise. Prints a message stating that the current player has bet a certain amount.
-        Also modifies player stats, #times betted + 1'''
+        '''Player bets, raising the required bet to stay in for the entire table.'''
         if player == self.player_queue[0]:
             self.update_table_stats(player, 'bet')
             player.balance -= amount
@@ -202,22 +218,6 @@ class Table():
             self.player_queue.pop(0)
         else:
             raise(ValueError, 'Not your turn yet!')
-
-    #     def all_in(self):
-    #         'All-in on your balance!'
-    #         self.table.increase_pot(self.balance)
-    #         self.balance = 0
-    #         print(self,'goes all-in.')
-
-    #     def fold(self):
-    #         '''Fold.'''
-    #         self.stats['fold'] += 1
-    #         self.table.round_stats['fold'] += 1    # Increase number of times folds for round stats
-    #         self.table.game_stats['fold'] += 1
-    #         self.__hand.clear()
-    #         print('Player has folded')
-    #         pass
-        
 
     # Misc
     def add_player(self, player):
@@ -240,6 +240,7 @@ class Table():
             'player_queue': [p.toJSON() for p in self.player_queue],
             'required_bet': self.required_bet,
             'last_move': self.last_move,
+            'winning_player': self.winning_player and self.winning_player.toJSON()
         }
 
     def end(self):
@@ -345,6 +346,11 @@ class Player():
 
         def check(self):
             self.table.check(self)
+        
+        def fold(self):
+            self.active = False
+            print(self.active)
+            self.table.fold(self)
 
         def bet(self, amount):
             if self.balance >= amount:

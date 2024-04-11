@@ -6,20 +6,26 @@ const Player = ({ name, player, requiredBet, setTable }) => {
   const call = async () => {
     const tableData = await pokerService.call({ name })
     setTable(tableData)
-    console.log(tableData.last_move)
+    console.log(tableData)
   }
 
   const check = async () => {
     const tableData = await pokerService.check({ name })
     setTable(tableData)
-    console.log(tableData.last_move)
+    console.log(tableData)
+  }
+
+  const fold = async () => {
+    const tableData = await pokerService.fold({ name })
+    setTable(tableData)
+    console.log(tableData)
   }
 
   const bet = async () => {
     const amount = parseInt(prompt('Enter your bet: '), 10)
     const tableData = await pokerService.bet({ name, amount })
     setTable(tableData)
-    console.log(tableData.last_move)
+    console.log(tableData)
   }
 
   return (
@@ -30,7 +36,7 @@ const Player = ({ name, player, requiredBet, setTable }) => {
       <div id='buttons'>
         {!!requiredBet && <button className='action' onClick={call}>Call ({requiredBet}$)</button>}
         {!requiredBet && <button className='action' onClick={check}>Check</button>}
-        <button className='action' onClick={() => {console.log(requiredBet)}}>Fold</button>
+        <button className='action' onClick={fold}>Fold</button>
         <button className='action' onClick={bet}>Bet</button>
       </div>
       <p id='balance'>Balance: {player.balance}$</p>

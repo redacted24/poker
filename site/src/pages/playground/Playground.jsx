@@ -36,6 +36,15 @@ const Playground = () => {
     console.log(tableData)
   }
 
+  useEffect(() => {
+    console.log(table)
+    if (table && table.winning_player) {
+      alert(`${table.winning_player.name} has won ${table.pot}!`)
+      pokerService.next()
+      pokerService.next()
+    }
+  }, [table])
+
   if (!inGame) {
     return (
       <>

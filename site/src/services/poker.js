@@ -31,9 +31,19 @@ const check = async (player) => {
   return response.data
 }
 
+const fold = async (player) => {
+  const response = await axios.post(`${baseUrl}/fold`, player)
+  return response.data
+}
+
 const bet = async (player, amount) => {
   const response = await axios.post(`${baseUrl}/bet`, player)
   return response.data
 }
 
-export default { test, init, clear, start, call, check , bet }
+const next = async (player, amount) => {
+  const response = await axios.post(`${baseUrl}/go_next`, player)
+  return response.data
+}
+
+export default { test, init, clear, start, call, check, fold, bet, next }
