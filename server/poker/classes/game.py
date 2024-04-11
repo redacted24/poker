@@ -117,7 +117,7 @@ class Player():
             self.active = True                  # Whether the player is stil in round (hasn't folded yet).
             self.is_big_blind = False
             self.is_small_blind = False
-            self.table.players.append(self)      # Add self to the table player list.
+            self.table.players.append(self)     # Add self to the table player list.
             self.stats = {
                 'bet': 0,
                 'raise': 0,
@@ -127,6 +127,11 @@ class Player():
                 'fold': 0
             }
 
+            # Important stats for player modeling and computer play
+            self.aggro_factor = 0               # Aggression factor ((bets+raises)/calls)
+            self.aggro_frequency = 0            # Aggression frequency ([(bets + raises)/(bets + raises + calls + folds)] * 100)
+            self.hand_strength = 0              # Hand strength
+            self.hand_potential = 0             # Hand potential
         
         def __repr__(self):
             return self.name
