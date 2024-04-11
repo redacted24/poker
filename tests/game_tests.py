@@ -245,8 +245,21 @@ class TestPlayerMethods(unittest.TestCase):
         self.p1.receive(self.table.deck.get('As'))
         self.p1.clear_hand()
         self.assertFalse(self.p1.hand(), 'Clearing player hand does not function properly')
-    
-    
+
+
+# ------------------------- #
+# --- HAND EVAL TESTING --- #
+# ------------------------- #
+class TestFlush(unittest.TestCase):
+    def setUp(self):
+        self.deck = Deck()
+
+    def test_case1(self):
+        cards = ['As', 'Ks', 'Qs', 'Ts', '9s']
+        expectedResult = (5, "[As, Ks, Qs, Ts, 9s]")
+        result = Player.handEval([self.deck.get(cards[0]), self.deck.get(cards[1]), self.deck.get(cards[2]), self.deck.get(cards[3]), self.deck.get(cards[4])])
+        self.assertTupleEqual(result, expectedResult)
+
 # ---
 class TestBetterBot(unittest.TestCase):
     def setUp(self):

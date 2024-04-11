@@ -206,10 +206,10 @@ class Player():
             self.table.round_stats[move] += 1
             self.stats[move] += 1
             self.table.last_move = [self,move]
-            self.actions_done = sum(self.stats.values())
             self.aggro_factor = 0 if self.stats['call'] == 0 else (self.stats['bet']+self.stats['raise'])/self.stats['call'] # Aggression factor ((bets+raises)/calls   
-            self.aggro_frequency = 0 if self.actions_done == 0 else (self.stats['bet']+self.stats['raise'])/(self.stats['call'] + self.stats['bet'] + self.stats['raise'] + self.stats['fold']) # Aggression frequency ([(bets + raises)/(bets + raises + calls + folds)] * 100)
-        
+            self.aggro_frequency = 0 if self.actions_done == 0 else (self.stats['bet']+self.stats['raise'])/(self.stats['call'] + self.stats['bet'] + self.stats['raise'] + self.stats['fold'])*100 # Aggression frequency ([(bets + raises)/(bets + raises + calls + folds)] * 100)
+            self.actions_done = sum(self.stats.values())
+
         def clear_all_stats(self):
             '''Clears all player stats.'''
             for stat in self.stats.keys():
