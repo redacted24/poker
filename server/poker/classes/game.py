@@ -128,8 +128,7 @@ class Player():
                 'all-in': 0,
                 'fold': 0
             }
-            self.actions_done = sum(self.stats.values())
-
+            self.actions_done = 0
             # Important stats for player modeling and computer play
             self.aggro_factor = 0
             self.aggro_frequency = 0
@@ -207,6 +206,7 @@ class Player():
             self.table.round_stats[move] += 1
             self.stats[move] += 1
             self.table.last_move = [self,move]
+            self.actions_done = sum(self.stats.values())
             self.aggro_factor = 0 if self.stats['call'] == 0 else (self.stats['bet']+self.stats['raise'])/self.stats['call'] # Aggression factor ((bets+raises)/calls   
             self.aggro_frequency = 0 if self.actions_done == 0 else (self.stats['bet']+self.stats['raise'])/(self.stats['call'] + self.stats['bet'] + self.stats['raise'] + self.stats['fold']) # Aggression frequency ([(bets + raises)/(bets + raises + calls + folds)] * 100)
         
@@ -276,4 +276,3 @@ if __name__ == "__main__":
     assert Player.handEval([deck.get('Ks'), deck.get('9s'), deck.get('9h'), deck.get('9d'), deck.get('9c'), deck.get('Th'), deck.get('Js')]) == (3, '[9s, 9h, 9d, 9c]') 
     assert Player.handEval([deck.get('As'), deck.get('Ks'), deck.get('Qs'), deck.get('Qh'), deck.get('Js'), deck.get('Jh'), deck.get('Ts')])
     print('All tests passed.')
-
