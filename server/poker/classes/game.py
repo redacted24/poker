@@ -1,10 +1,39 @@
 from poker.classes.cards import *
 
+class Board():
+    def __init__(self):
+        self.cards: list[Cards] = []
+        self._show_cards: bool = False
+
+    def place_card(self, card: Cards):
+        '''Places a card onto the board'''
+        self.cards.append(card)
+    
+    def reveal(self):
+        '''Reveals all cards on the board'''
+        self._show_cards = True
+    
+    def hide(self):
+        '''Hides all cards on the board'''
+        self._show_cards = False
+
+    def display(self):
+        '''Returns a list containing all cards on the board.
+        A card is represented as false if it is not revealed.'''
+        if self._show_cards:
+            return [card.shortName for card in self.cards]
+        else:
+            return [False for _ in self.cards]
+    
+    def clear(self):
+        '''Clears and resets the board to its initial state'''
+        self.cards = []
+        self._show_cards = False
+
 class Table():
     def __init__(self, deck):
         self.deck = deck
-        self.board = []
-        self._cards = []
+        self.board = Board()
         self.pot = 0
         self.state = 0              # Pre-flop (0), flop (1), turn (2), river (3), showdown(4)
         self.players = []           # [PlayerObject,'move']
@@ -37,13 +66,9 @@ class Table():
         '''Burn top deck card.'''
         self.deck.burn()
 
-    def add_card(self, hide=False):
-        '''Add a card from the top of the deck to the board, and return it'''
-        self._cards.append(self.deck.draw())
-        if hide:
-            self.board.append(False)
-        else:
-            self.board.append(self._cards[-1])
+    def add_card(self):
+        '''Add a card from the top of the deck to the board'''
+        self.board.place_card(self.deck.draw())
     
     def deal_hands(self):
         '''Deal two cards to all players in the table'''
@@ -64,7 +89,7 @@ class Table():
         self.deck.shuffle()
         self.deal_hands()
         for _ in range(3):
-            self.add_card(hide=True)
+            self.add_card()
 
     def flop(self):
         '''Ready game for the flop.'''
@@ -72,7 +97,7 @@ class Table():
         self.required_bet = 0
         self.last_move.clear()
         self.player_queue = self.players[:]
-        self.board = self._cards[:]
+        self.board.reveal()
 
     def turn(self):
         '''Ready game for the turn.'''
@@ -81,7 +106,6 @@ class Table():
         self.last_move.clear()
         self.player_queue = self.players[:]
         self.add_card()
-        self.board = self._cards[:]
     
     def river(self):
         '''Ready game for the river.'''
@@ -90,7 +114,6 @@ class Table():
         self.last_move.clear()
         self.player_queue = self.players[:]
         self.add_card()
-        self.board = self._cards[:]
 
     def showdown(self):
         '''Checks who will win.'''
@@ -122,7 +145,6 @@ class Table():
             
             rounds[self.state]()
 
-
     def reset(self):
         '''Clears current cards on the board, resets deck, and removes all player handheld cards.
         Clears current round stats. Game stats are left unchanged.
@@ -130,7 +152,6 @@ class Table():
         Players are still on the table.'''
         self.pot = 0
         self.board.clear()
-        self._cards.clear()
         self.deck.reset()
         self.player_queue = self.players[:]
         for stat in self.game_stats.keys():
@@ -192,12 +213,7 @@ class Table():
     #         self.__hand.clear()
     #         print('Player has folded')
     #         pass
-
-    #     def rake(self, pot):
-    #         '''Take the pot amount. Player has won.'''
-    #         self.balance += pot
         
-
 
     # Misc
     def add_player(self, player):

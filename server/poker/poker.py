@@ -3,6 +3,7 @@ import pickle
 
 from poker.classes.cards import *
 from poker.classes.game import *
+from poker.classes.bots import Better
 
 # define /api/poker to be the point of contact for backend logic
 bp = Blueprint('poker', __name__, url_prefix='/api/poker')
@@ -26,7 +27,7 @@ def init():
   table = Table(deck)
 
   table.add_player(player)
-  table.add_player
+  table.add_player(Better('computer', True))
 
   session['table'] = pickle.dumps(table)
 
@@ -47,7 +48,7 @@ def start():
   return {
     'hand': [c.shortName for c in hand],
     'required_bet': table.required_bet,
-    'board': table.board,
+    'board': table.board.display(),
     'pot': table.pot
   }
 
@@ -64,8 +65,6 @@ def call():
 
   table.play()
 
-  board = table.board
-
   session['table'] = pickle.dumps(table)
 
   return {
@@ -73,7 +72,7 @@ def call():
     'pot': table.pot,
     'balance': player.balance,
     'hand': [c.shortName for c in player.hand()],
-    'board': [c.shortName for c in board]
+    'board': table.board.display()
   }
 
 @bp.post('/check')
@@ -89,8 +88,6 @@ def check():
 
   table.play()
 
-  board = table.board
-
   session['table'] = pickle.dumps(table)
 
   return {
@@ -98,7 +95,7 @@ def check():
     'pot': table.pot,
     'balance': player.balance,
     'hand': [c.shortName for c in player.hand()],
-    'board': [c.shortName for c in board]
+    'board': table.board.display()
     }
 
 @bp.post('/bet')
@@ -114,8 +111,6 @@ def bet():
 
   table.play()
 
-  board = table.board
-
   session['table'] = pickle.dumps(table)
 
   return {
@@ -123,7 +118,7 @@ def bet():
     'pot': table.pot,
     'balance': player.balance,
     'hand': [c.shortName for c in player.hand()],
-    'board': [c.shortName for c in board]
+    'board': table.board.display()
     }
 
 @bp.post('/clear')
