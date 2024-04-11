@@ -212,14 +212,30 @@ class TestPlayerMethods(unittest.TestCase):
     
     def test_aggroFactorOnlyBet(self):
         for i in range(5):
-            self.p1.bet(1)
-        self.assertEqual(self.p1.aggro_factor, 0, 'Aggression factor is incorrect')
+            for j in range(5):
+                self.p1.bet(1)          # Any amount of p1 bets won't change aggro factor as long as no calls have been made
+            self.assertEqual(self.p1.aggro_factor, 0, 'Aggression factor is incorrect')
     
-    def test_aggroFactorBetWithCall(self):
+    def test_aggroFactorBetWithCallEqualProportion(self):
         for j in range(5):
             self.p1.bet(1)
             self.p1.call()
         self.assertAlmostEqual(self.p1.aggro_factor, 1, 3, 'Aggression factor incorrect')
+
+    def test_aggroFactorBetWithCall5050Proportion(self):
+        for j in range(5):
+            self.p1.bet(1)
+            self.p1.call()
+            self.p1.call()
+        self.assertAlmostEqual(self.p1.aggro_factor, 0.5, 3, 'Aggression factor incorrect')
+
+    def test_aggroFrequencyNoActions(self):
+        self.assertAlmostEqual(self.p1.aggro_frequency, 0, 3, 'Aggression frequency incorrect')
+    
+    def test_aggroFrequencyOnlyBets(self):
+        for i in range(5):
+            self.p1.bet(1)
+        self.assertAlmostEqual(self.p1.aggro_frequency, 100, 3, 'Aggression frequency incorrect')
 
     def test_receivingCards(self):
         self.p1.receive(self.table.deck.get('As'))
@@ -231,7 +247,6 @@ class TestPlayerMethods(unittest.TestCase):
         self.assertFalse(self.p1.hand(), 'Clearing player hand does not function properly')
     
     
-
 # ---
 class TestBetterBot(unittest.TestCase):
     def setUp(self):
