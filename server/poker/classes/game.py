@@ -126,12 +126,13 @@ class Player():
                 'all-in': 0,
                 'fold': 0
             }
+            self.actions_done = sum(self.stats.values())
 
             # Important stats for player modeling and computer play
-            self.aggro_factor = 0               # Aggression factor ((bets+raises)/calls)
-            self.aggro_frequency = 0            # Aggression frequency ([(bets + raises)/(bets + raises + calls + folds)] * 100)
-            self.hand_strength = 0              # Hand strength
-            self.hand_potential = 0             # Hand potential
+            self.aggro_factor = 0 if self.stats['call'] == 0 else (self.stats['bet']+self.stats['raise'])/self.stats['call']               # Aggression factor ((bets+raises)/calls)
+            self.aggro_frequency = 0 if self.actions_done == 0 else (self.stats['bet']+self.stats['raise'])/(self.stats['call'] + self.stats['bet'] + self.stats['raise'] + self.stats['fold'])             # Aggression frequency ([(bets + raises)/(bets + raises + calls + folds)] * 100)
+            self.hand_strength = 0              # Hand strength. Mostly used to decide what to do in pre-flop
+            self.hand_potential = 0             # Hand potential. Mostly used to decide what to do after cards are revealed. Might take a lot of computational time.
         
         def __repr__(self):
             return self.name
