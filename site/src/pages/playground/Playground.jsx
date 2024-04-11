@@ -85,6 +85,7 @@ const Playground = () => {
             return <Opponent key={player.name} player={player} />
           }
         })}
+
       </div>
     </>
   )

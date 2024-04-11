@@ -1,5 +1,5 @@
-from cards import *
-from game import *
+from server.poker.classes.cards import *
+from server.poker.classes.game import *
 
 deck = Deck()
 table = Table(deck)
@@ -8,6 +8,13 @@ user = ''
 name = input("Welcome to poker! What's your name?: ")
 p1 = Player(name, table)
 print('You start with 1000 chips.')
+
+def deal_hands():
+    '''Deal hands to a player or all players'''
+    # WIP. Currently only deals hands to p1. (hardcoded)
+    for i in range(2):
+        p1.receive(table.deck.draw())
+        table.deck.burn()
 
 while user != 'wq' and table.state < 4:
     # Different actions for different table states.
@@ -19,6 +26,7 @@ while user != 'wq' and table.state < 4:
     # Pre-flop
     if table.state == 0:
         table.pre_flop()
+        deal_hands()
         table.view_state()
         p1.look()
 
