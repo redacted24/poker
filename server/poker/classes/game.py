@@ -159,6 +159,8 @@ class Player():
             suitHand = sorted(hand, key = lambda x: x. suit)                                     #sorts the hand by suits to check whether there are 5 of the same suits
             for i in range(len(hand) - 2):
                 otherHand = hand[i:i+5]
+                x = {i.value for i in hand[i:]}
+                straightHand = sorted(x, reverse = True)
                 winningHand = sorted(suitHand[i:i+5], key = lambda x:x.suit)
                 if winningHand[0].suit == winningHand[-1].suit:
                     if len(winningHand) >= 5 and all([(winningHand[i].value - winningHand[i+1].value) == 1 for i in range(len(winningHand) - 1)]):      #basic requirement for a Straight Flush or a Royal Flush
@@ -168,10 +170,13 @@ class Player():
                             return (2, str(winningHand))
                     elif len(winningHand) >= 5: #regular flush
                         return (5, str(winningHand))
-                elif all([(otherHand[i].value - otherHand[i+1].value) == 0 for i in range(len(otherHand) - 1)]):
-                    return (3, str(hand[i:i+5]))
-                else:
-                    pass
+                elif all([(otherHand[i].value - otherHand[i+1].value) == 0 for i in range(len(otherHand) - 2)]):
+                    return (3, str(hand[i:i+4]))
+                elif (not 14 in straightHand) and len(straightHand) == 5 and all([(straightHand[i] - straightHand[i+1]) == 1 for i in range(len(straightHand) - 1)]):
+                    return (6, str(straightHand))
+                elif all([(otherHand[i].value - otherHand[i+1].value) == 0 for i in range(len(otherHand) - 3)]):
+                    return (7, str(hand[i:i+3]))
+
             return False
 
             
@@ -274,5 +279,8 @@ if __name__ == "__main__":
     assert Player.handEval([deck.get('9s'), deck.get('Ts'), deck.get('Js'), deck.get('Ks'), deck.get('As')]) == (5, '[As, Ks, Js, Ts, 9s]')
     assert Player.handEval([deck.get('Ts'), deck.get('Qs'), deck.get('Js'), deck.get('Ks'), deck.get('As')]) == (1, '[As, Ks, Qs, Js, Ts]')
     assert Player.handEval([deck.get('Ks'), deck.get('9s'), deck.get('9h'), deck.get('9d'), deck.get('9c'), deck.get('Th'), deck.get('Js')]) == (3, '[9s, 9h, 9d, 9c]') 
-    assert Player.handEval([deck.get('As'), deck.get('Ks'), deck.get('Qs'), deck.get('Qh'), deck.get('Js'), deck.get('Jh'), deck.get('Ts')])
+    assert Player.handEval([deck.get('As'), deck.get('Ks'), deck.get('Qs'), deck.get('Qh'), deck.get('Js'), deck.get('Jh'), deck.get('Ts')]) == (1, '[As, Ks, Qs, Js, Ts]')
+    assert Player.handEval([deck.get('Ks'), deck.get('Ts'), deck.get('8h'), deck.get('9d'), deck.get('7c'), deck.get('6s'), deck.get('8s')]) == (6, '[10, 9, 8, 7, 6]')
+    assert Player.handEval([deck.get('Ks'), deck.get('Ts'), deck.get('8h'), deck.get('9d'), deck.get('8c'), deck.get('8s'), deck.get('6h')])
+
     print('All tests passed.')
