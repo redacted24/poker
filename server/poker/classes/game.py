@@ -78,6 +78,10 @@ class Table():
             p.receive(self.deck.draw())
             self.deck.burn()
 
+    def clear_bets(self):
+        for p in self.active_players():
+            p.current_bet = 0
+
     def active_players(self):
         '''Returns a list of the active players in the round'''
         return [p for p in self.players if p.active]
@@ -91,6 +95,7 @@ class Table():
         '''Ready game for the pre-flop.'''
         print('Pre-flop')
         self.required_bet = 10
+        self.clear_bets()
         self.last_move.clear()
         self.start_queue()
 
@@ -103,6 +108,7 @@ class Table():
         '''Ready game for the flop.'''
         print('Flop')
         self.required_bet = 0
+        self.clear_bets()
         self.last_move.clear()
         self.start_queue()
         self.board.reveal()
@@ -111,6 +117,7 @@ class Table():
         '''Ready game for the turn.'''
         print('Turn')
         self.required_bet = 0
+        self.clear_bets()
         self.last_move.clear()
         self.start_queue()
         self.add_card()
@@ -119,6 +126,7 @@ class Table():
         '''Ready game for the river.'''
         print('River')
         self.required_bet = 0
+        self.clear_bets()
         self.last_move.clear()
         self.start_queue()
         self.add_card()
@@ -162,6 +170,7 @@ class Table():
         self.board.clear()
         self.deck.reset()
         self.start_queue()
+        self.clear_bets()
         self.winning_player = None
         for stat in self.game_stats.keys():
             self.round_stats[stat] = 0
@@ -344,6 +353,7 @@ class Player():
         # Player moves
         def call(self):
             if self.balance >= self.table.required_bet:
+                self.current_bet = self.table.required_bet
                 self.table.call(self)
 
         def check(self):
@@ -351,7 +361,6 @@ class Player():
         
         def fold(self):
             self.active = False
-            print(self.active)
             self.table.fold(self)
 
         def bet(self, amount):

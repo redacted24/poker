@@ -3,6 +3,8 @@ import pokerService from '../../services/poker'
 import './player.css'
 
 const Player = ({ name, player, requiredBet, setTable }) => {
+  const callAmount = requiredBet - player.current_bet
+
   const call = async () => {
     const tableData = await pokerService.call({ name })
     setTable(tableData)
@@ -34,8 +36,8 @@ const Player = ({ name, player, requiredBet, setTable }) => {
         {player.hand.map(card => <Card key={`${card}`} card={card} />)}
       </div>
       <div id='buttons'>
-        {!!requiredBet && <button className='action' onClick={call}>Call ({requiredBet}$)</button>}
-        {!requiredBet && <button className='action' onClick={check}>Check</button>}
+        {!!callAmount && <button className='action' onClick={call}>Call ({callAmount}$)</button>}
+        {!callAmount && <button className='action' onClick={check}>Check</button>}
         <button className='action' onClick={fold}>Fold</button>
         <button className='action' onClick={bet}>Bet</button>
       </div>
