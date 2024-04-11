@@ -1,5 +1,5 @@
-from cards import *
-from game import *
+from .cards import *
+from .game import *
 
 deck = Deck()
 table = Table(deck)
