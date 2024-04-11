@@ -11,6 +11,7 @@ const Playground = () => {
   const [name, setName] = useState('Bob')
   const [inGame, setInGame] = useState(false)
   const [table, setTable] = useState()
+  const [displayBoard, setDisplayBoard] = useState(false)
 
   useEffect(() => {
     const reset = async () => {
@@ -33,16 +34,20 @@ const Playground = () => {
     const tableData = await pokerService.start()
     setInGame(true)
     setTable(tableData)
+    setDisplayBoard(true)
     console.log(tableData)
   }
 
   useEffect(() => {
-    console.log(table)
-    if (table && table.winning_player) {
-      alert(`${table.winning_player.name} has won ${table.pot}!`)
-      pokerService.next()
-      pokerService.next()
+    const checkWinner = async () => {
+      if (table && table.winning_player) {
+        alert(`${table.winning_player.name} has won ${table.pot}!`)
+        const tableData = await pokerService.next()
+        setTable(tableData)
+        setDisplayBoard(false)
+      }
     }
+    checkWinner()
   }, [table])
 
   if (!inGame) {
@@ -62,9 +67,16 @@ const Playground = () => {
       <div id='room'>
         <div id='table'>
           <p id='pot'>Pot: {table.pot}$</p>
-          <div id='board'>
-            {table.board.map((card, i) => <Card key={i} card={card} />)}
-          </div>
+          {
+            displayBoard && 
+            <div id='board'>
+              {table.board.map((card, i) => <Card key={i} card={card} />)}
+            </div>
+          }
+          {
+            !displayBoard &&
+            <button id='start-button' onClick={start}>Start</button>
+          }
         </div>
         {table.players.map(player => {
           if (player.name == name) {

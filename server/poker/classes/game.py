@@ -158,9 +158,11 @@ class Table():
         Players are still on the table.'''
         print('Reset')
         self.pot = 0
+        self.state = 0
         self.board.clear()
         self.deck.reset()
         self.start_queue()
+        self.winning_player = None
         for stat in self.game_stats.keys():
             self.round_stats[stat] = 0
         for player in self.players:
