@@ -1,7 +1,8 @@
 import random
+import copy
 
 class Cards:
-    def __init__(self, fullName, shortName,suit, value):
+    def __init__(self, fullName, shortName, suit, value):
         self.fullName = fullName
         self.shortName = shortName
         self.suit = suit
@@ -27,9 +28,14 @@ class Deck:
             '''Remove top card of deck and return it'''
             return self.pop()
         
+        def clear(self):
+            '''Clears the deck'''
+            self.clear()
+        
         def top(self):
             '''Check top card of deck'''
             return self[-1]
+
 
     def __init__(self):
         self.cards_list = {} # [As:{object}, Ks:{object},...] where A = ace and s = spades.
@@ -50,6 +56,12 @@ class Deck:
         for val in self.cards_list.values():
             self.deck.prepend(val)
             self.original.prepend(val)
+        
+        del cards
+        del cardNames
+        del suits
+        del cardsIndex
+        del value
 
     def __repr__(self):
         return str(self.deck)
@@ -72,9 +84,11 @@ class Deck:
     
     def reset(self):
         '''Resets the deck, all discarded and played cards are put back into the deck.'''
-        self.deck = self.original.copy()
+        self.deck = copy.deepcopy(self.original)
 
 if __name__ == "__main__":
+    deck = Deck()
+    print(deck.draw())
     x = Cards('Nine of Spades', '9s', 'Spades', '9')
     y = Cards('Ten of Spades', '10s', 'Spades', '10')
     z = Cards('Ten of Hearts', '10h', 'Hearts', '10')
