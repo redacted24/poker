@@ -35,16 +35,16 @@ class Board():
 
 class Table():
     def __init__(self, deck):
-        self.deck = deck
-        self.board = Board()
-        self.pot = 0
+        self.deck = deck            # Setup the deck used for the table
+        self.board = Board()        # Making a board class. Easier to manage the state of the board
+        self.pot = 0                # The flop on the table
         self.state = 0              # Pre-flop (0), flop (1), turn (2), river (3), showdown(4)
         self.players = []           # [PlayerObject,'move']
-        self.player_queue = []
-        self.winning_player = None
+        self.player_queue = []      # A list of all the players that will be playing in the round
+        self.winning_player = None  # The player who won the round
         self.required_bet = 0       # How much money is required to stay in the game. Very useful to program the call function
-        self.last_move = []
-        self.round_stats = {
+        self.last_move = []         # [Player.name, 'nameOfMove'] A list of two elements, where the first is the playername as a string, and the second is the name of the move (e.g. bet) as a string
+        self.round_stats = {        
             'bet': 0,
             'raise': 0,
             'call': 0,
@@ -144,7 +144,7 @@ class Table():
             if player.pts() > winning_player.pts():
                 winning_player = player
 
-        winning_player.rake()
+        winning_player.rake()       # Winning player takes in all the money
         self.winning_player = winning_player
 
 
