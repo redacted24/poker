@@ -216,11 +216,9 @@ class TestPlayerMethods(unittest.TestCase):
         self.assertEqual(self.p1.aggro_factor, 0, 'Aggression factor is incorrect')
     
     def test_aggroFactorBetWithCall(self):
-        for i in range(5):
-            with self.subTest(i=i):
-                for j in range(i):
-                    self.p1.bet(1)
-                    self.p1.call()
+        for j in range(5):
+            self.p1.bet(1)
+            self.p1.call()
         self.assertAlmostEqual(self.p1.aggro_factor, 1, 3, 'Aggression factor incorrect')
 
     def test_receivingCards(self):
