@@ -1,4 +1,4 @@
-from .cards import *
+from cards import *
 
 class Board():
     def __init__(self):
@@ -183,7 +183,7 @@ class Table():
             player.clear_hand()
 
 
-    # Player actions
+    # Player actions Table Class
     def update_table_stats(self, player, move):
         '''Updates all table stats, based on the move. Used in all possible game moves.'''
         self.game_stats[move] += 1
@@ -192,8 +192,8 @@ class Table():
         self.last_move = [player.name, move]
         
         player.actions_done = sum(player.stats.values())
-        player.aggro_factor = 0 if player.stats['call'] == 0 else (player.stats['bet']+player.stats['raise'])/player.stats['call'] # Aggression factor ((bets+raises)/calls   
-        player.aggro_frequency = 0 if player.actions_done == 0 else (player.stats['bet']+player.stats['raise'])/(player.stats['call'] + player.stats['bet'] + player.stats['raise'] + player.stats['fold']) # Aggression frequency ([(bets + raises)/(bets + raises + calls + folds)] * 100)
+        # player.aggro_factor = 0 if player.stats['call'] == 0 else (player.stats['bet']+player.stats['raise'])/player.stats['call'] # Aggression factor ((bets+raises)/calls   
+        # player.aggro_frequency = 0 if player.actions_done == 0 else (player.stats['bet']+player.stats['raise'])/(player.stats['call'] + player.stats['bet'] + player.stats['raise'] + player.stats['fold']) # Aggression frequency ([(bets + raises)/(bets + raises + calls + folds)] * 100)
         
 
     def call(self, player):
@@ -274,7 +274,7 @@ class Table():
 
 # -------------------------- #
 class Player():
-        def __init__(self, name, is_computer, balance = 1000):
+        def __init__(self, name, is_computer, table=None, balance = 1000):
             self.name = name
             self.is_computer = is_computer
             self.table: Table | None = None
@@ -298,6 +298,9 @@ class Player():
             self.aggro_frequency = 0
             self.hand_strength = 0              # Hand strength. Mostly used to decide what to do in pre-flop
             self.hand_potential = 0             # Hand potential. Mostly used to decide what to do after cards are revealed. Might take a lot of computational time.
+
+            if table:
+                table.add_player(self)              # Add player to table
         
         def __repr__(self):
             return self.name
