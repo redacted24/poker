@@ -1,4 +1,5 @@
 from flask import ( Blueprint, session, request )
+import json
 import pickle
 
 from poker.classes.cards import *
@@ -29,9 +30,9 @@ def init():
   table.add_player(player)
   table.add_player(Better('computer', True))
 
-  session['table'] = pickle.dumps(table)
+  session['table'] = pickle.dumps(table)  
 
-  return { 'balance': player.balance }
+  return table.toJSON()
 
 @bp.post('/start')
 def start():
@@ -40,17 +41,9 @@ def start():
 
   table.pre_flop()
 
-  hand = table.players[0].hand()
-  table.players[0].table.board
-
   session['table'] = pickle.dumps(table)
 
-  return {
-    'hand': [c.shortName for c in hand],
-    'required_bet': table.required_bet,
-    'board': table.board.display(),
-    'pot': table.pot
-  }
+  return table.toJSON()
 
 @bp.post('/call')
 def call():
@@ -67,13 +60,7 @@ def call():
 
   session['table'] = pickle.dumps(table)
 
-  return {
-    'required_bet': table.required_bet,
-    'pot': table.pot,
-    'balance': player.balance,
-    'hand': [c.shortName for c in player.hand()],
-    'board': table.board.display()
-  }
+  return table.toJSON()
 
 @bp.post('/check')
 def check():
@@ -90,13 +77,7 @@ def check():
 
   session['table'] = pickle.dumps(table)
 
-  return {
-    'required_bet': table.required_bet,
-    'pot': table.pot,
-    'balance': player.balance,
-    'hand': [c.shortName for c in player.hand()],
-    'board': table.board.display()
-    }
+  return table.toJSON()
 
 @bp.post('/bet')
 def bet():
@@ -113,13 +94,7 @@ def bet():
 
   session['table'] = pickle.dumps(table)
 
-  return {
-    'required_bet': table.required_bet,
-    'pot': table.pot,
-    'balance': player.balance,
-    'hand': [c.shortName for c in player.hand()],
-    'board': table.board.display()
-    }
+  return table.toJSON()
 
 @bp.post('/clear')
 def clear():

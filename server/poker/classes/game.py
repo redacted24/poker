@@ -77,6 +77,9 @@ class Table():
             p.receive(self.deck.draw())
             self.deck.burn()
 
+    def start_queue(self):
+        '''Adds a queue for the players' turn to play'''
+        self.player_queue = self.players[:]
 
     # Game Rounds
     def pre_flop(self):
@@ -84,7 +87,7 @@ class Table():
         print('Pre-flop')
         self.required_bet = 10
         self.last_move.clear()
-        self.player_queue = self.players[:]
+        self.start_queue()
 
         self.deck.shuffle()
         self.deal_hands()
@@ -96,7 +99,7 @@ class Table():
         print('Flop')
         self.required_bet = 0
         self.last_move.clear()
-        self.player_queue = self.players[:]
+        self.start_queue()
         self.board.reveal()
 
     def turn(self):
@@ -104,7 +107,7 @@ class Table():
         print('Turn')
         self.required_bet = 0
         self.last_move.clear()
-        self.player_queue = self.players[:]
+        self.start_queue()
         self.add_card()
     
     def river(self):
@@ -112,7 +115,7 @@ class Table():
         print('River')
         self.required_bet = 0
         self.last_move.clear()
-        self.player_queue = self.players[:]
+        self.start_queue()
         self.add_card()
 
     def showdown(self):
@@ -153,7 +156,7 @@ class Table():
         self.pot = 0
         self.board.clear()
         self.deck.reset()
-        self.player_queue = self.players[:]
+        self.start_queue()
         for stat in self.game_stats.keys():
             self.round_stats[stat] = 0
         for player in self.players:
@@ -227,6 +230,16 @@ class Table():
         if self.state != 0:
             print(f'The current cards on the table are: {self.board}')
             print(f'The current pot is {self.pot}$')
+
+    def toJSON(self):
+        return {
+            'board': self.board.display(),
+            'pot': self.pot,
+            'players': [p.toJSON() for p in self.players],
+            'player_queue': [p.toJSON() for p in self.player_queue],
+            'required_bet': self.required_bet,
+            'last_move': self.last_move,
+        }
 
     def end(self):
         '''A method that ends the current game. Clears game_stats. Players leave the table. Basically a harder reset than the reset method.'''
@@ -338,6 +351,21 @@ class Player():
 
         def rake(self):
             self.balance += self.table.pot
+
+
+        # Misc
+        def toJSON(self):
+            return {
+                'name': self.name,
+                'is_computer': self.is_computer,
+                'hand': [c.shortName for c in self.hand()],
+                'balance': self.balance,
+                'current_bet': self.current_bet,
+                'active': self.active,
+                'is_big_blind': self.is_big_blind,
+                'is_small_blind': self.is_small_blind,
+            }
+
 
 
 
