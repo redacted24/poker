@@ -63,6 +63,8 @@ class Table():
     def end(self):
         '''A method that ends the current game. Clears game_stats. Players leave the table. Basically a harder reset than the reset method.'''
         self.reset()
+        for player in self.players:
+            player.clear_all_stats()
         self.players.clear()
         for stat in self.game_stats.keys():
             self.game_stats[stat] = 0
@@ -129,8 +131,8 @@ class Player():
             self.actions_done = sum(self.stats.values())
 
             # Important stats for player modeling and computer play
-            self.aggro_factor = 0 if self.stats['call'] == 0 else (self.stats['bet']+self.stats['raise'])/self.stats['call']               # Aggression factor ((bets+raises)/calls)
-            self.aggro_frequency = 0 if self.actions_done == 0 else (self.stats['bet']+self.stats['raise'])/(self.stats['call'] + self.stats['bet'] + self.stats['raise'] + self.stats['fold'])             # Aggression frequency ([(bets + raises)/(bets + raises + calls + folds)] * 100)
+            self.aggro_factor = 0
+            self.aggro_frequency = 0
             self.hand_strength = 0              # Hand strength. Mostly used to decide what to do in pre-flop
             self.hand_potential = 0             # Hand potential. Mostly used to decide what to do after cards are revealed. Might take a lot of computational time.
         
@@ -164,7 +166,6 @@ class Player():
             output = []
             if isFlush(hand):
                 output.extend([5,max(hand, key=lambda x : x.value)])        #making a list containing the type of hand and the max value of the player's hand
-
             return output
 
 
@@ -191,23 +192,31 @@ class Player():
             '''Removes all cards held in hand.'''
             self.__hand.clear()
         
-        def update_table_stats(self, move:str):
+        def update_all_stats(self, move:str):
             '''Updates all table stats, based on the move. Used in all possible game moves.'''
             self.table.last_move = [self, move]
             self.table.game_stats[move] += 1
             self.table.round_stats[move] += 1
             self.stats[move] += 1
             self.table.last_move = [self,move]
+            self.aggro_factor = 0 if self.stats['call'] == 0 else (self.stats['bet']+self.stats['raise'])/self.stats['call'] # Aggression factor ((bets+raises)/calls   
+            self.aggro_frequency = 0 if self.actions_done == 0 else (self.stats['bet']+self.stats['raise'])/(self.stats['call'] + self.stats['bet'] + self.stats['raise'] + self.stats['fold']) # Aggression frequency ([(bets + raises)/(bets + raises + calls + folds)] * 100)
+        
+        def clear_all_stats(self):
+            '''Clears all player stats.'''
+            for stat in self.stats.keys():
+                self.stats[stat] = 0
+
 
         # Game moves
         def call(self):
             '''Call.'''
-            self.update_table_stats('call')
+            self.update_all_stats('call')
             pass
 
         def check(self):
             '''Check.'''
-            self.update_table_stats('check')
+            self.update_all_stats('check')
             print(self, 'checks.')
             pass
 
@@ -219,7 +228,7 @@ class Player():
                 raise ValueError
 
             elif self.balance - amount <= 0:
-                self.update_table_stats('all-in')
+                self.update_all_stats('all-in')
                 self.current_bet += self.balance
                 self.all_in()
 
@@ -227,19 +236,19 @@ class Player():
                 self.current_bet += amount
                 self.balance -= amount
                 self.table.increase_pot(amount)
-                self.update_table_stats('bet')
+                self.update_all_stats('bet')
                 print(self, 'bets', str(amount)+'$')
 
         def all_in(self):
             'All-in on your balance!'
             self.table.increase_pot(self.balance)
-            self.update_table_stats('all-in')
+            self.update_all_stats('all-in')
             self.balance = 0
             print(self,'goes all-in.')
 
         def fold(self):
             '''Fold.'''
-            self.update_table_stats('fold')
+            self.update_all_stats('fold')
             self.__hand.clear()
             print('Player has folded')
             pass
