@@ -1,5 +1,4 @@
 from flask import ( Blueprint, session, request )
-import json
 import pickle
 
 from poker.classes.cards import *
@@ -59,6 +58,15 @@ def call():
   table.play()
 
   session['table'] = pickle.dumps(table)
+
+  print({
+    'board': table.board.display(),
+    'pot': table.pot,
+    'players': [p.toJSON() for p in table.players],
+    'player_queue': [p.toJSON() for p in table.player_queue],
+    'required_bet': table.required_bet,
+    'last_move': table.last_move,
+  })
 
   return table.toJSON()
 

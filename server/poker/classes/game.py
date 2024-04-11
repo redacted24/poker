@@ -136,8 +136,8 @@ class Table():
     def play(self):
         '''Lets all the computers play their turn, then starts the next round.'''
         while len(self.player_queue) != 0:
-            if (self.player_queue[0].is_computer):
-                current_player = self.player_queue.pop(0)
+            current_player = self.player_queue[0]
+            if (current_player.is_computer):
                 current_player.play()
             else:
                 break
@@ -169,7 +169,7 @@ class Table():
         self.game_stats[move] += 1
         self.round_stats[move] += 1
         player.stats[move] += 1
-        self.last_move = [self,move]
+        self.last_move = [player.name, move]
 
     def call(self, player):
         '''Player calls, matching the current bet.'''
@@ -197,7 +197,8 @@ class Table():
             player.balance -= amount
             player.current_bet += amount
             self.increase_pot(amount)
-            self.required_bet == amount
+            self.required_bet = amount
+            self.player_queue.extend([p for p in self.players if p not in self.player_queue])
             self.player_queue.pop(0)
         else:
             raise(ValueError, 'Not your turn yet!')

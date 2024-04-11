@@ -59,7 +59,7 @@ const Playground = () => {
         </div>
         {table.players.map(player => {
           if (player.name == name) {
-            return <Player key={player.name} name={name} table={table} player={player} setTable={setTable} />
+            return <Player key={name} name={name} player={player} requiredBet={table.required_bet} setTable={setTable} />
           } else {
             return <Opponent key={player.name} player={player} />
           }
