@@ -5,6 +5,9 @@ class Board():
         self.cards: list[Cards] = []
         self._show_cards: bool = False
 
+    def __len__(self):
+        return len(self.cards)
+
     def place_card(self, card: Cards):
         '''Places a card onto the board'''
         self.cards.append(card)
