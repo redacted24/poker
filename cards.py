@@ -5,10 +5,17 @@ class Cards:
         self.fullName = fullName
         self.shortName = shortName
         self.suit = suit
-        self.value = value
+        self.value = int(value)
 
     def __repr__(self):
         return self.shortName
+    
+    def __eq__(self, other):
+        return self.value == other.value
+    def __lt__(self, other):
+        return self.value < other.value
+    def __gt__(self, other):
+        return self.value > other.value
 
 class Deck:
     class DeckStack(list):
@@ -66,3 +73,13 @@ class Deck:
     def reset(self):
         '''Resets the deck, all discarded and played cards are put back into the deck.'''
         self.deck = self.original.copy()
+
+if __name__ == "__main__":
+    x = Cards('Nine of Spades', '9s', 'Spades', '9')
+    y = Cards('Ten of Spades', '10s', 'Spades', '10')
+    z = Cards('Ten of Hearts', '10h', 'Hearts', '10')
+    assert x < y
+    assert not x > y
+    assert y == z
+
+    print('All tests passed.')

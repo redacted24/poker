@@ -72,7 +72,7 @@ class Player():
         @staticmethod
         def handEval(hand):
             '''Compute strength of a certain hand of a certain size.
-            Takes in a list of 7 card objects, and returns [int, int] where first int is the hand, last int is the value of the highest card in that hand.
+            Takes in a list of 7 card objects, and returns (int, list) where first int is the hand type and the list is the cards in hand.
             1. Royal Flush
             2. Straight Flush
             3. Four of a Kind
@@ -83,22 +83,29 @@ class Player():
             8. Two Pair
             9. Pair
             10. High Card'''
+                                                    #takes in a list of 7 cards
+            '''Check if hand is a flush and whether it's a Royal Flush, a Straight Flush or a regular Flush'''
+            hand.sort(reverse = True)                                   #sorts the cards in descending order so the deck can be read from highest value to lowest value                                                #sorts the hand by value initially to have 
+            suitHand = sorted(hand, key = lambda x: x. suit)                                     #sorts the hand by suits to check whether there are 5 of the same suits
+            for i in range(len(hand) - 2):
+                otherHand = hand[i:i+5]
+                winningHand = sorted(suitHand[i:i+5], key = lambda x:x.suit)
+                if winningHand[0].suit == winningHand[-1].suit:
+                    if len(winningHand) >= 5 and all([(winningHand[i].value - winningHand[i+1].value) == 1 for i in range(len(winningHand) - 1)]):      #basic requirement for a Straight Flush or a Royal Flush
+                        if int(winningHand[0].value) == 14:
+                            return (1, str(winningHand))
+                        else:
+                            return (2, str(winningHand))
+                    elif len(winningHand) >= 5: #regular flush
+                        return (5, str(winningHand))
+                elif all([(otherHand[i].value - otherHand[i+1].value) == 0 for i in range(len(otherHand) - 1)]):
+                    return (3, str(hand[i:i+5]))
+                else:
+                    pass
+            return False
 
-            def isFlush(hand):                                              #takes in a list of 7 cards
-                '''Check if hand is a flush and whether it's a Royal Flush, a Straight Flush or a regular Flush'''
-                hand.sort(key=lambda x : x.suit)                            #sorts the hand by suits to check whether there are 5 of the same suits
-                for i in range(len(hand) - 5):
-                    if hand[i].suit == hand[i+5].suit:                      #this should work
-                        return True
-                return False
-
-            output = []
-            if isFlush(hand):
-                output.extend([5,max(hand, key=lambda x : x.value)])        #making a list containing the type of hand and the max value of the player's hand
-
-            return output
-
-
+            
+            
         def riverEval(self):
             '''Return the highest scoring hand pattern of player + board.'''
             pass
@@ -166,9 +173,9 @@ if __name__ == "__main__":
     p1 = Player('Haha', table)
 
     # Check for flushes
-    assert Player.handEval([deck.get('9s'), deck.get('Ts'), deck.get('Js'), deck.get('Ks'), deck.get('As')]) == [5, 14]
-    assert not Player.handEval([deck.get('9d'), deck.get('Ts'), deck.get('Js'), deck.get('Ks'), deck.get('As')]) == []
-
-
-
+    assert Player.handEval([deck.get('9s'), deck.get('Ts'), deck.get('Js'), deck.get('Ks'), deck.get('As')]) == (5, '[As, Ks, Js, Ts, 9s]')
+    assert Player.handEval([deck.get('Ts'), deck.get('Qs'), deck.get('Js'), deck.get('Ks'), deck.get('As')]) == (1, '[As, Ks, Qs, Js, Ts]')
+    assert Player.handEval([deck.get('Ks'), deck.get('9s'), deck.get('9h'), deck.get('9d'), deck.get('9c'), deck.get('Th'), deck.get('Js')]) == (3, '[9s, 9h, 9d, 9c]') 
+    assert Player.handEval([deck.get('As'), deck.get('Ks'), deck.get('Qs'), deck.get('Qh'), deck.get('Js'), deck.get('Jh'), deck.get('Ts')])
     print('All tests passed.')
+
