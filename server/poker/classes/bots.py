@@ -1,6 +1,5 @@
 from game import *
 
-# Meme bots
 class Bot(Player):
     # --- Pre-Flop Betting Strategy --- #
     def __init__(self):
@@ -38,6 +37,7 @@ class Bot(Player):
         '''Bet/raise until betting is capped'''
         pass
 
+# Meme bots
 class Better(Bot):
     '''A bot that always bets 99$, or all of his balance if it is less than 99$.'''
     def play(self):
