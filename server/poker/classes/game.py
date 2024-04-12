@@ -96,7 +96,12 @@ class Table():
         
     # Game Rounds
     def pre_flop(self):
-        '''Ready game for the pre-flop.'''
+        '''Ready game for the pre-flop.
+        - Sets required bet to 10$ (small blind)
+        - Clears all bets for all players
+        - Clears last move
+        - Start the queue again for all players
+        - Shuffle deck and add three cards to the board'''
         print('Pre-flop')
         self.required_bet = 10
         self.clear_bets()
@@ -109,7 +114,13 @@ class Table():
             self.add_card()
 
     def flop(self):
-        '''Ready game for the flop.'''
+        '''Ready game for the flop.
+        - Sets required bet to 0$
+        - Clears all bets for all players
+        - Clears last move
+        - Starts the queue again for all players
+        - Reveal cards on the board'''
+
         print('Flop')
         self.required_bet = 0
         self.clear_bets()
@@ -118,7 +129,12 @@ class Table():
         self.board.reveal()
 
     def turn(self):
-        '''Ready game for the turn.'''
+        '''Ready game for the turn.
+        - Sets required bet to 0
+        - Clears all bets for all players
+        - Clears last move
+        - Start the queue again for all players
+        - Adds a card to the board.'''
         print('Turn')
         self.required_bet = 0
         self.clear_bets()
@@ -127,7 +143,12 @@ class Table():
         self.add_card()
     
     def river(self):
-        '''Ready game for the river.'''
+        '''Ready game for the river.
+        - Sets required bet to 0
+        - Clears all bets for all players
+        - Clears last move
+        - Start the queue again for all players
+        - Adds a card to the board.'''
         print('River')
         self.required_bet = 0
         self.clear_bets()
