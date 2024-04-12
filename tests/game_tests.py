@@ -97,6 +97,16 @@ class TestTableMethods(unittest.TestCase):
         self.p2 = Player('p2', False, self.table)
         self.p3 = Player('p3', False, self.table)
         self.assertEqual([self.p1, self.p2, self.p3], self.table.players, 'Incorrect players on table')
+    
+    def test_tablePotIncrease(self):
+        self.table.pre_flop()
+        self.table.increase_pot(10)
+        self.assertEqual(self.table.pot, 10, 'Pot increase is not coherent with table')
+    
+    def test_tableBurn(self):
+        self.table.burn()
+        self.assertEqual(len(self.table.deck), 51, 'Burn method does not work')
+
 
 
 # ---
