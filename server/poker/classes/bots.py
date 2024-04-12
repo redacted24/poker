@@ -1,6 +1,6 @@
 from game import *
 
-class Bot(Player):
+class AdvancedBot(Player):
     # --- Pre-Flop Betting Strategy --- #
     def __init__(self):
         # Expert-defined values to calculate strategy thresholds. There are technically different thresholds, but we'll use the ones for 3-4 players for the sake of simplicity.
@@ -14,11 +14,11 @@ class Bot(Player):
         }
         # Income rates for pre-flop. Used to determine what strategy to play
         self.income_rates = [
-            [-121, -440, -409, -382, -411, -432, -394, -357, -301, -259, -194, -116, 16],
-            [-271, -42,  -345, -312, -340, -358, -371, -328, -277, -231, -165, -87,  54],
-            [-245, -183,  52,  -246, -269, -287, -300, -308, -252, -204, -135, -55,  84],
+            [-121, -440, -409, -382, -411, -432, -394, -357, -301, -259, -194, -116, 16 ],
+            [-271, -42,  -345, -312, -340, -358, -371, -328, -277, -231, -165, -87,  54 ],
+            [-245, -183,  52,  -246, -269, -287, -300, -308, -252, -204, -135, -55,  84 ],
             [-219, -151, -91,   152, -200, -211, -227, -236, -227, -169, -104, -24,  118],
-            [-247, -177, -113, -52,   256, -145, -152, -158, -152, -145, -74,   9,   99],
+            [-247, -177, -113, -52,   256, -145, -152, -158, -152, -145, -74,   9,   99 ],
             [-261, -201, -129, -65,   3,    376, -76,  -79,  -68,  -66,  -44,  48,   148],
             [-226, -204, -140, -73,  -2,    66,   503,  0,    15,   24,   45,  84,   194],
             [-191, -166, -147, -79,  -5,    68,   138,  647,  104,  113,  136, 177,  241],
@@ -28,6 +28,16 @@ class Bot(Player):
             [47,    76,   101,  128,  161,  199,  230,  318,  425,  473,  529, 1325, 541],
             [175,   211,  237,  266,  249,  295,  338,  381,  491,  539,  594, 655, 1554]
         ]
+    
+    def get_income_rate(self):
+        '''Return the IR rate of the bot's hand.'''
+        temp = sorted(self.hand, key=lambda x:x.value)
+        if self.hand[0].suit == self.hand[1].suit:
+            return self.income_rates[self.hand[1].value-2, self.hand[0].value-2]
+        else:
+            return self.income_rates[self.hand[0].value-2, self.hand[1].value-2]
+
+
 
     def make0(self):
         '''Fold if it costs more than zero to continue playing, otherwise check'''
@@ -54,7 +64,7 @@ class Bot(Player):
         pass
 
 # Meme bots
-class Better(Bot):
+class Better(Player):
     '''A bot that always bets 99$, or all of his balance if it is less than 99$.'''
     def play(self):
         if self.balance >= 99:      # Check if balance is less than 99.
@@ -64,16 +74,16 @@ class Better(Bot):
         else:
             self.bet(self.balance)  # Otherwise, bet the remaining balance of the bot, as an all-in.
 
-class ScaryCat(Bot):
+class ScaryCat(Player):
     '''A bot that always if a single opponent bets. Otherwise, checks.'''
     def play(self):
         self.call()
 
-class Joker(Bot):
+class Joker(Player):
     '''A bot that only does random actions. Can bet a random multiplier of the small blind'''
 
 # Real playstyles
-class TightPassive(Bot):
+class TightPassive(AdvancedBot):
     '''A bot that plays very few hands and is usually always checking, calling, or folding most of the time.'''
     # Currently working on implementing always checking/calling unless required bet is more than half of its own balance.
     def play(self):
