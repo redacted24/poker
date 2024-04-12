@@ -319,6 +319,40 @@ class TestPlayerMethods(unittest.TestCase):
         self.assertListEqual(self.table.active_players(), [self.p1, self.p2])
 
 
+
+# ---
+class TestAdvancedBot(unittest.TestCase):
+    def setUp(self):
+        self.deck = Deck()
+        self.table = Table(self.deck)
+        self.p1 = AdvancedBot('p1', self.table)
+    
+    def test_get_income_rate1(self):
+        '''Test the get_income_rate method to check if it returns the correct IR.'''
+        self.p1.receive([self.deck.get('As'), self.deck.get('Ks')])
+        self.assertEqual(self.p1.get_income_rate(), 655, 'Incorrect IR')
+    
+    def test_get_income_rate_edgeCase1(self):
+        '''Top left of self.income_rates'''
+        self.p1.receive([self.deck.get('2s'), self.deck.get('2d')])
+        self.assertEqual(self.p1.get_income_rate(), -121, 'Incorrect IR')
+
+    def test_get_income_rate_edgeCase2(self):
+        '''Top right of self.income_rates'''
+        self.p1.receive([self.deck.get('As'), self.deck.get('2d')])
+        self.assertEqual(self.p1.get_income_rate(), 16, 'Incorrect IR')
+
+    def test_get_income_rate_edgeCase3(self):
+        '''Bottom left of self.income_rates'''
+        self.p1.receive([self.deck.get('As'), self.deck.get('2s')])
+        self.assertEqual(self.p1.get_income_rate(), 175, 'Incorrect IR')
+
+    def test_get_income_rate_edgeCase4(self):
+        '''Bottom right of self.income_rates'''
+        self.p1.receive([self.deck.get('As'), self.deck.get('Ad')])
+        self.assertEqual(self.p1.get_income_rate(), 1554, 'Incorrect IR')
+
+
 # ------------------------- #
 # --- HAND EVAL TESTING --- #
 # ------------------------- #

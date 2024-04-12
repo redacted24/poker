@@ -2,7 +2,9 @@ from game import *
 
 class AdvancedBot(Player):
     # --- Pre-Flop Betting Strategy --- #
-    def __init__(self):
+    def __init__(self, name, table):
+        '''The general class for an advanced bot. Contains all the necessary information for advanced play. Children class will have specific methods that tweak information in this class in order to play.'''
+        Player.__init__(self, name, True, table)
         # Expert-defined values to calculate strategy thresholds. There are technically different thresholds, but we'll use the ones for 3-4 players for the sake of simplicity.
         # Dictionnary values are as:
         # 'name of strategy': [(base, increment) for each type of play], where the types of play are "tight", "moderate", and "loose"
@@ -31,12 +33,11 @@ class AdvancedBot(Player):
     
     def get_income_rate(self):
         '''Return the IR rate of the bot's hand.'''
-        temp = sorted(self.hand, key=lambda x:x.value)
-        if self.hand[0].suit == self.hand[1].suit:
-            return self.income_rates[self.hand[1].value-2, self.hand[0].value-2]
+        temp = sorted(self.hand(), key=lambda x:x.value)
+        if self.hand()[0].suit == self.hand()[1].suit:
+            return self.income_rates[temp[1].value-2][temp[0].value-2]
         else:
-            return self.income_rates[self.hand[0].value-2, self.hand[1].value-2]
-
+            return self.income_rates[temp[0].value-2][temp[1].value-2]
 
 
     def make0(self):
