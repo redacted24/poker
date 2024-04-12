@@ -12,7 +12,12 @@ class Bot(Player):
             'make2': [(200, 50), (200, 25), (200,10)],
             'make4': [(580, 0), (580, 0), (580, 0)]
         }
+        # Income rates for pre-flop. Used to determine what strategy to play
+        self.income_rates = [
+            [-121, -440, -409, -382, -411, -432, -394, -357, -301, -259, -194, -116, 16],
+            [-271, -42, -345, -312, -340, -358, -371, -328, -277, -231, -165, -87, 54],
             
+        ]
 
     def make0(self):
         '''Fold if it costs more than zero to continue playing, otherwise check'''
