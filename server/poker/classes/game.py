@@ -21,8 +21,8 @@ class Board():
         self._show_cards = False
 
     def display(self):
-        '''Returns a list containing all cards on the board.
-        A card is represented as false if it is not revealed.'''
+        '''Returns a list containing strings of all cards names on the board.
+        A card is False if it is not revealed.'''
         if self._show_cards:
             return [card.shortName for card in self.cards]
         else:

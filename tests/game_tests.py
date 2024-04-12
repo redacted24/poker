@@ -105,6 +105,58 @@ class testBoardMethods(unittest.TestCase):
         self.deck = Deck()
         self.table = Table(self.deck)
         self.p1 = Player('Player1', False, self.table)
+    
+    def test_boardInitialShowCards(self):
+        self.assertFalse(self.table.board._show_cards)
+    
+    def test_initialBoardLength(self):
+        self.assertEqual(len(self.table.board), 0, 'Board should start with zero cards')
+    
+    def test_boardPlacingCards(self):
+        '''Test if board method place_card() works.'''
+        with self.subTest('case 1: 1 card'):
+            self.table.board.place_card(self.deck.get('As'))
+        with self.subTest('case 2: 2 cards'):
+            self.table.board.place_card(self.deck.get('Ks'))
+        with self.subTest('case 3: 3 cards'):
+            self.table.board.place_card(self.deck.get('Qs'))
+        
+    def test_boardRevealCards(self):
+        '''Test if board method reveal() works'''
+        self.table.board.reveal()
+        self.assertTrue(self.table.board._show_cards)
+    
+    def test_boardHideCards(self):
+        '''Test if board method hide() works'''
+        self.table.board.hide()
+        self.assertFalse(self.table.board._show_cards)
+    
+    def test_boardDisplayWhenCardsNotRevealed(self):
+        '''Test if board display() method accurately returns a list of False elements if all cards are not revealed'''
+        self.table.pre_flop()
+        self.assertListEqual(self.table.board.display(), [False, False, False], 'List should only have false elements')
+    
+    def test_boardDisplayAfterReveal(self):
+        '''Test if board display() method accurately returns a list of card names after revealing the cards through reveal() method'''
+        self.table.pre_flop()
+        self.table.board.reveal()
+        for i in self.table.board.display():
+            self.assertIsInstance(i, str)       # Everything should be a card name, or a string
+
+    def test_boardDisplayAfterRevealAndHide(self):
+        '''Test if board display() method accurately returns a list of card names after revealing then hiding the cards through reveal() and hide() methods'''
+        self.table.pre_flop()
+        self.table.board.reveal()
+        self.table.board.hide()
+        for i in self.table.board.display():
+            self.assertFalse(i)       # Everything should be false name
+        
+    def test_boardClear(self):
+        '''Test board method clear()'''
+        self.table.pre_flop()
+        self.table.board.clear()
+        self.assertFalse(self.table.board.cards)
+
 
 # ---
 class TestPlayerMethods(unittest.TestCase):
@@ -256,6 +308,13 @@ class TestFlush(unittest.TestCase):
     def test_case1(self):
         cards = ['As', 'Ks', 'Qs', 'Ts', '9s']
         expectedResult = (5, "[As, Ks, Qs, Ts, 9s]")
+        result = Player.handEval([self.deck.get(cards[0]), self.deck.get(cards[1]), self.deck.get(cards[2]), self.deck.get(cards[3]), self.deck.get(cards[4])])
+        self.assertTupleEqual(result, expectedResult)
+    
+    @unittest.skip      # Wait for fix
+    def test_case2(self):
+        cards = ['9s', '2s', '3s', 'As', 'Ts', 'Js', 'Qs']
+        expectedResult = (5, "[As, Qs, Js, Ts, 9s]")
         result = Player.handEval([self.deck.get(cards[0]), self.deck.get(cards[1]), self.deck.get(cards[2]), self.deck.get(cards[3]), self.deck.get(cards[4])])
         self.assertTupleEqual(result, expectedResult)
 
