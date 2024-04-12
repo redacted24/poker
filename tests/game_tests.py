@@ -306,6 +306,17 @@ class TestPlayerMethods(unittest.TestCase):
         self.p1.receive(self.table.deck.get('As'))
         self.p1.clear_hand()
         self.assertFalse(self.p1.hand(), 'Clearing player hand does not function properly')
+    
+    def test_activePlayersFold(self):
+        self.p2 = Player('p2', False, self.table)
+        self.table.pre_flop()
+        self.p1.fold()
+        self.assertListEqual(self.table.active_players(), [self.p2])
+    
+    def test_activePlayers(self):
+        self.p2 = Player('p2', False, self.table)
+        self.table.pre_flop()
+        self.assertListEqual(self.table.active_players(), [self.p1, self.p2])
 
 
 # ------------------------- #
