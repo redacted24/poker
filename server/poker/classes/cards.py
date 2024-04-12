@@ -66,6 +66,9 @@ class Deck:
 
     def __repr__(self):
         return str(self.deck)
+
+    def __len__(self):
+        return len(self.deck)
     
     def get(self, name):
         '''Returns the specific card object'''
