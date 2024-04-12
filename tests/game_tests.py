@@ -9,20 +9,36 @@ class TestTableMethods(unittest.TestCase):
         self.deck = Deck()
         self.table = Table(self.deck)
         self.p1 = Player('Player1', False, self.table)
-        self.table.pre_flop()
 
     def tearDown(self):
         self.table.end()
 
     def test_boardSize_preflop(self):
+        self.table.pre_flop()
         self.assertEqual(len(self.table.board),3,'Incorrect number of cards on board')
 
+    def test_playerQueue(self):
+        '''Check how many players in queue.'''
+        with self.subTest('case 1: 1 player'):
+            self.table.pre_flop()
+            self.assertListEqual(self.table.player_queue, [self.p1])
+        with self.subTest('case 2: 2 players'):
+            self.p2 = Player('Player2', False, self.table)
+            self.table.pre_flop()
+            self.assertListEqual(self.table.player_queue, [self.p1, self.p2])
+        with self.subTest('case 3: 3 players'):
+            self.p3 = Player('Player3', False, self.table)
+            self.table.pre_flop()
+            self.assertListEqual(self.table.player_queue, [self.p1, self.p2, self.p3])
+        
     def test_boardSize_flop(self):
+        self.table.pre_flop()
         self.p1.call()
         self.table.play()
         self.assertEqual(len(self.table.board), 3, 'Incorrect number of cards on board')
 
     def test_boardSize_turn(self):
+        self.table.pre_flop()
         self.p1.call()
         self.table.play()
         self.p1.call()
@@ -30,6 +46,7 @@ class TestTableMethods(unittest.TestCase):
         self.assertEqual(len(self.table.board), 4, 'Incorrect number of cards on board')
 
     def test_boardSize_river(self):
+        self.table.pre_flop()
         self.p1.call()
         self.table.play()
         self.p1.call()
@@ -39,34 +56,48 @@ class TestTableMethods(unittest.TestCase):
         self.assertEqual(len(self.table.board), 5, 'Incorrect number of cards on board')
     
     def test_playerBetIncreasesPot(self):
+        self.table.pre_flop()
         self.p1.bet(100)
         self.assertEqual(self.table.pot,100,'Pot does not match with player bet')
 
     def test_addCard(self):
+        self.table.pre_flop()
         self.table.add_card()
         self.assertEqual(len(self.table.board), 4, 'adding card does not add a card to the board correctly')
     
     def test_lastMoveBet(self):
+        self.table.pre_flop()
         self.p1.bet(100)
         self.assertEqual(self.table.last_move, [self.p1.name,'bet'], 'Incoherent last move')
 
     def test_lastMoveFold(self):
+        self.table.pre_flop()
         self.p1.fold()
         self.assertEqual(self.table.last_move, [self.p1.name,'fold'], 'Incoherent last move')
 
     def test_lastMoveCheck(self):
+        self.table.pre_flop()
         self.p1.check()
         self.assertEqual(self.table.last_move, [self.p1.name,'check'], 'Incoherent last move')
 
     def test_lastMoveCall(self):
+        self.table.pre_flop()
         self.p1.call()
         self.assertEqual(self.table.last_move, [self.p1.name,'call'], 'Incoherent last move')
     
     def test_playersOnTable(self):
+        self.table.pre_flop()
         self.p2 = Player('p2', False, self.table)
         self.p3 = Player('p3', False, self.table)
         self.assertEqual([self.p1, self.p2, self.p3], self.table.players, 'Incorrect players on table')
 
+
+# ---
+class testBoardMethods(unittest.TestCase):
+    def setUp(self):
+        self.deck = Deck()
+        self.table = Table(self.deck)
+        self.p1 = Player('Player1', False, self.table)
 
 # ---
 class TestPlayerMethods(unittest.TestCase):
