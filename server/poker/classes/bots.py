@@ -12,6 +12,7 @@ class Bot(Player):
             'make2': [(200, 50), (200, 25), (200,10)],
             'make4': [(580, 0), (580, 0), (580, 0)]
         }
+            
 
     def make0(self):
         '''Fold if it costs more than zero to continue playing, otherwise check'''
