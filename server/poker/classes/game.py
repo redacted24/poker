@@ -190,7 +190,6 @@ class Table():
         self.round_stats[move] += 1
         player.stats[move] += 1
         self.last_move = [player.name, move]
-        
         player.actions_done = sum(player.stats.values())
         # player.aggro_factor = 0 if player.stats['call'] == 0 else (player.stats['bet']+player.stats['raise'])/player.stats['call'] # Aggression factor ((bets+raises)/calls   
         # player.aggro_frequency = 0 if player.actions_done == 0 else (player.stats['bet']+player.stats['raise'])/(player.stats['call'] + player.stats['bet'] + player.stats['raise'] + player.stats['fold']) # Aggression frequency ([(bets + raises)/(bets + raises + calls + folds)] * 100)
@@ -204,7 +203,7 @@ class Table():
             self.pot += self.required_bet
             self.player_queue.pop(0)
         else:
-            raise(ValueError, 'Not your turn yet!')
+            raise(ValueError('Not your turn yet!'))
 
     def check(self, player):
         '''Player checks, passing the turn without betting.'''
@@ -212,7 +211,7 @@ class Table():
             self.update_table_stats(player, 'check')
             self.player_queue.pop(0)
         else:
-            raise(ValueError, 'Not your turn yet!')
+            raise(ValueError('Not your turn yet!'))
 
     def fold(self, player):
         '''Player folds, giving up their hand.'''
@@ -224,7 +223,7 @@ class Table():
                 self.state = 4
                 self.showdown()
         else:
-            raise(ValueError, 'Not your turn yet!')
+            raise(ValueError('Not your turn yet!'))     # ValueError is accounted for in tests, i.e. its appearance is checked for several testCases. You may decide to use another way of handling error, we'll just need to also change the test file.
 
     def bet(self, player, amount):
         '''Player bets, raising the required bet to stay in for the entire table.'''
@@ -237,7 +236,7 @@ class Table():
             self.player_queue.extend([p for p in self.players if p not in self.player_queue])
             self.player_queue.pop(0)
         else:
-            raise(ValueError, 'Not your turn yet!')
+            raise(ValueError('Not your turn yet!'))
 
     # Misc
     def add_player(self, player):
@@ -294,6 +293,7 @@ class Player():
                 'fold': 0
             }
             self.actions_done = 0
+            
             # Important stats for player modeling and computer play
             self.aggro_factor = 0
             self.aggro_frequency = 0

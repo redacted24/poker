@@ -16,20 +16,27 @@ class TestTableMethods(unittest.TestCase):
     def test_boardSize_preflop(self):
         self.table.pre_flop()
         self.assertEqual(len(self.table.board),3,'Incorrect number of cards on board')
+    
+    def test_boardSize_flop(self):
+        self.table.pre_flop() 
+        self.p1.check()
+        self.table.play()
+        self.assertEqual(len(self.table.board), 4, 'Incorrect number of cards on the baord (for the flop)')
 
-    def test_playerQueue(self):
-        '''Check how many players in queue.'''
-        with self.subTest('case 1: 1 player'):
-            self.table.pre_flop()
-            self.assertListEqual(self.table.player_queue, [self.p1])
-        with self.subTest('case 2: 2 players'):
-            self.p2 = Player('Player2', False, self.table)
-            self.table.pre_flop()
-            self.assertListEqual(self.table.player_queue, [self.p1, self.p2])
-        with self.subTest('case 3: 3 players'):
-            self.p3 = Player('Player3', False, self.table)
-            self.table.pre_flop()
-            self.assertListEqual(self.table.player_queue, [self.p1, self.p2, self.p3])
+    def test_onePlayerQueue(self):
+        self.table.pre_flop()
+        self.assertListEqual(self.table.player_queue, [self.p1])
+    
+    def test_twoPlayerQueue(self):
+        self.p2 = Player('Player2', False, self.table)
+        self.table.pre_flop()
+        self.assertListEqual(self.table.player_queue, [self.p1, self.p2])
+
+    def test_threePlayerQueue(self):
+        self.p2 = Player('Player2', False, self.table)
+        self.p3 = Player('Player3', False, self.table)
+        self.table.pre_flop()
+        self.assertListEqual(self.table.player_queue, [self.p1, self.p2, self.p3])
         
     def test_boardSize_flop(self):
         self.table.pre_flop()
@@ -105,15 +112,16 @@ class TestPlayerMethods(unittest.TestCase):
         self.deck = Deck()
         self.table = Table(self.deck)
         self.p1 = Player('Player1', False, self.table)
-        self.table.pre_flop()
 
     def tearDown(self):
         self.table.end()
     
     def test_playerInTable(self):
+        self.table.pre_flop()
         self.assertIn(self.p1, self.table.players, 'Players not included by table')
     
     def test_playerStatBet(self):
+        self.table.pre_flop()
         self.p1.bet(100)
         d1 = {
             'bet': 1,
@@ -126,6 +134,7 @@ class TestPlayerMethods(unittest.TestCase):
         self.assertDictEqual(d1, self.p1.stats, 'Incoherent game stats (bet)')
 
     def test_playerStatFold(self):
+        self.table.pre_flop()
         self.p1.fold()
         d1 = {
             'bet': 0,
@@ -138,6 +147,7 @@ class TestPlayerMethods(unittest.TestCase):
         self.assertDictEqual(d1, self.p1.stats, 'Incoherent game stats (fold)')
 
     def test_playerStatCheck(self):
+        self.table.pre_flop()
         self.p1.check()
         d1 = {
             'bet': 0,
@@ -150,6 +160,7 @@ class TestPlayerMethods(unittest.TestCase):
         self.assertDictEqual(d1, self.p1.stats, 'Incoherent game stats (check)')
 
     def test_playerStatCall(self):
+        self.table.pre_flop()
         self.p1.call()
         d1 = {
             'bet': 0,
@@ -160,6 +171,42 @@ class TestPlayerMethods(unittest.TestCase):
             'fold': 0
         }
         self.assertDictEqual(d1, self.p1.stats, 'Incoherent game stats (call)')
+    
+    def test_playerFoldPoppedOutOfQueue(self):
+        '''Verify that player folding actually pops them out of the table player queue.'''
+        self.table.pre_flop()
+        self.p1.fold()
+        self.assertFalse(self.table.player_queue)       # Player queue should be an empty list [] which would be falsy
+    
+    def test_playerBetOutofTurn(self):
+         '''Verify that a player cannot play in the wrong table order.'''
+         self.table.pre_flop()
+         self.p2 = Player('Player2', False, self.table)
+         # Queue should be [p1, p2]
+         self.assertRaises(ValueError, lambda:self.p2.bet(1))
+
+    def test_playerFoldOutofTurn(self):
+         '''Verify that a player cannot play in the wrong table order.'''
+         self.table.pre_flop()
+         self.p2 = Player('Player2', False, self.table)
+         # Queue should be [p1, p2]
+         self.assertRaises(ValueError, lambda:self.p2.fold())
+
+    def test_playerCallOutofTurn(self):
+         '''Verify that a player cannot play in the wrong table order.'''
+         self.table.pre_flop()
+         self.p2 = Player('Player2', False, self.table)
+         # Queue should be [p1, p2]
+         self.assertRaises(ValueError, lambda:self.p2.call())
+
+    def test_playerCheckOutofTurn(self):
+         '''Verify that a player cannot play in the wrong table order.'''
+         self.table.pre_flop()
+         self.p2 = Player('Player2', False, self.table)
+         # Queue should be [p1, p2]
+         self.assertRaises(ValueError, lambda:self.p2.check())
+        
+
     
     # def test_aggroFactorOnlyBet(self):
     #     for i in range(5):
