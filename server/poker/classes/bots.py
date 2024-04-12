@@ -14,7 +14,7 @@ class Better(Player):
 class ScaryCat(Player):
     '''A bot that always if a single opponent bets. Otherwise, checks.'''
     def play(self):
-        pass
+        self.call()
 
 class Joker(Player):
     '''A bot that only does random actions. Can bet a random multiplier of the small blind'''
