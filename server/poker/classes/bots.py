@@ -3,7 +3,12 @@ from game import *
 class AdvancedBot(Player):
     # --- Pre-Flop Betting Strategy --- #
     def __init__(self, name, table):
-        '''The general class for an advanced bot. Contains all the necessary information for advanced play. Children class will have specific methods that tweak information in this class in order to play.'''
+        '''The general class for an advanced bot. Contains all the necessary information for advanced play. Children class will have specific methods that tweak information in this class in order to play.
+        
+        - Name (str)
+        - Table (table object)
+
+        There is no is_computer parameter since it is put as True by default in AdvancedBot class.'''
         Player.__init__(self, name, True, table)
         # Expert-defined values to calculate strategy thresholds. There are technically different thresholds, but we'll use the ones for 3-4 players for the sake of simplicity.
         # Dictionnary values are as:
