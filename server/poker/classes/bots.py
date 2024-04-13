@@ -77,6 +77,7 @@ class AdvancedBot(Player):
     def call1(self):
         '''Fold if it costs more than 1 bet to continue playing and the bot hasn't put money into the pot this round yet, otherwise check/call. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         print('Call1 strategy used')
+        # Not really used except for small blind
         if self.current_bet == 0 and self.table.round_stats['bet'] > 1:         # Fix self.current_bet == 0 when big blind and small blind are integrated (i.e. automatically deducted from player)
             self.fold()
             print('Bot has folded (call1)')
@@ -113,6 +114,7 @@ class AdvancedBot(Player):
 
     def call2(self):
         '''Always check/call, whatever bet is on the table. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
+        # Not really used except for small blind
         if self.current_bet == self.table.required_bet:
             print('bot checks (call2)')
             self.check()
@@ -124,7 +126,14 @@ class AdvancedBot(Player):
 
     def make2(self):
         '''Bet/raise if less than two bets/raises have been made this round, otherwise call. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
-        
+        if self.table.round_stats['bet'] < 2:
+            self.bet(100)
+            print('Bot has bet (make2)')
+            return 'bet'
+        else:
+            self.call()
+            print('Bot has called (make2)')
+            return 'call'
 
     def make4(self):
         '''Bet/raise until betting is capped. Returns the computed action that will be played in the game, as a string. e.g."bet"'''

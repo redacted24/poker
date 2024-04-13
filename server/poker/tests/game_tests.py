@@ -467,6 +467,19 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
         self.p2.call()
         self.assertEqual(self.p3.call2(), 'call')
         
+    def test_make2_case1(self):
+        '''Test make2 method when no one has bet + bot is the last to play. Bot should bet'''
+        self.p1.check()
+        self.p2.check()
+        self.assertEqual(self.p3.make2(), 'bet')
+
+    def test_make2_case1(self):
+        '''Test make2 method when one bot has bet + bot is the last to play. Bot should bet'''
+        self.p1.bet(10)
+        self.p2.fold()
+        self.assertEqual(self.p3.make2(), 'bet')
+    
+
         
 # ------------------------- #
 # --- HAND EVAL TESTING --- #
