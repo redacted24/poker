@@ -26,7 +26,7 @@ class AdvancedBot(Player):
     # Dictionnary values are as:
     # 'tightness': [(make1 values), (make2 values), (make3 values)] where values are a tuple (base, increment)
     # The values for 'call1' and 'make1' are the same, as well as the values for 'call2' and 'make2'
-    preflop_strategy_threshold = {
+    preflop_strategy_values = {
         'tight': {'make1': (-50, 50), 'make2': (150, 50), 'make4': (300,0)},
         'moderate': {'make1': (-50, 50), 'make2': (50, 50), 'make4': (300,0)},
         'loose': {'make1': (-50, 50), 'make2': (0, 0), 'make4': (300,0)}
@@ -40,11 +40,17 @@ class AdvancedBot(Player):
 
         There is no is_computer parameter since it is put as True by default in AdvancedBot class.'''
         Player.__init__(self, name, True, table)
-        self.chosen_pre_flop_strategy = AdvancedBot.preflop_strategy_threshold[tightness]        # Chosen strategy is moderate by default
+        self.chosen_pre_flop_strategy = AdvancedBot.preflop_strategy_values[tightness]        # Chosen strategy is moderate by default
         self.position = 0       # Position: "the number of players to act before it is the small blind's turn again." (Papp, 1998)
+        self.strategy_thresholds = {
+            'make1': 0,
+            'make2': 0,
+            'make4': 0
+        }
     
     def play(self):
         '''Playing function for the bot.'''
+        pass
     
     def update_player_position(self):
         '''Compute the position number of the player.'''
@@ -54,6 +60,10 @@ class AdvancedBot(Player):
             self.position = len(self.table.active_players())-(self.table.player_queue.index(self))
         else:
             raise ValueError('Cannot update player position if game has not been started/set.')
+        
+    def update_threshold(self):
+        '''Update threshold values for all strategies (make1, make2, make4)'''
+        pass
     
     def get_income_rate(self):
         '''Return the IR rate of the bot's hand.'''
@@ -62,7 +72,6 @@ class AdvancedBot(Player):
             return AdvancedBot.income_rates[temp[1].value-2][temp[0].value-2]
         else:
             return AdvancedBot.income_rates[temp[0].value-2][temp[1].value-2]
-
 
     def make0(self):
         '''Fold if it costs more than zero to continue playing, otherwise check'''
