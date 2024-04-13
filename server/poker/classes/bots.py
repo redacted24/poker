@@ -50,7 +50,6 @@ class AdvancedBot(Player):
     
     def play(self):
         '''Playing function for the bot.'''
-        self.call1()        # Testing
     
     def update_player_position(self):
         '''Compute the position number of the player.'''
@@ -92,10 +91,25 @@ class AdvancedBot(Player):
                 print('Bot has called (call1)')
                 return 'call'
         
-
     def make1(self):
-        '''If no bets have been made this round, then bet. Fold if two or more bets are required to continue. Otherwise check/call'''
-        pass
+        '''If no bets have been made this round, then bet. Fold if two or more bets are required to continue. Otherwise check/call. THIS STRATEGY SHOULD NOT BE CALLED IF BOT IS THE BIG BLIND (it shouldn't happen).'''
+        if self.current_bet == 0 and self.table.round_stats['bet'] > 1:
+            self.fold()
+            print('Bot has folded (make1)')
+            return 'fold'
+        elif self.table.round_stats['bet'] == 0;
+            self.bet(100)
+            print('Bot has bet (make1)')
+            return 'bet'
+        else:
+            if self.current_bet == self.table.required_bet:
+                self.check()
+                print('Bot has checked (make1)')
+                return 'check'
+            else:
+                self.call()
+                print('Bot has called (make1)')
+                return 'call'
 
     def call2(self):
         '''Always check/call, whatever bet is on the table'''

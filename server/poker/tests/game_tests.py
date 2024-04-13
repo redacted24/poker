@@ -405,12 +405,20 @@ class TestAdvancedBot(unittest.TestCase):
     # Testing playing methods
 
     def test_call_1_case1(self):
-        '''Test call1 method when another player has bet on the table'''
+        '''Test call1 method when another player has bet on the table. Bot should call'''
         self.p2 = AdvancedBot('p2', self.table, 'moderate')
         self.table.pre_flop()
         self.p1.bet(1)
-        self.table.play()
-    
+        self.assertEqual(self.p2.call1(),'call')
+
+    def test_call_1_case2(self):
+        '''Test call1 method when two other players have bet on the table. Bot should fold'''
+        self.p2 = AdvancedBot('p2', self.table, 'moderate')
+        self.p3 = AdvancedBot('p3', self.table, 'moderate')
+        self.table.pre_flop()
+        self.p1.bet(1)
+        self.p2.bet(1)
+        self.assertEqual(self.p3.call1(), 'fold')
 
 
 
