@@ -365,6 +365,45 @@ class TestAdvancedBot(unittest.TestCase):
         '''Check if func works if board is not set'''
         self.p2 = AdvancedBot('p2', self.table,'moderate')
         self.assertRaises(ValueError, lambda: self.p2.update_player_position())     # Use lambda as wrapper
+    
+    def test_strategyThresholdsModerate(self):
+        self.p2 = AdvancedBot('p2', self.table, 'moderate')
+        self.table.pre_flop()
+        self.p2.update_player_position()        # p2 should be at position 1
+        self.p2.update_strategy_thresholds()
+        with self.subTest('case 1: make1'):
+            self.assertEqual(self.p2.strategy_thresholds['make1'], 0)
+        with self.subTest('case 2: make2'):
+            self.assertEqual(self.p2.strategy_thresholds['make2'], 100)
+        with self.subTest('case 3: make4'):
+            self.assertEqual(self.p2.strategy_thresholds['make4'], 300)
+
+    def test_strategyThresholdsTight(self):
+        self.p2 = AdvancedBot('p2', self.table, 'tight')
+        self.table.pre_flop()
+        self.p2.update_player_position()        # p2 should be at position 1
+        self.p2.update_strategy_thresholds()
+        with self.subTest('case 1: make1'):
+            self.assertEqual(self.p2.strategy_thresholds['make1'], 0)
+        with self.subTest('case 2: make2'):
+            self.assertEqual(self.p2.strategy_thresholds['make2'], 200)
+        with self.subTest('case 3: make4'):
+            self.assertEqual(self.p2.strategy_thresholds['make4'], 300)
+
+    def test_strategyThresholdsLoose(self):
+        self.p2 = AdvancedBot('p2', self.table, 'loose')
+        self.table.pre_flop()
+        self.p2.update_player_position()        # p2 should be at position 1
+        self.p2.update_strategy_thresholds()
+        with self.subTest('case 1: make1'):
+            self.assertEqual(self.p2.strategy_thresholds['make1'], 0)
+        with self.subTest('case 2: make2'):
+            self.assertEqual(self.p2.strategy_thresholds['make2'], 0)
+        with self.subTest('case 3: make4'):
+            self.assertEqual(self.p2.strategy_thresholds['make4'], 300)
+    
+
+
 
 # ------------------------- #
 # --- HAND EVAL TESTING --- #
