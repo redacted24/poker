@@ -13,8 +13,10 @@ class Cards:
     
     def __eq__(self, other):
         return self.value == other.value
+    
     def __lt__(self, other):
         return self.value < other.value
+    
     def __gt__(self, other):
         return self.value > other.value
 
@@ -64,6 +66,9 @@ class Deck:
 
     def __repr__(self):
         return str(self.deck)
+
+    def __len__(self):
+        return len(self.deck)
     
     def get(self, name):
         '''Returns the specific card object'''
