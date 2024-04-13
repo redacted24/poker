@@ -2,7 +2,37 @@ from game import *
 
 class AdvancedBot(Player):
     # --- Pre-Flop Betting Strategy --- #
-    def __init__(self, name, table):
+    # Income rates for pre-flop. Used to determine what strategy to play
+    # From left to right, each column goes from 2 to A
+    # From top to bottom, each row goes from 2 to A
+    # Suited hand's IR is calculated for row>column, otherwise an unsuited hand's IR will be calculated as column<row
+    income_rates = [
+        [-121, -440, -409, -382, -411, -432, -394, -357, -301, -259, -194, -116, 16 ],
+        [-271, -42,  -345, -312, -340, -358, -371, -328, -277, -231, -165, -87,  54 ],
+        [-245, -183,  52,  -246, -269, -287, -300, -308, -252, -204, -135, -55,  84 ],
+        [-219, -151, -91,   152, -200, -211, -227, -236, -227, -169, -104, -24,  118],
+        [-247, -177, -113, -52,   256, -145, -152, -158, -152, -145, -74,   9,   99 ],
+        [-261, -201, -129, -65,   3,    376, -76,  -79,  -68,  -66,  -44,  48,   148],
+        [-226, -204, -140, -73,  -2,    66,   503,  0,    15,   24,   45,  84,   194],
+        [-191, -166, -147, -79,  -5,    68,   138,  647,  104,  113,  136, 177,  241],
+        [-141, -116, -91,  -69,  -4,    75,   150,  235,  806,  226,  255, 295,  354],
+        [-89,  -67,  -41,  -12,   7,    82,   163,  248,  349,  965,  301, 348,  410],
+        [-29,  -3,    22,   51,   80,   108,  185,  274,  379,  423,  1141,403,  473],
+        [47,    76,   101,  128,  161,  199,  230,  318,  425,  473,  529, 1325, 541],
+        [175,   211,  237,  266,  249,  295,  338,  381,  491,  539,  594, 655, 1554]
+    ]
+
+    # Expert-defined values to calculate strategy thresholds. There are technically different thresholds, but we'll use the ones for 3-4 players for the sake of simplicity.
+    # Dictionnary values are as:
+    # 'tightness': [(make1 values), (make2 values), (make3 values)] where values are a tuple (base, increment)
+    # The values for 'call1' and 'make1' are the same, as well as the values for 'call2' and 'make2'
+    preflop_strategy_threshold = {
+        'tight': {'make1': (-50, 50), 'make2': (150, 50), 'make4': (300,0)},
+        'moderate': {'make1': (-50, 50), 'make2': (50, 50), 'make4': (300,0)},
+        'loose': {'make1': (-50, 50), 'make2': (0, 0), 'make4': (300,0)}
+    }
+
+    def __init__(self, name, table, tightness):
         '''The general class for an advanced bot. Contains all the necessary information for advanced play. Children class will have specific methods that tweak information in this class in order to play.
         
         - Name (str)
@@ -10,39 +40,28 @@ class AdvancedBot(Player):
 
         There is no is_computer parameter since it is put as True by default in AdvancedBot class.'''
         Player.__init__(self, name, True, table)
-        # Expert-defined values to calculate strategy thresholds. There are technically different thresholds, but we'll use the ones for 3-4 players for the sake of simplicity.
-        # Dictionnary values are as:
-        # 'name of strategy': [(base, increment) for each type of play], where the types of play are "tight", "moderate", and "loose"
-        # The values for 'call1' and 'make1' are the same, as well as the values for 'call2' and 'make2'
-        self.pre_flop_strategy_threshold = {
-            'make1': [(50, 50), (50,25), (50,10)],
-            'make2': [(200, 50), (200, 25), (200,10)],
-            'make4': [(580, 0), (580, 0), (580, 0)]
-        }
-        # Income rates for pre-flop. Used to determine what strategy to play
-        self.income_rates = [
-            [-121, -440, -409, -382, -411, -432, -394, -357, -301, -259, -194, -116, 16 ],
-            [-271, -42,  -345, -312, -340, -358, -371, -328, -277, -231, -165, -87,  54 ],
-            [-245, -183,  52,  -246, -269, -287, -300, -308, -252, -204, -135, -55,  84 ],
-            [-219, -151, -91,   152, -200, -211, -227, -236, -227, -169, -104, -24,  118],
-            [-247, -177, -113, -52,   256, -145, -152, -158, -152, -145, -74,   9,   99 ],
-            [-261, -201, -129, -65,   3,    376, -76,  -79,  -68,  -66,  -44,  48,   148],
-            [-226, -204, -140, -73,  -2,    66,   503,  0,    15,   24,   45,  84,   194],
-            [-191, -166, -147, -79,  -5,    68,   138,  647,  104,  113,  136, 177,  241],
-            [-141, -116, -91,  -69,  -4,    75,   150,  235,  806,  226,  255, 295,  354],
-            [-89,  -67,  -41,  -12,   7,    82,   163,  248,  349,  965,  301, 348,  410],
-            [-29,  -3,    22,   51,   80,   108,  185,  274,  379,  423,  1141,403,  473],
-            [47,    76,   101,  128,  161,  199,  230,  318,  425,  473,  529, 1325, 541],
-            [175,   211,  237,  266,  249,  295,  338,  381,  491,  539,  594, 655, 1554]
-        ]
+        self.chosen_pre_flop_strategy = AdvancedBot.preflop_strategy_threshold[tightness]        # Chosen strategy is moderate by default
+        self.position = 0       # Position: "the number of players to act before it is the small blind's turn again." (Papp, 1998)
+    
+    def play(self):
+        '''Playing function for the bot.'''
+    
+    def update_player_position(self):
+        '''Compute the position number of the player.'''
+        # Calculated by number of active players - the index of the player in queue.
+        # e.g. If we are checking for the position of the small blind in a two player match, it would be: 2 - 0 = 2. (because there are two players in the match, and small-blind is at the start of the player queue)
+        if self.table.active_players() and self.table.player_queue:
+            self.position = len(self.table.active_players())-(self.table.player_queue.index(self))
+        else:
+            raise ValueError('Cannot update player position if game has not been started/set.')
     
     def get_income_rate(self):
         '''Return the IR rate of the bot's hand.'''
         temp = sorted(self.hand(), key=lambda x:x.value)
         if self.hand()[0].suit == self.hand()[1].suit:
-            return self.income_rates[temp[1].value-2][temp[0].value-2]
+            return AdvancedBot.income_rates[temp[1].value-2][temp[0].value-2]
         else:
-            return self.income_rates[temp[0].value-2][temp[1].value-2]
+            return AdvancedBot.income_rates[temp[0].value-2][temp[1].value-2]
 
 
     def make0(self):

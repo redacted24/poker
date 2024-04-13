@@ -327,7 +327,7 @@ class TestAdvancedBot(unittest.TestCase):
     def setUp(self):
         self.deck = Deck()
         self.table = Table(self.deck)
-        self.p1 = AdvancedBot('p1', self.table)
+        self.p1 = AdvancedBot('p1', self.table,'moderate')
     
     def test_get_income_rate1(self):
         '''Test the get_income_rate method to check if it returns the correct IR.'''
@@ -353,7 +353,18 @@ class TestAdvancedBot(unittest.TestCase):
         '''Bottom right of self.income_rates'''
         self.p1.receive([self.deck.get('As'), self.deck.get('Ad')])
         self.assertEqual(self.p1.get_income_rate(), 1554, 'Incorrect IR')
+    
+    def test_botPosition(self):
+        '''Check if player position is well computed'''
+        self.p2 = AdvancedBot('p2', self.table, 'moderate')
+        self.table.pre_flop()
+        self.p2.update_player_position()
+        self.assertEqual(self.p2.position,1)
 
+    def test_botPositionFail(self):
+        '''Check if func works if board is not set'''
+        self.p2 = AdvancedBot('p2', self.table,'moderate')
+        self.assertRaises(ValueError, lambda: self.p2.update_player_position())     # Use lambda as wrapper
 
 # ------------------------- #
 # --- HAND EVAL TESTING --- #
