@@ -415,19 +415,18 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
         self.p1 = AdvancedBot('p1', self.table,'moderate')
         self.p2 = AdvancedBot('p2', self.table, 'moderate')
         self.p3 = AdvancedBot('p3', self.table, 'moderate')     # Three players are setup for simplicity
+        self.table.pre_flop()
 
     def tearDown(self):
         self.table.end()
 
     def test_call_1_case1(self):
         '''Test call1 method when another player has bet on the table + bot is the last to play. Bot should call'''
-        self.table.pre_flop()
         self.p1.bet(1)
         self.assertEqual(self.p2.call1(),'call')
 
     def test_call_1_case2(self):
         '''Test call1 method when two other players have bet on the table + bot is the last to play. Bot should fold'''
-        self.table.pre_flop()
         self.p1.bet(1)
         self.p2.bet(1)
         self.assertEqual(self.p3.call1(), 'fold')       # Two players have bet, and call1 specifies to fold if there are more than or equal to two bets on the board.
@@ -435,28 +434,24 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
     def test_call_1_case3(self):
         '''Test call1 method when no other players have bet on the table + bot is the last to play. Bot should call (because there is minimum payment)'''
         # Technically, bot should check if they are big blind. However, that has not been added yet, so this will suffice. Please remove this comment and modify test when big blind is integrated
-        self.table.pre_flop()
         self.p1.call()
         self.p2.call()
         self.assertEqual(self.p3.call1(), 'call') 
 
     def test_make1_case1(self):
         '''Test make1 method when no players have bet on the table + bot is the last to play. Bot should bet'''
-        self.table.pre_flop()
         self.p1.call()
         self.p2.call()
         self.assertEqual(self.p3.make1(), 'bet')
 
     def test_make1_case2(self):
         '''Test make1 method when one player has bet on the table + bot is the last to play. Bot should call'''
-        self.table.pre_flop()
         self.p1.bet(10)
         self.p2.call()
         self.assertEqual(self.p3.make1(), 'call')
     
     def test_make1_case3(self):
         '''Test make1 method when two players have bet on the table + bot is the last to play. Bot should fold'''
-        self.table.pre_flop()
         self.p1.bet(10)
         self.p2.bet(10)
         self.assertEqual(self.p3.make1(), 'fold')
