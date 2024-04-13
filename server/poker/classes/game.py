@@ -347,29 +347,38 @@ class Player():
                                                     #takes in a list of 7 cards
             '''Check if hand is a flush and whether it's a Royal Flush, a Straight Flush or a regular Flush'''
 
-            hand.sort(reverse = True)                                   #sorts the cards in descending order so the deck can be read from highest value to lowest value                                                #sorts the hand by value initially to have 
-            suitHand = sorted(hand, key = lambda x: x. suit)                                     #sorts the hand by suits to check whether there are 5 of the same suits
-            for i in range(len(hand) - 2):
-                otherHand = hand[i:i+5]
-                x = {i.value for i in hand[i:]}
-                straightHand = sorted(x, reverse = True)
-                winningHand = sorted(suitHand[i:i+5], key = lambda x:x.suit)
-                if winningHand[0].suit == winningHand[-1].suit:
-                    if len(winningHand) >= 5 and all([(winningHand[i].value - winningHand[i+1].value) == 1 for i in range(len(winningHand) - 1)]):      #basic requirement for a Straight Flush or a Royal Flush
-                        if int(winningHand[0].value) == 14:
-                            return (1, str(winningHand))
-                        else:
-                            return (2, str(winningHand))
-                    elif len(winningHand) >= 5: #regular flush
-                        return (5, str(winningHand))
-                elif all([(otherHand[i].value - otherHand[i+1].value) == 0 for i in range(len(otherHand) - 2)]):
-                    return (3, str(hand[i:i+4]))
-                elif (not 14 in straightHand) and len(straightHand) == 5 and all([(straightHand[i] - straightHand[i+1]) == 1 for i in range(len(straightHand) - 1)]):
-                    return (6, str(straightHand))
-                elif all([(otherHand[i].value - otherHand[i+1].value) == 0 for i in range(len(otherHand) - 3)]):
-                    return (7, str(hand[i:i+3]))
+            def potentialHands(hand):
+                winningHands = []
+                hand.sort(reverse = True)                                   #sorts the cards in descending order so the deck can be read from highest value to lowest value                                                #sorts the hand by value initially to have 
+                suitHand = sorted(hand, key = lambda x: x. suit)                                     #sorts the hand by suits to check whether there are 5 of the same suits
+                for i in range(len(hand) - 2):
+                    otherHand = hand[i:i+5]
+                    x = {i.value for i in hand[i:]}
+                    straightHand = sorted(x, reverse = True)
+                    winningHand = sorted(suitHand[i:i+5], key = lambda x:x.suit)
+                    if winningHand[0].suit == winningHand[-1].suit:
+                        if len(winningHand) >= 5 and all([(winningHand[i].value - winningHand[i+1].value) == 1 for i in range(len(winningHand) - 1)]):      #basic requirement for a Straight Flush or a Royal Flush
+                            if int(winningHand[0].value) == 14:
+                                winningHands.append((1, str(winningHand)))
+                            else:
+                                winningHands.append((2, str(winningHand)))
+                        elif len(winningHand) >= 5: #regular flush
+                            winningHands.append((5, str(winningHand)))
+                    elif all([(otherHand[i].value - otherHand[i+1].value) == 0 for i in range(len(otherHand) - 1)]):
+                        winningHands.append((3, str(hand[i:i+4])))
+                    elif len(straightHand) == 5 and all([(straightHand[i] - straightHand[i+1]) == 1 for i in range(len(straightHand) - 1)]):
+                        winningHands.append((6, str(straightHand)))
+                    elif all([(otherHand[i].value - otherHand[i+1].value) == 0 for i in range(len(otherHand) - 2)]):
+                        winningHands.append((7, str(hand[i:i+3])))
+                    elif otherHand[0].value == otherHand[1].value and otherHand[2].value == otherHand[3].value:
+                        winningHands.append((8, str(otherHand[i:i+4])))
+                return winningHands
 
-            return False
+
+            def priorityChecker(x):
+                return min(x)
+
+            return priorityChecker(potentialHands(hand))
 
             
             
@@ -453,6 +462,7 @@ if __name__ == "__main__":
     assert Player.handEval([deck.get('Ks'), deck.get('9s'), deck.get('9h'), deck.get('9d'), deck.get('9c'), deck.get('Th'), deck.get('Js')]) == (3, '[9s, 9h, 9d, 9c]') 
     assert Player.handEval([deck.get('As'), deck.get('Ks'), deck.get('Qs'), deck.get('Qh'), deck.get('Js'), deck.get('Jh'), deck.get('Ts')]) == (1, '[As, Ks, Qs, Js, Ts]')
     assert Player.handEval([deck.get('Ks'), deck.get('Ts'), deck.get('8h'), deck.get('9d'), deck.get('7c'), deck.get('6s'), deck.get('8s')]) == (6, '[10, 9, 8, 7, 6]')
-    assert Player.handEval([deck.get('Ks'), deck.get('Ts'), deck.get('8h'), deck.get('9d'), deck.get('8c'), deck.get('8s'), deck.get('6h')])
-
+    assert Player.handEval([deck.get('Ks'), deck.get('Ts'), deck.get('8h'), deck.get('9d'), deck.get('8c'), deck.get('8s'), deck.get('6h')]) == (7, '[8h, 8c, 8s]')
+    assert Player.handEval([deck.get('Ks'), deck.get('Ts'), deck.get('Js'), deck.get('Jh'), deck.get('Qh'), deck.get('Qs'), deck.get('9s')]) == (2, '[Ks, Qs, Js, Ts, 9s]')
+    
     print('All tests passed.')
