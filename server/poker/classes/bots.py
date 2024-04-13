@@ -75,14 +75,14 @@ class AdvancedBot(Player):
             return AdvancedBot.income_rates[temp[0].value-2][temp[1].value-2]
         
     def call1(self):
-        '''Fold if it costs more than 1 bet to continue playing and the bot hasn't put money into the pot this round yet, otherwise check/call'''
+        '''Fold if it costs more than 1 bet to continue playing and the bot hasn't put money into the pot this round yet, otherwise check/call. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         print('Call1 strategy used')
         if self.current_bet == 0 and self.table.round_stats['bet'] > 1:         # Fix self.current_bet == 0 when big blind and small blind are integrated (i.e. automatically deducted from player)
             self.fold()
             print('Bot has folded (call1)')
             return 'fold'
         else:
-            if self.current_bet == self.table.required_bet:
+            if self.current_bet == self.table.required_bet:     # Should only happen if the bot is the big blind, in which case he would have automatically already bet
                 self.check()
                 print('Bot has checked (call1)')
                 return 'check'
@@ -92,7 +92,7 @@ class AdvancedBot(Player):
                 return 'call'
         
     def make1(self):
-        '''If no bets have been made this round, then bet. Fold if two or more bets are required to continue. Otherwise check/call. THIS STRATEGY SHOULD NOT BE CALLED IF BOT IS THE BIG BLIND (it shouldn't happen).'''
+        '''If no bets have been made this round, then bet. Fold if two or more bets are required to continue. Otherwise check/call. THIS STRATEGY SHOULD NOT BE CALLED IF BOT IS THE BIG BLIND (it shouldn't happen). Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         if self.current_bet == 0 and self.table.round_stats['bet'] > 1:
             self.fold()
             print('Bot has folded (make1)')
@@ -112,15 +112,15 @@ class AdvancedBot(Player):
                 return 'call'
 
     def call2(self):
-        '''Always check/call, whatever bet is on the table'''
+        '''Always check/call, whatever bet is on the table. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         pass
 
     def make2(self):
-        '''Bet/raise if less than two bets/raises have been made this round, otherwise call'''
+        '''Bet/raise if less than two bets/raises have been made this round, otherwise call. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         pass
 
     def make4(self):
-        '''Bet/raise until betting is capped'''
+        '''Bet/raise until betting is capped. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         pass
 
 # Meme bots
