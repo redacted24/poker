@@ -1,7 +1,4 @@
-if __name__ == '__main__':
-    from game import *         # type: ignore
-else:
-    from .game import *
+from poker.classes.game import *
 
 # Meme bots
 class Better(Player):

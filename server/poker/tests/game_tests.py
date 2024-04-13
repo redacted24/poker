@@ -1,9 +1,8 @@
-import sys
-sys.path.append('../poker/server/poker/classes')
 import unittest
-from bots import *
-from cards import *
-from game import *
+
+from poker.classes.bots import *
+from poker.classes.cards import *
+from poker.classes.game import *
 
 # ---
 class TestTableMethods(unittest.TestCase):
