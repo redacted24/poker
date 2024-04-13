@@ -1,7 +1,9 @@
 import sys
-import unittest
 sys.path.append('../poker/server/poker/classes')
-from bots import *              # If you have Pylance installed ignore underline
+import unittest
+from bots import *
+from cards import *
+from game import *
 
 # ---
 class TestTableMethods(unittest.TestCase):
