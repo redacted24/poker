@@ -510,6 +510,5 @@ class TestBetterBot(unittest.TestCase):
         self.table.end()
     
 
-
 if __name__ == "__main__":
     unittest.main()
