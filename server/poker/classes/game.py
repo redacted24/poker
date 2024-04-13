@@ -376,8 +376,6 @@ class Player():
 
             return False
 
-            
-            
         def riverEval(self):
             '''Return the highest scoring hand pattern of player + board.'''
             pass

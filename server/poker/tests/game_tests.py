@@ -402,6 +402,15 @@ class TestAdvancedBot(unittest.TestCase):
         with self.subTest('case 3: make4'):
             self.assertEqual(self.p2.strategy_thresholds['make4'], 300)
     
+    # Testing playing methods
+
+    def test_call_1_case1(self):
+        '''Test call1 method when another player has bet on the table'''
+        self.p2 = AdvancedBot('p2', self.table, 'moderate')
+        self.table.pre_flop()
+        self.p1.bet(1)
+        self.table.play()
+    
 
 
 
