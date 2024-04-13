@@ -323,11 +323,14 @@ class TestPlayerMethods(unittest.TestCase):
 
 
 # ---
-class TestAdvancedBot(unittest.TestCase):
+class TestAdvancedBotMethods(unittest.TestCase):
     def setUp(self):
         self.deck = Deck()
         self.table = Table(self.deck)
         self.p1 = AdvancedBot('p1', self.table,'moderate')
+    
+    def tearDown(self):
+        self.table.end()
     
     def test_get_income_rate1(self):
         '''Test the get_income_rate method to check if it returns the correct IR.'''
@@ -402,26 +405,44 @@ class TestAdvancedBot(unittest.TestCase):
         with self.subTest('case 3: make4'):
             self.assertEqual(self.p2.strategy_thresholds['make4'], 300)
     
-    # Testing playing methods
+
+
+# --- Testing game situations and playing methods
+class TestAdvancedBotPlaySituations(unittest.TestCase):
+    def setUp(self):
+        self.deck = Deck()
+        self.table = Table(self.deck)
+        self.p1 = AdvancedBot('p1', self.table,'moderate')
+        self.p2 = AdvancedBot('p2', self.table, 'moderate')
+        self.p3 = AdvancedBot('p3', self.table, 'moderate')     # Three players are setup for simplicity
+
+    def tearDown(self):
+        self.table.end()
 
     def test_call_1_case1(self):
-        '''Test call1 method when another player has bet on the table. Bot should call'''
-        self.p2 = AdvancedBot('p2', self.table, 'moderate')
+        '''Test call1 method when another player has bet on the table + bot is the last to play. Bot should call'''
         self.table.pre_flop()
         self.p1.bet(1)
         self.assertEqual(self.p2.call1(),'call')
 
     def test_call_1_case2(self):
-        '''Test call1 method when two other players have bet on the table. Bot should fold'''
-        self.p2 = AdvancedBot('p2', self.table, 'moderate')
-        self.p3 = AdvancedBot('p3', self.table, 'moderate')
+        '''Test call1 method when two other players have bet on the table + bot is the last to play. Bot should fold'''
         self.table.pre_flop()
         self.p1.bet(1)
         self.p2.bet(1)
-        self.assertEqual(self.p3.call1(), 'fold')
+        self.assertEqual(self.p3.call1(), 'fold')       # Two players have bet, and call1 specifies to fold if there are more than or equal to two bets on the board.
 
+    def test_call_1_case3(self):
+        '''Test call1 method when no other players have bet on the table + bot is the last to play. Bot should call (because there is minimum payment)'''
+        self.table.pre_flop()
+        self.p1.call()
+        self.p2.call()
+        self.assertEqual(self.p3.call1(), 'call') 
 
-
+    def test_make1_case1(self):
+        '''Test make1 method when no players have bet on the table + bot is the last to play. Bot should bet'''
+        pass
+        
 # ------------------------- #
 # --- HAND EVAL TESTING --- #
 # ------------------------- #

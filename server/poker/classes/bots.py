@@ -97,7 +97,7 @@ class AdvancedBot(Player):
             self.fold()
             print('Bot has folded (make1)')
             return 'fold'
-        elif self.table.round_stats['bet'] == 0;
+        elif self.table.round_stats['bet'] == 0:
             self.bet(100)
             print('Bot has bet (make1)')
             return 'bet'
