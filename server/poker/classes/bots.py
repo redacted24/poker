@@ -113,7 +113,6 @@ class AdvancedBot(Player):
 
     def call2(self):
         '''Always check/call, whatever bet is on the table. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
-        pass
 
     def make2(self):
         '''Bet/raise if less than two bets/raises have been made this round, otherwise call. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
