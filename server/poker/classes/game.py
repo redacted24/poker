@@ -1,4 +1,7 @@
-from cards import *
+if __name__ == '__main__':
+    from cards import *         # type: ignore
+else:
+    from .cards import *
 
 class Board():
     def __init__(self):
