@@ -113,10 +113,18 @@ class AdvancedBot(Player):
 
     def call2(self):
         '''Always check/call, whatever bet is on the table. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
+        if self.current_bet == self.table.required_bet:
+            print('bot checks (call2)')
+            self.check()
+            return 'check'
+        else:
+            self.call()
+            print('bot calls (call2)')
+            return 'call'
 
     def make2(self):
         '''Bet/raise if less than two bets/raises have been made this round, otherwise call. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
-        pass
+        
 
     def make4(self):
         '''Bet/raise until betting is capped. Returns the computed action that will be played in the game, as a string. e.g."bet"'''

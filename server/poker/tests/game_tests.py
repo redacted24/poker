@@ -169,7 +169,6 @@ class testBoardMethods(unittest.TestCase):
         self.table.board.clear()
         self.assertFalse(self.table.board.cards)
 
-
 # ---
 class TestPlayerMethods(unittest.TestCase):
     def setUp(self):
@@ -453,8 +452,20 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
     def test_make1_case3(self):
         '''Test make1 method when two players have bet on the table + bot is the last to play. Bot should fold'''
         self.p1.bet(10)
-        self.p2.bet(10)
+        self.p2.bet(20)
         self.assertEqual(self.p3.make1(), 'fold')
+
+    def test_call2_case1(self):
+        '''Test make1 method when two players have bet on the table + bot is the last to play. Bot should call'''
+        self.p1.bet(10)
+        self.p2.bet(20)
+        self.assertEqual(self.p3.call2(), 'call')
+
+    def test_call2_case2(self):
+        '''Test make1 method when one player has bet on the table + bot is the last to play. Bot should call'''
+        self.p1.bet(10)
+        self.p2.call()
+        self.assertEqual(self.p3.call2(), 'call')
         
         
 # ------------------------- #
