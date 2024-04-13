@@ -40,7 +40,7 @@ class AdvancedBot(Player):
 
         There is no is_computer parameter since it is put as True by default in AdvancedBot class.'''
         Player.__init__(self, name, True, table)
-        self.chosen_pre_flop_strategy = AdvancedBot.preflop_strategy_values[tightness]        # Chosen strategy is moderate by default
+        self.chosen_pre_flop_strategy = AdvancedBot.preflop_strategy_values[tightness]        # Chosen strategy is moderate by default. The variable is a dictionnary. See preflop_strategy_values
         self.position = 0       # Position: "the number of players to act before it is the small blind's turn again." (Papp, 1998)
         self.strategy_thresholds = {
             'make1': 0,
@@ -57,13 +57,15 @@ class AdvancedBot(Player):
         # Calculated by number of active players - the index of the player in queue.
         # e.g. If we are checking for the position of the small blind in a two player match, it would be: 2 - 0 = 2. (because there are two players in the match, and small-blind is at the start of the player queue)
         if self.table.active_players() and self.table.player_queue:
-            self.position = len(self.table.active_players())-(self.table.player_queue.index(self))
+            self.position = int(len(self.table.active_players())-(self.table.player_queue.index(self)))
         else:
             raise ValueError('Cannot update player position if game has not been started/set.')
         
-    def update_threshold(self):
+    def update_strategy_thresholds(self):
         '''Update threshold values for all strategies (make1, make2, make4)'''
-        pass
+        self.strategy_thresholds['make1'] = self.chosen_pre_flop_strategy['make1'][0] + self.chosen_pre_flop_strategy['make1'][1]*self.position
+        self.strategy_thresholds['make2'] = self.chosen_pre_flop_strategy['make2'][0] + self.chosen_pre_flop_strategy['make2'][1]*self.position
+        self.strategy_thresholds['make4'] = self.chosen_pre_flop_strategy['make4'][0] + self.chosen_pre_flop_strategy['make4'][1]*self.position
     
     def get_income_rate(self):
         '''Return the IR rate of the bot's hand.'''
