@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import Card from './Card'
 import Player from './Player'
-import Opponent from './Opponent'
+import Opponents from './Opponents'
 import './playground.css'
 import { useState } from 'react'
 import pokerService from '../../services/poker'
@@ -78,13 +78,10 @@ const Playground = () => {
             <button id='start-button' onClick={start}>Start</button>
           }
         </div>
-        {table.players.map(player => {
-          if (player.name == name) {
+        {table.players.filter(player => player.name == name).map(player => {
             return <Player key={name} name={name} player={player} requiredBet={table.required_bet} setTable={setTable} />
-          } else {
-            return <Opponent key={player.name} player={player} />
-          }
         })}
+        <Opponents opponents={table.players.filter(player => player.name !== name)} />
 
       </div>
     </>
