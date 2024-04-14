@@ -1,12 +1,8 @@
 .opponent {
-  position: absolute;
-  top: 4%;
-  height: 16%;
-  width: 100%;
+  width: 10vw;
 }
 
 .opponent-hand {
-  position: absolute;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -14,29 +10,13 @@
 }
 
 .opponent-hand > .card {
-  width: 80px;
-  margin: 0 -28px;
-  height: 116.17px;
+  height: calc(6vh + 60px);
+  margin: 0 calc(-1.5vh - 15px);
 }
 
 .opponent-worth {
-  position: absolute;
-  top: 90%;
+  margin-top: calc(4px + 1vh);
   width: 100%;
   text-align: center;
   font-size: 1.2rem;
-}
-
-#buttons {
-  position: absolute;
-  top: 68%;
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  gap: 16px;
-}
-
-.action {
-  width: 80px;
-  height: 24px;
 }
