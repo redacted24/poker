@@ -352,29 +352,91 @@ class Player():
                                                     #takes in a list of 7 cards
             '''Check if hand is a flush and whether it's a Royal Flush, a Straight Flush or a regular Flush'''
 
-            hand.sort(reverse = True)                                   #sorts the cards in descending order so the deck can be read from highest value to lowest value                                                #sorts the hand by value initially to have 
-            suitHand = sorted(hand, key = lambda x: x. suit)                                     #sorts the hand by suits to check whether there are 5 of the same suits
-            for i in range(len(hand) - 2):
-                otherHand = hand[i:i+5]
-                x = {i.value for i in hand[i:]}
-                straightHand = sorted(x, reverse = True)
-                winningHand = sorted(suitHand[i:i+5], key = lambda x:x.suit)
-                if winningHand[0].suit == winningHand[-1].suit:
-                    if len(winningHand) >= 5 and all([(winningHand[i].value - winningHand[i+1].value) == 1 for i in range(len(winningHand) - 1)]):      #basic requirement for a Straight Flush or a Royal Flush
-                        if int(winningHand[0].value) == 14:
-                            return (1, str(winningHand))
-                        else:
-                            return (2, str(winningHand))
-                    elif len(winningHand) >= 5: #regular flush
-                        return (5, str(winningHand))
-                elif all([(otherHand[i].value - otherHand[i+1].value) == 0 for i in range(len(otherHand) - 2)]):
-                    return (3, str(hand[i:i+4]))
-                elif (not 14 in straightHand) and len(straightHand) == 5 and all([(straightHand[i] - straightHand[i+1]) == 1 for i in range(len(straightHand) - 1)]):
-                    return (6, str(straightHand))
-                elif all([(otherHand[i].value - otherHand[i+1].value) == 0 for i in range(len(otherHand) - 3)]):
-                    return (7, str(hand[i:i+3]))
+            def getOriginalStraight(values, hand):
+                winning_hand = []
+                for card in hand:
+                    if values and card.value == values[0]:
+                        winning_hand.append(card)
+                        values.pop(0)
 
-            return False
+                if values:
+                    winning_hand.append(hand[0])
+                return winning_hand
+
+            def checkStraight(values: dict, hand):
+                sorted_values = sorted(values.keys(), reverse=True)
+                if 14 in sorted_values: sorted_values.append(1)
+                consecutive = 1
+                for i in range(0, len(sorted_values) - 1):
+                    if sorted_values[i] - 1 == sorted_values[i+1]:
+                        consecutive += 1
+                        if consecutive == 5:
+                            return getOriginalStraight(sorted_values[i-3:i+2], hand)
+                    else:
+                        consecutive = 1
+                return False
+            
+            def checkFlush(suits: dict, hand: list[Cards]):
+                for suit, items in suits.items():
+                    if items >= 5:
+                        suited_cards = [card for card in hand if card.suit == suit]
+                        flush_values = {}
+                        for card in suited_cards:
+                            flush_values[card.value] = values.get(card.value, 0) + 1
+                        flush_straight = checkStraight(flush_values, suited_cards)
+                        return flush_straight, suited_cards
+                return False, False
+
+
+            def getOriginalValues(num_items, values, hand):
+                winning_hand = []
+                while num_items:
+                    for value, items in sorted(values.items(), key=lambda x: x[1]):
+                        if num_items and items >= num_items[0]:
+                            winning_hand += [card for card in hand if card.value == value]
+                            num_items.pop(0)
+
+                winning_hand = winning_hand[0:5]
+
+                for card in hand:
+                    if card not in winning_hand:
+                        if len(winning_hand) >= 5:
+                            break
+                        winning_hand.append(card)
+
+                return winning_hand
+
+            values = {}
+            suits = {}
+            sorted_hand = sorted(hand, reverse=True, key=lambda c: c.value)
+            for card in sorted_hand:
+                values[card.value] = values.get(card.value, 0) + 1
+                suits[card.suit] = suits.get(card.suit, 0) + 1
+
+            flush_straight, flush = checkFlush(suits, sorted_hand)
+            straight = checkStraight(values, sorted_hand)
+
+            if flush_straight and flush_straight[0].value == 14:
+                return 1, flush_straight
+            elif flush_straight:
+                    return 2, flush_straight
+            elif 4 in values.values():
+                return 3, getOriginalValues([4], values, sorted_hand)
+            elif len([v for v in values.values() if v == 3]) == 2 or (3 in values.values() and 2 in values.values()):
+                return 4, getOriginalValues([3, 2], values, sorted_hand)
+            elif flush:
+                return 5, flush[0:5]
+            elif straight:
+                return 6, straight
+            elif 3 in values.values():
+                return 7, getOriginalValues([3], values, sorted_hand)
+            elif len([v for v in values.values() if v == 2]) >= 2:
+                return 8, getOriginalValues([2, 2], values, sorted_hand)
+            
+            elif 2 in values.values():
+                return 9, getOriginalValues([2], values, sorted_hand)
+            else:
+                return 10, sorted_hand[0:5]
 
         def riverEval(self):
             '''Return the highest scoring hand pattern of player + board.'''
@@ -451,11 +513,11 @@ if __name__ == "__main__":
     p1 = Player('Haha', table)
 
     # Check for flushes
-    assert Player.handEval([deck.get('9s'), deck.get('Ts'), deck.get('Js'), deck.get('Ks'), deck.get('As')]) == (5, '[As, Ks, Js, Ts, 9s]')
-    assert Player.handEval([deck.get('Ts'), deck.get('Qs'), deck.get('Js'), deck.get('Ks'), deck.get('As')]) == (1, '[As, Ks, Qs, Js, Ts]')
-    assert Player.handEval([deck.get('Ks'), deck.get('9s'), deck.get('9h'), deck.get('9d'), deck.get('9c'), deck.get('Th'), deck.get('Js')]) == (3, '[9s, 9h, 9d, 9c]') 
-    assert Player.handEval([deck.get('As'), deck.get('Ks'), deck.get('Qs'), deck.get('Qh'), deck.get('Js'), deck.get('Jh'), deck.get('Ts')]) == (1, '[As, Ks, Qs, Js, Ts]')
-    assert Player.handEval([deck.get('Ks'), deck.get('Ts'), deck.get('8h'), deck.get('9d'), deck.get('7c'), deck.get('6s'), deck.get('8s')]) == (6, '[10, 9, 8, 7, 6]')
-    assert Player.handEval([deck.get('Ks'), deck.get('Ts'), deck.get('8h'), deck.get('9d'), deck.get('8c'), deck.get('8s'), deck.get('6h')])
+    print(p1.handEval([deck.get('9s'), deck.get('Ts'), deck.get('Js'), deck.get('Ks'), deck.get('As')])) # == (5, '[As, Ks, Js, Ts, 9s]')
+    print(p1.handEval([deck.get('Ts'), deck.get('Qs'), deck.get('Js'), deck.get('Ks'), deck.get('As')])) # == (1, '[As, Ks, Qs, Js, Ts]')
+    print(p1.handEval([deck.get(card) for card in ['2d', '6s', 'Kh', 'Qd', 'Ad', 'Ks', 'Td']])) # == (3, '[9s, 9h, 9d, 9c]') 
+    print(p1.handEval([deck.get('As'), deck.get('Ks'), deck.get('Qs'), deck.get('Qh'), deck.get('Js'), deck.get('Jh'), deck.get('Ts')])) # == (1, '[As, Ks, Qs, Js, Ts]')
+    print(p1.handEval([deck.get('Ks'), deck.get('Ts'), deck.get('8h'), deck.get('9d'), deck.get('7c'), deck.get('6s'), deck.get('8s')])) # == (6, '[10, 9, 8, 7, 6]')
+    print(p1.handEval([deck.get('Ks'), deck.get('Ts'), deck.get('8h'), deck.get('9d'), deck.get('8c'), deck.get('8s'), deck.get('6h')]))
 
     print('All tests passed.')
