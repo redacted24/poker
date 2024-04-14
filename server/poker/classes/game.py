@@ -365,16 +365,16 @@ class Player():
         def handEval(self, river):
             '''Compute strength of a certain hand of a certain size.
             Takes in a list of 7 card objects, and returns (int, list) where first int is the hand type and the list is the cards in hand.
-            1. Royal Flush
-            2. Straight Flush
-            3. Four of a Kind
-            4. Full House
-            5. Flush
-            6. Straight
-            7. Three of a kind
-            8. Two Pair
-            9. Pair
-            10. High Card'''
+            10. Royal Flush
+            9. Straight Flush
+            8. Four of a Kind
+            7. Full House
+            6. Flush
+            5. Straight
+            4. Three of a kind
+            3. Two Pair
+            2. Pair
+            1. High Card'''
 
             def getOriginalStraight(values, hand):
                 winning_hand = []
