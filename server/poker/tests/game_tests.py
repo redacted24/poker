@@ -506,6 +506,7 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
         self.assertEqual(self.p1.position, 1, 'p1 should be small blind here')
     
     def test_blindRotation_case2(self):
+        '''Test player positions after certain rounds are played'''
         self.table.pre_flop()
         self.p3.call()
         self.p4.call()

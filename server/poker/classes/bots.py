@@ -136,7 +136,7 @@ class AdvancedBot(Player):
             return 'call'
 
     def make4(self):
-        '''Bet/raise until betting is capped. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
+        '''Bet/raise until betting is capped, or player goes all-in. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         pass
 
 # Meme bots
