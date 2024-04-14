@@ -178,7 +178,6 @@ class testBoardMethods(unittest.TestCase):
         
     def test_boardClear(self):
         '''Test board method clear()'''
-        print('showerssss', self.table.board)
         self.table.board.clear()
         self.assertFalse(self.table.board.cards())
 
@@ -500,6 +499,45 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
         self.p4.fold()
         self.assertEqual(self.p1.make2(), 'bet')
     
+    def test_blindRotation_case1(self):
+        self.table.pre_flop()
+        self.p3.call()
+        self.p4.call()
+        self.assertEqual(self.p1.position, 1, 'p1 should be small blind here')
+    
+    def test_blindRotation_case2(self):
+        self.table.pre_flop()
+        self.p3.call()
+        self.p4.call()
+        self.p1.call()
+        self.p2.check()
+        self.table.reset()
+        self.table.pre_flop()
+        self.assertEqual(self.p1.position,0)
+        self.assertEqual(self.p2.position,1)
+        self.assertEqual(self.p3.position,2)
+        self.assertEqual(self.p4.position,3)
+        self.p4.call()
+        self.p1.call()
+        self.p2.call()
+        self.p3.check()
+        self.table.reset()
+        self.table.pre_flop()
+        self.assertEqual(self.p1.position,3)
+        self.assertEqual(self.p2.position,0)
+        self.assertEqual(self.p3.position,1)
+        self.assertEqual(self.p4.position,2)
+        self.p1.call()
+        self.p2.call()
+        self.p3.call()
+        self.p4.check()
+        self.table.reset()
+        self.table.pre_flop()
+        self.assertEqual(self.p4.position,1)
+        self.assertEqual(self.p1.position,2)
+        self.assertEqual(self.p2.position,3)
+        self.assertEqual(self.p3.position,0)
+
 
         
 # ------------------------- #

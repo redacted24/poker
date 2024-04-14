@@ -107,11 +107,11 @@ class Table():
     def set_positions(self):
         '''Set the positions of the players for the current round'''
         for i, player in enumerate(self.players):
-            player.position = (i + 1) % len(self.players)
+            player.position = abs(i + 1) % len(self.players)
 
     def set_blinds(self):
         '''Takes out the required contributions from the blinds to the pot'''
-        small_blind, big_blind = self.players[0:2]
+        small_blind,big_blind = self.players[0:2]
         small_blind.balance -= 5
         small_blind.current_bet = 5
         big_blind.balance -= 10
@@ -240,10 +240,7 @@ class Table():
         self.round_stats[move] += 1
         player.stats[move] += 1
         self.last_move = [player.name, move]
-        player.actions_done = sum(player.stats.values())
-        # player.aggro_factor = 0 if player.stats['call'] == 0 else (player.stats['bet']+player.stats['raise'])/player.stats['call'] # Aggression factor ((bets+raises)/calls   
-        # player.aggro_frequency = 0 if player.actions_done == 0 else (player.stats['bet']+player.stats['raise'])/(player.stats['call'] + player.stats['bet'] + player.stats['raise'] + player.stats['fold']) # Aggression frequency ([(bets + raises)/(bets + raises + calls + folds)] * 100)
-        
+        player.actions_done = sum(player.stats.values())  
 
     def call(self, player):
         '''Player calls, matching the current bet.'''
@@ -315,6 +312,7 @@ class Table():
     def end(self):
         '''A method that ends the current game. Clears game_stats. Players leave the table. Basically a harder reset than the reset method.'''
         self.reset()
+        self.blinds_adjustment_factor = 0
         self.players.clear()
         for stat in self.game_stats.keys():
             self.game_stats[stat] = 0
