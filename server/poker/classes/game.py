@@ -34,7 +34,7 @@ class Board():
     
     def clear(self):
         '''Clears and resets the board to its initial state'''
-        self.cards = []
+        self._cards = []
         self._show_cards = False
 
 class Table():
@@ -187,10 +187,11 @@ class Table():
 
         winning_player.rake()       # Winning player takes in all the money
         self.winning_player = winning_player
+        print(self.winning_player)
 
 
     def play(self):
-        '''Lets all the computers play their turn, then starts the next round.'''
+        '''Lets all the computers play their turn, then starts the next round if needed.'''
         while len(self.player_queue) != 0:
             current_player = self.player_queue[0]
             if (current_player.is_computer):
@@ -203,12 +204,13 @@ class Table():
             rounds = [self.pre_flop, self.flop, self.turn, self.river, self.showdown, self.reset]
             
             rounds[self.state]()
+            if self.state < 4:
+                self.play()
 
     def reset(self):
         '''Clears current cards on the board, resets deck, and removes all player handheld cards.
         Clears current round stats. Game stats are left unchanged.
-        Pot is left unchanged because it should be handled by the player "rake" func.
-        Players are still on the table.'''
+        Players are still on the table, but shifted by one seat'''
         print('Reset')
         self.pot = 0
         self.state = 0
@@ -216,6 +218,7 @@ class Table():
         self.deck.reset()
         self.start_queue()
         self.clear_bets()
+        self.players = self.players[1:] + self.players[:1]
         self.winning_player = None
         for stat in self.game_stats.keys():
             self.round_stats[stat] = 0
