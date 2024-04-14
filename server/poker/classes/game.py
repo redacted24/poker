@@ -52,6 +52,7 @@ class Table():
         self.winning_player: Player|None = None     # The player who won the round. It is None while the game is in progress.
         self.required_bet: int = 0                  # How much money is required to stay in the game. Very useful to program the call function
         self.last_move: list[str, str] = []         # [Player.name, 'nameOfMove'] A list of two elements containing the player name, and the name of their last move (e.g. bet)
+        self.betting_cap = 0                        # Cap to bets. Players cannot raise past this.
         self.round_stats: dict = {        
             'bet': 0,
             'raise': 0,
@@ -225,7 +226,8 @@ class Table():
         self.board.clear()
         self.deck.reset()
         self.winning_player = None
-        self.players = self.players[1:] + self.players[:1]
+        self.players = self.players[1:] + self.players[:1]      # Shift players
+        self.betting_cap = 0        # Reset betting cap
         for stat in self.game_stats.keys():
             self.round_stats[stat] = 0
         for player in self.players:
@@ -275,13 +277,16 @@ class Table():
     def bet(self, player, amount):
         '''Player bets, raising the required bet to stay in for the entire table.'''
         if player == self.player_queue[0]:
-            self.update_table_stats(player, 'bet')
-            player.balance -= amount
-            player.current_bet += amount
-            self.increase_pot(amount)
-            self.required_bet = amount
-            self.player_queue.extend([p for p in self.players if p not in self.player_queue])
-            self.player_queue.pop(0)
+            if self.required_bet == self.betting_cap:
+                player.call()       # Call the betting cap
+            else: 
+                self.update_table_stats(player, 'bet')
+                player.balance -= amount
+                player.current_bet += amount
+                self.increase_pot(amount)
+                self.required_bet = amount
+                self.player_queue.extend([p for p in self.players if p not in self.player_queue])
+                self.player_queue.pop(0)
         else:
             raise(ValueError('Not your turn yet!'))
 
@@ -499,8 +504,12 @@ class Player():
             self.table.fold(self)
 
         def bet(self, amount):
-            if self.balance >= amount:
+            if self.balance > amount:
                 self.table.bet(self, amount)
+            elif self.balance == amount:
+                print('All-in')
+                self.table.bet(self, amount)
+                self.table.betting_cap = self.table.required_bet
 
         def rake(self):
             self.balance += self.table.pot
