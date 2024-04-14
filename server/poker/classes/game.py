@@ -8,6 +8,9 @@ class Board():
     def __len__(self):
         return len(self._cards)
 
+    def __repr__(self):
+        return str(self._cards)
+
     def place_card(self, card: Cards):
         '''Places a card onto the board'''
         self._cards.append(card)
@@ -109,13 +112,10 @@ class Table():
     def set_blinds(self):
         '''Takes out the required contributions from the blinds to the pot'''
         small_blind, big_blind = self.players[0:2]
-        
         small_blind.balance -= 5
         small_blind.current_bet = 5
-
         big_blind.balance -= 10
         big_blind.current_bet = 10
-        
         self.pot += 15
         
     # Game Rounds
@@ -124,8 +124,10 @@ class Table():
         - Sets required bet to 10$ (small blind)
         - Clears all bets for all players
         - Clears last move
-        - Start the queue again for all players
-        - Shuffle deck and add three cards to the board'''
+        - Adds a queue for players to start playing
+        - Set positions of players for the current round
+        - Set blinds for the current round
+        - Shuffle deck and add three cards to the board, and deal cards to players'''
         print('Pre-flop')
         self.required_bet = 10
         self.clear_bets()
@@ -133,7 +135,6 @@ class Table():
         self.start_queue(pre_flop=True)
         self.set_positions()
         self.set_blinds()
-
         self.deck.shuffle()
         self.deal_hands()
         for _ in range(3):

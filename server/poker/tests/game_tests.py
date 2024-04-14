@@ -5,10 +5,14 @@ from poker.classes.game import *
 
 # ---
 class TestTableMethods(unittest.TestCase):
+    # Tests are on a table of 4 players
     def setUp(self):            # Run this for every unit test
         self.deck = Deck()
         self.table = Table(self.deck)
-        self.p1 = Player('Player1', False, self.table)
+        self.p1 = Player('p1', False, self.table)
+        self.p2 = Player('p2', False, self.table)
+        self.p3 = Player('p3', False, self.table)
+        self.p4 = Player('p4', False, self.table)
 
     def tearDown(self):
         self.table.end()
@@ -19,53 +23,63 @@ class TestTableMethods(unittest.TestCase):
     
     def test_boardSize_flop(self):
         self.table.pre_flop() 
-        self.p1.check()
+        self.p3.call()
+        self.p4.call()
+        self.p1.call()
+        self.p2.call()
         self.table.play()
         self.assertEqual(len(self.table.board), 4, 'Incorrect number of cards on the baord (for the flop)')
 
-    def test_onePlayerQueue(self):
+    def test_PlayerQueue(self):        # Blinds play last on pre_flop
         self.table.pre_flop()
-        self.assertListEqual(self.table.player_queue, [self.p1])
-    
-    def test_twoPlayerQueue(self):
-        self.p2 = Player('Player2', False, self.table)
-        self.table.pre_flop()
-        self.assertListEqual(self.table.player_queue, [self.p1, self.p2])
-
-    def test_threePlayerQueue(self):
-        self.p2 = Player('Player2', False, self.table)
-        self.p3 = Player('Player3', False, self.table)
-        self.table.pre_flop()
-        self.assertListEqual(self.table.player_queue, [self.p1, self.p2, self.p3])
+        self.assertListEqual(self.table.player_queue, [self.p3, self.p4, self.p1,self.p2])
         
     def test_boardSize_flop(self):
         self.table.pre_flop()
+        self.p3.call()
+        self.p4.call()
         self.p1.call()
+        self.p2.call()
         self.table.play()
         self.assertEqual(len(self.table.board), 3, 'Incorrect number of cards on board')
 
     def test_boardSize_turn(self):
         self.table.pre_flop()
+        self.p3.call()
+        self.p4.call()
         self.p1.call()
+        self.p2.call()
         self.table.play()
-        self.p1.call()
+        self.p1.check()
+        self.p2.check()
+        self.p3.check()
+        self.p4.check()
         self.table.play()
         self.assertEqual(len(self.table.board), 4, 'Incorrect number of cards on board')
 
     def test_boardSize_river(self):
         self.table.pre_flop()
+        self.p3.call()
+        self.p4.call()
         self.p1.call()
+        self.p2.call()
         self.table.play()
-        self.p1.call()
+        self.p1.check()
+        self.p2.check()
+        self.p3.check()
+        self.p4.check()
         self.table.play()
-        self.p1.call()
+        self.p1.check()
+        self.p2.check()
+        self.p3.check()
+        self.p4.check()
         self.table.play()
         self.assertEqual(len(self.table.board), 5, 'Incorrect number of cards on board')
     
     def test_playerBetIncreasesPot(self):
         self.table.pre_flop()
-        self.p1.bet(100)
-        self.assertEqual(self.table.pot,100,'Pot does not match with player bet')
+        self.p3.bet(100)
+        self.assertEqual(self.table.pot,115,'Pot does not match with player bet')
 
     def test_addCard(self):
         self.table.pre_flop()
@@ -74,34 +88,32 @@ class TestTableMethods(unittest.TestCase):
     
     def test_lastMoveBet(self):
         self.table.pre_flop()
-        self.p1.bet(100)
-        self.assertEqual(self.table.last_move, [self.p1.name,'bet'], 'Incoherent last move')
+        self.p3.bet(100)
+        self.assertEqual(self.table.last_move, [self.p3.name,'bet'], 'Incoherent last move')
 
     def test_lastMoveFold(self):
         self.table.pre_flop()
-        self.p1.fold()
-        self.assertEqual(self.table.last_move, [self.p1.name,'fold'], 'Incoherent last move')
+        self.p3.fold()
+        self.assertEqual(self.table.last_move, [self.p3.name,'fold'], 'Incoherent last move')
 
     def test_lastMoveCheck(self):
         self.table.pre_flop()
-        self.p1.check()
-        self.assertEqual(self.table.last_move, [self.p1.name,'check'], 'Incoherent last move')
+        self.p3.check()
+        self.assertEqual(self.table.last_move, [self.p3.name,'check'], 'Incoherent last move')
 
     def test_lastMoveCall(self):
         self.table.pre_flop()
-        self.p1.call()
-        self.assertEqual(self.table.last_move, [self.p1.name,'call'], 'Incoherent last move')
+        self.p3.call()
+        self.assertEqual(self.table.last_move, [self.p3.name,'call'], 'Incoherent last move')
     
     def test_playersOnTable(self):
         self.table.pre_flop()
-        self.p2 = Player('p2', False, self.table)
-        self.p3 = Player('p3', False, self.table)
-        self.assertEqual([self.p1, self.p2, self.p3], self.table.players, 'Incorrect players on table')
+        self.assertEqual([self.p1, self.p2, self.p3, self.p4], self.table.players, 'Incorrect players on table')
     
     def test_tablePotIncrease(self):
-        self.table.pre_flop()
+        self.table.pre_flop()       # Already increases pot by 15 because of small blind and big blind
         self.table.increase_pot(10)
-        self.assertEqual(self.table.pot, 10, 'Pot increase is not coherent with table')
+        self.assertEqual(self.table.pot, 25, 'Pot increase is not coherent with table')
     
     def test_tableBurn(self):
         self.table.burn()
@@ -163,9 +175,9 @@ class testBoardMethods(unittest.TestCase):
         
     def test_boardClear(self):
         '''Test board method clear()'''
-        self.table.pre_flop()
+        print('showerssss', self.table.board)
         self.table.board.clear()
-        self.assertFalse(self.table.board.cards)
+        self.assertFalse(self.table.board.cards())
 
 # ---
 class TestPlayerMethods(unittest.TestCase):
@@ -325,6 +337,9 @@ class TestAdvancedBotMethods(unittest.TestCase):
         self.deck = Deck()
         self.table = Table(self.deck)
         self.p1 = AdvancedBot('p1', self.table,'moderate')
+        self.p2 = AdvancedBot('p2', self.table,'loose')
+        self.p3 = AdvancedBot('p3', self.table,'tight')
+        self.p4 = AdvancedBot('p4', self.table,'moderate')
     
     def tearDown(self):
         self.table.end()
@@ -356,18 +371,15 @@ class TestAdvancedBotMethods(unittest.TestCase):
     
     def test_botPosition(self):
         '''Check if player position is well computed'''
-        self.p2 = AdvancedBot('p2', self.table, 'moderate')
         self.table.pre_flop()
         self.p2.update_player_position()
         self.assertEqual(self.p2.position,1)
 
     def test_botPositionFail(self):
         '''Check if func works if board is not set'''
-        self.p2 = AdvancedBot('p2', self.table,'moderate')
         self.assertRaises(ValueError, lambda: self.p2.update_player_position())     # Use lambda as wrapper
     
     def test_strategyThresholdsModerate(self):
-        self.p2 = AdvancedBot('p2', self.table, 'moderate')
         self.table.pre_flop()
         self.p2.update_player_position()        # p2 should be at position 1
         self.p2.update_strategy_thresholds()
@@ -379,7 +391,6 @@ class TestAdvancedBotMethods(unittest.TestCase):
             self.assertEqual(self.p2.strategy_thresholds['make4'], 300)
 
     def test_strategyThresholdsTight(self):
-        self.p2 = AdvancedBot('p2', self.table, 'tight')
         self.table.pre_flop()
         self.p2.update_player_position()        # p2 should be at position 1
         self.p2.update_strategy_thresholds()
@@ -391,7 +402,6 @@ class TestAdvancedBotMethods(unittest.TestCase):
             self.assertEqual(self.p2.strategy_thresholds['make4'], 300)
 
     def test_strategyThresholdsLoose(self):
-        self.p2 = AdvancedBot('p2', self.table, 'loose')
         self.table.pre_flop()
         self.p2.update_player_position()        # p2 should be at position 1
         self.p2.update_strategy_thresholds()
