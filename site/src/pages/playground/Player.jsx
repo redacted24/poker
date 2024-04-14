@@ -1,9 +1,21 @@
 import Card from './Card'
 import pokerService from '../../services/poker'
 import './player.css'
+import { useState } from 'react'
 
-const Player = ({ name, player, requiredBet, setTable }) => {
+const Player = ({ name, player, requiredBet, requiredRaise, setTable }) => {
+  const [isBetting, setIsBetting] = useState(false)
+  const [betAmount, setBetAmount] = useState(0)
   const callAmount = requiredBet - player.current_bet
+  const minBetAmount = callAmount + requiredRaise
+
+  const handleChange = (e) => {
+    setBetAmount(e.target.value)
+  }
+
+  const toggleIsBetting = () => {
+    setIsBetting(!isBetting)
+  }
 
   const call = async () => {
     const tableData = await pokerService.call({ name })
@@ -22,10 +34,12 @@ const Player = ({ name, player, requiredBet, setTable }) => {
     setTable(tableData)
     console.log(tableData)
   }
-
-  const bet = async () => {
-    const amount = parseInt(prompt('Enter your bet: '), 10)
+  
+  const bet = async (e) => {
+    e.preventDefault()
+    const amount = parseInt(betAmount)
     const tableData = await pokerService.bet({ name, amount })
+    toggleIsBetting()
     setTable(tableData)
     console.log(tableData)
   }
@@ -49,12 +63,21 @@ const Player = ({ name, player, requiredBet, setTable }) => {
         {player.hand.map(card => <Card key={`${card}`} card={card} />)}
       </div>
       {positionTag()}
-      <div id='buttons'>
-        {!!callAmount && <button className='action' onClick={call}>Call ({callAmount}$)</button>}
-        {!callAmount && <button className='action' onClick={check}>Check</button>}
-        <button className='action' onClick={fold}>Fold</button>
-        <button className='action' onClick={bet}>Bet</button>
-      </div>
+      {!isBetting &&
+        <div id='buttons'>
+          {!!callAmount && <button className='action' onClick={call}>Call ({callAmount}$)</button>}
+          {!callAmount && <button className='action' onClick={check}>Check</button>}
+          <button className='action' onClick={fold}>Fold</button>
+          <button className='action' onClick={toggleIsBetting}>Bet</button>
+        </div>
+      }
+      {isBetting && 
+        <form onSubmit={bet} id='buttons'>
+          <input className='action' type='number' value={betAmount} onChange={handleChange}/>
+          <button className='action' type='button' onClick={toggleIsBetting}>Go back</button>
+          <button className='action' type='submit'>Confirm</button>
+        </form>
+      }
       <p id='balance'>Balance: {player.balance}$</p>
     </div>
   )

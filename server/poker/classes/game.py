@@ -48,6 +48,7 @@ class Table():
         self.player_queue: list[Player] = []        # A list of all the players that will be playing in the round
         self.winning_player: Player|None = None     # The player who won the round. It is None while the game is in progress.
         self.required_bet: int = 0                  # How much money is required to stay in the game. Very useful to program the call function
+        self.min_raise: int = 10                    # Minimum amount of money a player needs to raise the bet
         self.last_move: list[str, str] = []         # [Player.name, 'nameOfMove'] A list of two elements containing the player name, and the name of their last move (e.g. bet)
         self.round_stats: dict = {        
             'bet': 0,
@@ -101,14 +102,23 @@ class Table():
         else:
             self.player_queue = self.active_players()[:]
 
+    def prepare_round(self, pre_flop=False):
+        '''Prepares the table for the current round'''
+        self.required_bet = 10 if pre_flop else 0
+        self.min_raise = 10
+        self.clear_bets()
+        self.last_move.clear()
+        self.start_queue(pre_flop)
+
     def set_positions(self):
         '''Set the positions of the players for the current round'''
         for i, player in enumerate(self.players):
-            player.position = (i + 1) % len(self.players)
+            player.position = (i + self.dealer) % len(self.players)
 
     def set_blinds(self):
         '''Takes out the required contributions from the blinds to the pot'''
-        small_blind, big_blind = self.players[0:2]
+        sorted_players = sorted(self.players, key=lambda p: p.position)
+        small_blind, big_blind = (sorted_players * 2)[0:2]                          # Allows the list to loop back if there are only 2 players
         
         small_blind.balance -= 5
         small_blind.current_bet = 5
@@ -127,11 +137,8 @@ class Table():
         - Start the queue again for all players
         - Shuffle deck and add three cards to the board'''
         print('Pre-flop')
-        self.required_bet = 10
-        self.clear_bets()
-        self.last_move.clear()
-        self.start_queue(pre_flop=True)
         self.set_positions()
+        self.prepare_round(pre_flop=True)
         self.set_blinds()
 
         self.deck.shuffle()
@@ -148,10 +155,7 @@ class Table():
         - Reveal cards on the board'''
 
         print('Flop')
-        self.required_bet = 0
-        self.clear_bets()
-        self.last_move.clear()
-        self.start_queue()
+        self.prepare_round()
         self.board.reveal()
 
     def turn(self):
@@ -162,10 +166,7 @@ class Table():
         - Start the queue again for all players
         - Adds a card to the board.'''
         print('Turn')
-        self.required_bet = 0
-        self.clear_bets()
-        self.last_move.clear()
-        self.start_queue()
+        self.prepare_round()
         self.add_card()
     
     def river(self):
@@ -176,10 +177,7 @@ class Table():
         - Start the queue again for all players
         - Adds a card to the board.'''
         print('River')
-        self.required_bet = 0
-        self.clear_bets()
-        self.last_move.clear()
-        self.start_queue()
+        self.prepare_round()
         self.add_card()
 
     def showdown(self):
@@ -224,7 +222,7 @@ class Table():
         self.board.clear()
         self.deck.reset()
         self.winning_player = None
-        self.players = self.players[1:] + self.players[:1]
+        self.dealer = (self.dealer + 1) % len(self.players)
         for stat in self.game_stats.keys():
             self.round_stats[stat] = 0
         for player in self.players:

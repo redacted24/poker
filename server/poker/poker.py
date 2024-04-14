@@ -26,8 +26,8 @@ def init():
   deck = Deck()
   table = Table(deck)
 
-  table.add_player(player)
   table.add_player(ScaryCat('computer1', True))
+  table.add_player(player)
   table.add_player(ScaryCat('computer2', True))
 
   session['table'] = pickle.dumps(table)  
