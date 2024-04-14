@@ -30,11 +30,25 @@ const Player = ({ name, player, requiredBet, setTable }) => {
     console.log(tableData)
   }
 
+  const positionTag = () => {
+    switch (player.position) {
+      case 0:
+        return <img className='position-tag' src='./src/assets/positions/dealer.png' />
+      case 1:
+        return <img className='position-tag' src='./src/assets/positions/small-blind.png' />
+      case 2:
+        return <img className='position-tag' src='./src/assets/positions/big-blind.png' />
+      default:
+        return null
+    }
+  }
+
   return (
     <div id='player'>
       <div id='hand'>
         {player.hand.map(card => <Card key={`${card}`} card={card} />)}
       </div>
+      {positionTag()}
       <div id='buttons'>
         {!!callAmount && <button className='action' onClick={call}>Call ({callAmount}$)</button>}
         {!callAmount && <button className='action' onClick={check}>Check</button>}
