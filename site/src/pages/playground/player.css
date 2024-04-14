@@ -5,6 +5,12 @@
   width: 100%;
 }
 
+.position-tag {
+  position: absolute;
+  left: calc(56% - (30px + 4vh) / 2);
+  width: calc(30px + 4vh);
+}
+
 #hand {
   position: absolute;
   width: 100%;

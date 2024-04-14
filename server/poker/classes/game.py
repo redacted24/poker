@@ -101,15 +101,21 @@ class Table():
         else:
             self.player_queue = self.active_players()[:]
 
-    def set_blinds(self):
-        small_blind, big_blind = self.players[0:2]
+    def set_positions(self):
+        '''Set the positions of the players for the current round'''
+        for i, player in enumerate(self.players):
+            player.position = (i + 1) % len(self.players)
 
+    def set_blinds(self):
+        '''Takes out the required contributions from the blinds to the pot'''
+        small_blind, big_blind = self.players[0:2]
+        
         small_blind.balance -= 5
         small_blind.current_bet = 5
 
         big_blind.balance -= 10
         big_blind.current_bet = 10
-
+        
         self.pot += 15
         
     # Game Rounds
@@ -125,6 +131,7 @@ class Table():
         self.clear_bets()
         self.last_move.clear()
         self.start_queue(pre_flop=True)
+        self.set_positions()
         self.set_blinds()
 
         self.deck.shuffle()
@@ -216,15 +223,13 @@ class Table():
         self.state = 0
         self.board.clear()
         self.deck.reset()
-        self.start_queue()
-        self.clear_bets()
-        self.players = self.players[1:] + self.players[:1]
         self.winning_player = None
+        self.players = self.players[1:] + self.players[:1]
         for stat in self.game_stats.keys():
             self.round_stats[stat] = 0
         for player in self.players:
-            player.active = True
-            player.clear_hand()
+            player.reset()
+        self.start_queue()
 
 
     # Player actions Table Class
@@ -329,9 +334,8 @@ class Player():
             self.__hand = []
             self.balance = balance
             self.current_bet = 0                # Balance of the player's bet for the current round
-            self.active = True                  # Whether the player is stil in round (hasn't folded yet).
-            self.is_big_blind = False
-            self.is_small_blind = False
+            self.active = True                  # Whether the player is still in round (hasn't folded yet).
+            self.position = None                # Determines the position of the player. 0 = dealer, 1 = small blind, 2 = big blind, etc.
             self.stats = {
                 'bet': 0,
                 'raise': 0,
@@ -462,11 +466,6 @@ class Player():
             '''Return the highest scoring hand pattern of player + board.'''
             pass
 
-        def pts(self):
-            from random import randint
-
-            return randint(1, 100)
-
         def look(self):
             '''Prints player hand.'''
             print(f'Your hand is: {str(self.__hand)}')
@@ -509,6 +508,12 @@ class Player():
 
 
         # Misc
+        def reset(self):
+            self.current_bet = 0
+            self.active = True
+            self.clear_hand()
+            self.position = None
+
         def toJSON(self):
             return {
                 'name': self.name,
@@ -517,8 +522,7 @@ class Player():
                 'balance': self.balance,
                 'current_bet': self.current_bet,
                 'active': self.active,
-                'is_big_blind': self.is_big_blind,
-                'is_small_blind': self.is_small_blind,
+                'position': self.position
             }
 
         def clear_all_stats(self):

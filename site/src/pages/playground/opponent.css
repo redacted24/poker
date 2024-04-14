@@ -1,5 +1,19 @@
 .opponent {
   width: 10vw;
+  display: flex;
+  flex-direction: column;
+}
+
+.top-elements {
+  position: relative;
+  left: calc((25px + 3vh) / 2);
+  display: flex;
+  align-items: flex-start;
+}
+
+.opponent .position-tag {
+  position: static;
+  width: calc(25px + 3vh);
 }
 
 .opponent-hand {
