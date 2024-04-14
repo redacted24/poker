@@ -499,6 +499,15 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
         self.p4.fold()
         self.assertEqual(self.p1.make2(), 'bet')
     
+    def test_make4_case1(self):
+        self.p3.bet(10)
+        self.p4.call()
+        self.assertEqual(self.p1.make2(), 'bet')
+        self.p2.call()
+        self.p3.call()
+        self.p4.bet(100)
+        self.assertEqual(self.p1.make4(), 'bet')
+    
     def test_blindRotation_case1(self):
         self.table.pre_flop()
         self.p3.call()
