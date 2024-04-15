@@ -50,7 +50,20 @@ class AdvancedBot(Player):
     
     def play(self):
         '''Playing function for the bot.'''
-    
+        IR = self.get_income_rate()
+        if IR >= self.strategy_thresholds['make4']:
+            self.make4()
+        elif IR >= self.strategy_thresholds['make2']:
+            self.make2()
+        elif IR >= 450 and self.position == 0:     # Hard-coded value for small-blind. Only works if player is small blind
+            self.call2()
+        elif IR >= self.strategy_thresholds['make1']:
+            self.make1()
+        elif IR >= -75 and self.position == 0:      # Hard-coded value for small-blind. Only works if player is small blind.
+            self.call1()
+        else:
+            self.make0()        # Default strategy
+
     def update_player_position(self):
         '''Compute the position number of the player.'''
         # Calculated by number of active players - the index of the player in queue.
@@ -73,11 +86,15 @@ class AdvancedBot(Player):
             return AdvancedBot.income_rates[temp[1].value-2][temp[0].value-2]
         else:
             return AdvancedBot.income_rates[temp[0].value-2][temp[1].value-2]
+    
+    def make0(self):
+        '''Fold if it costs more than zero to play. i.e.: folds every round'''
+        self.fold()
         
     def call1(self):
         '''Fold if it costs more than 1 bet to continue playing and the bot hasn't put money into the pot this round yet, otherwise check/call. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         print('Call1 strategy used')
-        # Not really used except for small blind
+        # Not really used except for small blind, who has different thresholds for it
         if self.table.round_stats['bet'] > 1:
             self.fold()
             print('Bot has folded (call1)')
