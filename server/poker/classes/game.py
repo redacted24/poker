@@ -1,5 +1,4 @@
-from poker.classes.cards import *
-from poker.classes.cards import *
+from cards import *
 
 class Board():
     def __init__(self):
