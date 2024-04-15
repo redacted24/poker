@@ -61,33 +61,33 @@ class eval():
 
     def potential_hand_strength(self):
         p1 = Player('player', True)
+        p2 = Player('opponent', True)
+
         p1.receive(self.hand)
 
         d = Deck()
-        computed_rank = {}
+        computed_ranks = {}
 
         filtered_deck = self.remove_cards(d, self.hand + self.board_cards)
-
-        count = [0, 0]
         
         win = tie = loss = 0
         for i, c1 in enumerate(filtered_deck):
-            for j, c2 in enumerate(filtered_deck[i+1:]):
-                board_cards = self.board_cards + [c1, c2]
-                p1_rank = p1.handEval(board_cards)
+            for c2 in filtered_deck[i+1:]:
+                predicted_board_cards = self.board_cards + [c1, c2]
+                p1_rank = p1.handEval(predicted_board_cards)
 
                 new_deck = self.remove_cards(filtered_deck, [c1, c2])
 
                 for k, c3 in enumerate(new_deck):
                     for c4 in new_deck[k+1:]:
-                        p2 = Player('opponent', True)
+                        p2.clear_hand()
                         p2.receive([c3, c4])
-                        sorted_cards = sorted([c.shortName for c in [c1, c2, c3, c4]])
-                        if tuple(sorted_cards) in computed_rank:
-                            p2_rank = computed_rank[tuple(sorted_cards)]
+                        str_cards = ''.join(sorted([c.shortName for c in [c1, c2, c3, c4]]))
+                        if str_cards in computed_ranks:
+                            p2_rank = computed_ranks[str_cards]
                         else:
-                            p2_rank = p2.handEval(board_cards)
-                            computed_rank[tuple(sorted_cards)] = p2_rank
+                            p2_rank = p2.handEval(predicted_board_cards)
+                            computed_ranks[str_cards] = p2_rank
 
                         if p1_rank > p2_rank:
                             win += 1
@@ -97,7 +97,6 @@ class eval():
                             loss += 1
         
         print(win, tie, loss)
-        print(sum([win, tie, loss]))
         return (win + 0.5 * tie) / sum([win, tie, loss])
     
 
