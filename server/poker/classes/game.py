@@ -1,20 +1,16 @@
 from poker.classes.cards import *
-from poker.classes.cards import *
 
 class Board():
     def __init__(self):
-        self._cards: list[Cards] = []
+        self.cards: list[Cards] = []
         self._show_cards: bool = False
 
     def __len__(self):
-        return len(self._cards)
-
-    def __repr__(self):
-        return str(self._cards)
+        return len(self.cards)
 
     def place_card(self, card: Cards):
         '''Places a card onto the board'''
-        self._cards.append(card)
+        self.cards.append(card)
     
     def reveal(self):
         '''Reveals all cards on the board'''
@@ -24,38 +20,31 @@ class Board():
         '''Hides all cards on the board'''
         self._show_cards = False
 
-    def cards(self):
-        '''Returns the list of cards on the board'''
-        return self._cards
-
     def display(self):
         '''Returns a list containing strings of all cards names on the board.
         A card is False if it is not revealed.'''
         if self._show_cards:
-            return [card.shortName for card in self._cards]
+            return [card.shortName for card in self.cards]
         else:
-            return [False for _ in self._cards]
+            return [False for _ in self.cards]
     
     def clear(self):
         '''Clears and resets the board to its initial state'''
-        self._cards = []
+        self.cards = []
         self._show_cards = False
 
 class Table():
-    def __init__(self, deck: Deck):
-        self.deck: Deck = deck                      # Setup the deck used for the table
-        self.board: Board = Board()                 # Making a board class. Easier to manage the state of the board
-        self.pot: int = 0                           # The flop on the table
-        self.state: int = 0                         # Pre-flop (0), flop (1), turn (2), river (3), showdown(4)
-        self.players: list[Player] = []             # [PlayerObject,'move']
-        self.dealer: int = 0                        # Index of the player who is currently the dealer. The small/big blind players are also determined by this number.
-        self.player_queue: list[Player] = []        # A list of all the players that will be playing in the round
-        self.winning_player: Player|None = None     # The player who won the round. It is None while the game is in progress.
-        self.required_bet: int = 0                  # How much money is required to stay in the game. Very useful to program the call function
-        self.min_raise: int = 10                    # Minimum amount of money a player needs to raise the bet
-        self.last_move: list[str, str] = []         # [Player.name, 'nameOfMove'] A list of two elements containing the player name, and the name of their last move (e.g. bet)
-        self.betting_cap = 0                        # Cap to bets. Players cannot raise past this.
-        self.round_stats: dict = {        
+    def __init__(self, deck):
+        self.deck = deck            # Setup the deck used for the table
+        self.board = Board()        # Making a board class. Easier to manage the state of the board
+        self.pot = 0                # The flop on the table
+        self.state = 0              # Pre-flop (0), flop (1), turn (2), river (3), showdown(4)
+        self.players = []           # [PlayerObject,'move']
+        self.player_queue = []      # A list of all the players that will be playing in the round
+        self.winning_player = None  # The player who won the round
+        self.required_bet = 0       # How much money is required to stay in the game. Very useful to program the call function
+        self.last_move = []         # [Player.name, 'nameOfMove'] A list of two elements, where the first is the playername as a string, and the second is the name of the move (e.g. bet) as a string
+        self.round_stats = {        
             'bet': 0,
             'raise': 0,
             'call': 0,
@@ -63,7 +52,7 @@ class Table():
             'all-in': 0,
             'fold': 0
         }
-        self.game_stats: dict = {
+        self.game_stats = {
             'bet': 0,
             'raise': 0,
             'call': 0,
@@ -100,38 +89,10 @@ class Table():
         '''Returns a list of the active players in the round'''
         return [p for p in self.players if p.active]
 
-    def start_queue(self, pre_flop=False):
+    def start_queue(self):
         '''Adds a queue for the players' turn to play'''
-        self.set_positions()
-        temp = sorted(self.players, key=lambda p:p.position)
-        if pre_flop:
-            self.player_queue = temp[2:] + temp[0:2]
-        else:
-            self.player_queue = sorted(self.active_players(), key=lambda p:p.position)
+        self.player_queue = self.active_players()[:]
 
-    def prepare_round(self, pre_flop=False):
-        '''Prepares the table for the current round'''
-        self.required_bet = 10 if pre_flop else 0
-        self.min_raise = 10
-        self.clear_bets()
-        self.last_move.clear()
-        self.start_queue(pre_flop)
-
-    def set_positions(self):
-        '''Set the positions of the players for the current round'''
-        for i, player in enumerate(self.players):
-            player.position = (i + self.dealer) % len(self.players)
-
-    def set_blinds(self):
-        '''Takes out the required contributions from the blinds to the pot'''
-        sorted_players = sorted(self.players, key=lambda p: p.position)
-        small_blind, big_blind = (sorted_players * 2)[0:2]                          # Allows the list to loop back if there are only 2 players
-        
-        small_blind.balance -= 5
-        small_blind.current_bet = 5
-        big_blind.balance -= 10
-        big_blind.current_bet = 10
-        self.pot += 15
         
     # Game Rounds
     def pre_flop(self):
@@ -139,12 +100,14 @@ class Table():
         - Sets required bet to 10$ (small blind)
         - Clears all bets for all players
         - Clears last move
-        - Adds a queue for players to start playing
-        - Set blinds for the current round
-        - Shuffle deck and add three cards to the board, and deal cards to players'''
+        - Start the queue again for all players
+        - Shuffle deck and add three cards to the board'''
         print('Pre-flop')
-        self.prepare_round(pre_flop=True)
-        self.set_blinds()
+        self.required_bet = 10
+        self.clear_bets()
+        self.last_move.clear()
+        self.start_queue()
+
         self.deck.shuffle()
         self.deal_hands()
         for _ in range(3):
@@ -159,7 +122,10 @@ class Table():
         - Reveal cards on the board'''
 
         print('Flop')
-        self.prepare_round()
+        self.required_bet = 0
+        self.clear_bets()
+        self.last_move.clear()
+        self.start_queue()
         self.board.reveal()
 
     def turn(self):
@@ -170,7 +136,10 @@ class Table():
         - Start the queue again for all players
         - Adds a card to the board.'''
         print('Turn')
-        self.prepare_round()
+        self.required_bet = 0
+        self.clear_bets()
+        self.last_move.clear()
+        self.start_queue()
         self.add_card()
     
     def river(self):
@@ -181,7 +150,10 @@ class Table():
         - Start the queue again for all players
         - Adds a card to the board.'''
         print('River')
-        self.prepare_round()
+        self.required_bet = 0
+        self.clear_bets()
+        self.last_move.clear()
+        self.start_queue()
         self.add_card()
 
     def showdown(self):
@@ -190,17 +162,15 @@ class Table():
         winning_player = self.active_players()[0]
 
         for player in self.active_players():
-            print(player.handEval(self.board.cards()), winning_player.handEval(self.board.cards()))
-            if player.handEval(self.board.cards()) > winning_player.handEval(self.board.cards()):
+            if player.pts() > winning_player.pts():
                 winning_player = player
 
         winning_player.rake()       # Winning player takes in all the money
         self.winning_player = winning_player
-        print(self.winning_player)
 
 
     def play(self):
-        '''Lets all the computers play their turn, then starts the next round if needed.'''
+        '''Lets all the computers play their turn, then starts the next round.'''
         while len(self.player_queue) != 0:
             current_player = self.player_queue[0]
             if (current_player.is_computer):
@@ -213,26 +183,25 @@ class Table():
             rounds = [self.pre_flop, self.flop, self.turn, self.river, self.showdown, self.reset]
             
             rounds[self.state]()
-            if self.state < 4:
-                self.play()
 
     def reset(self):
         '''Clears current cards on the board, resets deck, and removes all player handheld cards.
         Clears current round stats. Game stats are left unchanged.
-        Players are still on the table, but shifted by one seat'''
+        Pot is left unchanged because it should be handled by the player "rake" func.
+        Players are still on the table.'''
         print('Reset')
         self.pot = 0
         self.state = 0
         self.board.clear()
         self.deck.reset()
+        self.start_queue()
+        self.clear_bets()
         self.winning_player = None
-        self.dealer = (self.dealer + 1) % len(self.players)      # Shift players
-        self.betting_cap = 0        # Reset betting cap
         for stat in self.game_stats.keys():
             self.round_stats[stat] = 0
         for player in self.players:
-            player.reset()
-        self.start_queue(pre_flop=True)
+            player.active = True
+            player.clear_hand()
 
 
     # Player actions Table Class
@@ -242,7 +211,10 @@ class Table():
         self.round_stats[move] += 1
         player.stats[move] += 1
         self.last_move = [player.name, move]
-        player.actions_done = sum(player.stats.values())  
+        player.actions_done = sum(player.stats.values())
+        # player.aggro_factor = 0 if player.stats['call'] == 0 else (player.stats['bet']+player.stats['raise'])/player.stats['call'] # Aggression factor ((bets+raises)/calls   
+        # player.aggro_frequency = 0 if player.actions_done == 0 else (player.stats['bet']+player.stats['raise'])/(player.stats['call'] + player.stats['bet'] + player.stats['raise'] + player.stats['fold']) # Aggression frequency ([(bets + raises)/(bets + raises + calls + folds)] * 100)
+        
 
     def call(self, player):
         '''Player calls, matching the current bet.'''
@@ -277,16 +249,13 @@ class Table():
     def bet(self, player, amount):
         '''Player bets, raising the required bet to stay in for the entire table.'''
         if player == self.player_queue[0]:
-            if self.required_bet == self.betting_cap:
-                player.call()       # Call the betting cap
-            else: 
-                self.update_table_stats(player, 'bet')
-                player.balance -= amount
-                player.current_bet += amount
-                self.increase_pot(amount)
-                self.required_bet = amount
-                self.player_queue.extend([p for p in self.players if p not in self.player_queue])
-                self.player_queue.pop(0)
+            self.update_table_stats(player, 'bet')
+            player.balance -= amount
+            player.current_bet += amount
+            self.increase_pot(amount)
+            self.required_bet = amount
+            self.player_queue.extend([p for p in self.players if p not in self.player_queue])
+            self.player_queue.pop(0)
         else:
             raise(ValueError('Not your turn yet!'))
 
@@ -317,7 +286,6 @@ class Table():
     def end(self):
         '''A method that ends the current game. Clears game_stats. Players leave the table. Basically a harder reset than the reset method.'''
         self.reset()
-        self.blinds_adjustment_factor = 0
         self.players.clear()
         for stat in self.game_stats.keys():
             self.game_stats[stat] = 0
@@ -338,8 +306,9 @@ class Player():
             self.__hand = []
             self.balance = balance
             self.current_bet = 0                # Balance of the player's bet for the current round
-            self.active = True                  # Whether the player is still in round (hasn't folded yet).
-            self.position = None                # Determines the position of the player. 0 = dealer, 1 = small blind, 2 = big blind, etc.
+            self.active = True                  # Whether the player is stil in round (hasn't folded yet).
+            self.is_big_blind = False
+            self.is_small_blind = False
             self.stats = {
                 'bet': 0,
                 'raise': 0,
@@ -365,110 +334,67 @@ class Player():
         def join(self, table: Table):
             self.table = table
 
-        def handEval(self, river):
+        # WIP
+        @staticmethod
+        def handEval(hand):
             '''Compute strength of a certain hand of a certain size.
             Takes in a list of 7 card objects, and returns (int, list) where first int is the hand type and the list is the cards in hand.
-            10. Royal Flush
-            9. Straight Flush
-            8. Four of a Kind
-            7. Full House
-            6. Flush
-            5. Straight
-            4. Three of a kind
-            3. Two Pair
-            2. Pair
-            1. High Card'''
+            1. Royal Flush
+            2. Straight Flush
+            3. Four of a Kind
+            4. Full House
+            5. Flush
+            6. Straight
+            7. Three of a kind
+            8. Two Pair
+            9. Pair
+            10. High Card'''
+                                                    #takes in a list of 7 cards
+            '''Check if hand is a flush and whether it's a Royal Flush, a Straight Flush or a regular Flush'''
 
-            def getOriginalStraight(values, hand):
-                winning_hand = []
-                for card in hand:
-                    if values and card.value == values[0]:
-                        winning_hand.append(card)
-                        values.pop(0)
+            def potentialHands(hand):
+                winningHands = []
+                hand.sort(reverse = True)                                   #sorts the cards in descending order so the deck can be read from highest value to lowest value                                                #sorts the hand by value initially to have 
+                suitHand = sorted(hand, key = lambda x: x. suit)                                     #sorts the hand by suits to check whether there are 5 of the same suits
+                for i in range(len(hand) - 2):
+                    otherHand = hand[i:i+5]
+                    x = {i.value for i in hand[i:]}
+                    straightHand = sorted(x, reverse = True)
+                    winningHand = sorted(suitHand[i:i+5], key = lambda x:x.suit)
+                    if winningHand[0].suit == winningHand[-1].suit:
+                        if len(winningHand) >= 5 and all([(winningHand[i].value - winningHand[i+1].value) == 1 for i in range(len(winningHand) - 1)]):      #basic requirement for a Straight Flush or a Royal Flush
+                            if int(winningHand[0].value) == 14:
+                                winningHands.append((1, str(winningHand)))
+                            else:
+                                winningHands.append((2, str(winningHand)))
+                        elif len(winningHand) >= 5: #regular flush
+                            winningHands.append((5, str(winningHand)))
+                    elif all([(otherHand[i].value - otherHand[i+1].value) == 0 for i in range(len(otherHand) - 1)]):
+                        winningHands.append((3, str(hand[i:i+4])))
+                    elif len(straightHand) == 5 and all([(straightHand[i] - straightHand[i+1]) == 1 for i in range(len(straightHand) - 1)]):
+                        winningHands.append((6, str(straightHand)))
+                    elif all([(otherHand[i].value - otherHand[i+1].value) == 0 for i in range(len(otherHand) - 2)]):
+                        winningHands.append((7, str(hand[i:i+3])))
+                    elif otherHand[0].value == otherHand[1].value and otherHand[2].value == otherHand[3].value:
+                        winningHands.append((8, str(otherHand[i:i+4])))
+                return winningHands
 
-                if values:
-                    winning_hand.append(hand[0])
-                return winning_hand
 
-            def checkStraight(values: dict, hand):
-                sorted_values = sorted(values.keys(), reverse=True)
-                if 14 in sorted_values: sorted_values.append(1)
-                consecutive = 1
-                for i in range(0, len(sorted_values) - 1):
-                    if sorted_values[i] - 1 == sorted_values[i+1]:
-                        consecutive += 1
-                        if consecutive == 5:
-                            return getOriginalStraight(sorted_values[i-3:i+2], hand)
-                    else:
-                        consecutive = 1
-                return False
+            def priorityChecker(x):
+                return min(x)
+
+            return priorityChecker(potentialHands(hand))
+
             
-            def checkFlush(suits: dict, hand: list[Cards]):
-                for suit, items in suits.items():
-                    if items >= 5:
-                        suited_cards = [card for card in hand if card.suit == suit]
-                        flush_values = {}
-                        for card in suited_cards:
-                            flush_values[card.value] = values.get(card.value, 0) + 1
-                        flush_straight = checkStraight(flush_values, suited_cards)
-                        return flush_straight, suited_cards
-                return False, False
-
-
-            def getOriginalValues(num_items, values, hand):
-                winning_hand = []
-                while num_items:
-                    for value, items in sorted(values.items(), key=lambda x: x[1]):
-                        if num_items and items >= num_items[0]:
-                            winning_hand += [card for card in hand if card.value == value]
-                            num_items.pop(0)
-
-                winning_hand = winning_hand[0:5]
-
-                for card in hand:
-                    if card not in winning_hand:
-                        if len(winning_hand) >= 5:
-                            break
-                        winning_hand.append(card)
-
-                return winning_hand
-
-            hand = self.hand() + river
-            values = {}
-            suits = {}
-            sorted_hand = sorted(hand, reverse=True, key=lambda c: c.value)
-            for card in sorted_hand:
-                values[card.value] = values.get(card.value, 0) + 1
-                suits[card.suit] = suits.get(card.suit, 0) + 1
-
-            flush_straight, flush = checkFlush(suits, sorted_hand)
-            straight = checkStraight(values, sorted_hand)
-
-            if flush_straight and flush_straight[0].value == 14:
-                return 10, flush_straight
-            elif flush_straight:
-                    return 9, flush_straight
-            elif 4 in values.values():
-                return 8, getOriginalValues([4], values, sorted_hand)
-            elif len([v for v in values.values() if v == 3]) == 2 or (3 in values.values() and 2 in values.values()):
-                return 7, getOriginalValues([3, 2], values, sorted_hand)
-            elif flush:
-                return 6, flush[0:5]
-            elif straight:
-                return 5, straight
-            elif 3 in values.values():
-                return 4, getOriginalValues([3], values, sorted_hand)
-            elif len([v for v in values.values() if v == 2]) >= 2:
-                return 3, getOriginalValues([2, 2], values, sorted_hand)
             
-            elif 2 in values.values():
-                return 2, getOriginalValues([2], values, sorted_hand)
-            else:
-                return 1, sorted_hand[0:5]
-
         def riverEval(self):
             '''Return the highest scoring hand pattern of player + board.'''
             pass
+
+        def pts(self):
+            from random import randint
+
+            return randint(1, 100)
 
         def look(self):
             '''Prints player hand.'''
@@ -504,24 +430,14 @@ class Player():
             self.table.fold(self)
 
         def bet(self, amount):
-            if self.balance > amount:
+            if self.balance >= amount:
                 self.table.bet(self, amount)
-            elif self.balance == amount:
-                print('All-in')
-                self.table.bet(self, amount)
-                self.table.betting_cap = self.table.required_bet
 
         def rake(self):
             self.balance += self.table.pot
 
 
         # Misc
-        def reset(self):
-            self.current_bet = 0
-            self.active = True
-            self.clear_hand()
-            self.position = None
-
         def toJSON(self):
             return {
                 'name': self.name,
@@ -530,7 +446,8 @@ class Player():
                 'balance': self.balance,
                 'current_bet': self.current_bet,
                 'active': self.active,
-                'position': self.position
+                'is_big_blind': self.is_big_blind,
+                'is_small_blind': self.is_small_blind,
             }
 
         def clear_all_stats(self):
@@ -545,11 +462,12 @@ if __name__ == "__main__":
     p1 = Player('Haha', table)
 
     # Check for flushes
-    print(p1.handEval([deck.get('9s'), deck.get('Ts'), deck.get('Js'), deck.get('Ks'), deck.get('As')])) # == (5, '[As, Ks, Js, Ts, 9s]')
-    print(p1.handEval([deck.get('Ts'), deck.get('Qs'), deck.get('Js'), deck.get('Ks'), deck.get('As')])) # == (1, '[As, Ks, Qs, Js, Ts]')
-    print(p1.handEval([deck.get(card) for card in ['2d', '6s', 'Kh', 'Qd', 'Ad', 'Ks', 'Td']])) # == (3, '[9s, 9h, 9d, 9c]') 
-    print(p1.handEval([deck.get('As'), deck.get('Ks'), deck.get('Qs'), deck.get('Qh'), deck.get('Js'), deck.get('Jh'), deck.get('Ts')])) # == (1, '[As, Ks, Qs, Js, Ts]')
-    print(p1.handEval([deck.get('Ks'), deck.get('Ts'), deck.get('8h'), deck.get('9d'), deck.get('7c'), deck.get('6s'), deck.get('8s')])) # == (6, '[10, 9, 8, 7, 6]')
-    print(p1.handEval([deck.get('Ks'), deck.get('Ts'), deck.get('8h'), deck.get('9d'), deck.get('8c'), deck.get('8s'), deck.get('6h')]))
-
+    assert Player.handEval([deck.get('9s'), deck.get('Ts'), deck.get('Js'), deck.get('Ks'), deck.get('As')]) == (5, '[As, Ks, Js, Ts, 9s]')
+    assert Player.handEval([deck.get('Ts'), deck.get('Qs'), deck.get('Js'), deck.get('Ks'), deck.get('As')]) == (1, '[As, Ks, Qs, Js, Ts]')
+    assert Player.handEval([deck.get('Ks'), deck.get('9s'), deck.get('9h'), deck.get('9d'), deck.get('9c'), deck.get('Th'), deck.get('Js')]) == (3, '[9s, 9h, 9d, 9c]') 
+    assert Player.handEval([deck.get('As'), deck.get('Ks'), deck.get('Qs'), deck.get('Qh'), deck.get('Js'), deck.get('Jh'), deck.get('Ts')]) == (1, '[As, Ks, Qs, Js, Ts]')
+    assert Player.handEval([deck.get('Ks'), deck.get('Ts'), deck.get('8h'), deck.get('9d'), deck.get('7c'), deck.get('6s'), deck.get('8s')]) == (6, '[10, 9, 8, 7, 6]')
+    assert Player.handEval([deck.get('Ks'), deck.get('Ts'), deck.get('8h'), deck.get('9d'), deck.get('8c'), deck.get('8s'), deck.get('6h')]) == (7, '[8h, 8c, 8s]')
+    assert Player.handEval([deck.get('Ks'), deck.get('Ts'), deck.get('Js'), deck.get('Jh'), deck.get('Qh'), deck.get('Qs'), deck.get('9s')]) == (2, '[Ks, Qs, Js, Ts, 9s]')
+    
     print('All tests passed.')
