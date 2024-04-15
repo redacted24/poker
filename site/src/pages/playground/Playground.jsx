@@ -79,7 +79,14 @@ const Playground = () => {
           }
         </div>
         {table.players.filter(player => player.name == name).map(player => {
-            return <Player key={name} name={name} player={player} requiredBet={table.required_bet} setTable={setTable} />
+            return <Player 
+              key={name}
+              name={name}
+              player={player}
+              requiredBet={table.required_bet}
+              requiredRaise={table.required_raise}
+              setTable={setTable}
+            />
         })}
         <Opponents opponents={table.players.filter(player => player.name !== name)} />
 
