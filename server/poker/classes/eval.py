@@ -1,5 +1,9 @@
-from cards import Deck
-from game import Player
+try:
+    from poker.classes.cards import Deck
+    from poker.classes.game import Player
+except:
+    from cards import Deck
+    from game import Player
 
 class eval():
     def __init__(self, hand, board_cards):
