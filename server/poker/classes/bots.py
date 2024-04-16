@@ -41,7 +41,7 @@ class AdvancedBot(Player):
         There is no is_computer parameter since it is put as True by default in AdvancedBot class.'''
         Player.__init__(self, name, True, table)
         self.chosen_pre_flop_strategy = AdvancedBot.preflop_strategy_values[tightness]        # Chosen strategy is moderate by default. The variable is a dictionnary. See preflop_strategy_values
-        self.thresholds_position = 0       # Position: "the number of players to act before it is the small blind's turn again." (Papp, 1998)
+        self.thresholds_position = 0       # The number of players to play before it goes back to the player who started the round (small blind in most rounds except pre-flop)
         self.strategy_thresholds = {
             'make1': 0,
             'make2': 0,
@@ -58,7 +58,7 @@ class AdvancedBot(Player):
         elif IR >= self.strategy_thresholds['make2']:
             self.make2()
             return 'make2'
-        elif IR >= 450 and self.position == 0:     # Hard-coded value for small-blind. Only works if player is small blind
+        elif IR >= 200 and self.position == 0:     # Hard-coded value for small-blind. Only works if player is small blind
             self.call2()
             return 'call2'
         elif IR >= self.strategy_thresholds['make1']:
