@@ -51,25 +51,27 @@ class AdvancedBot(Player):
     def play(self):
         '''Playing function for the bot.'''
         IR = self.get_income_rate()
-        print('IR rate of the hand is', IR)
-        if IR >= self.strategy_thresholds['make4']:
-            self.make4()
-            return 'make4'
-        elif IR >= self.strategy_thresholds['make2']:
-            self.make2()
-            return 'make2'
-        elif IR >= 200 and self.position == 0:     # Hard-coded value for small-blind. Only works if player is small blind
-            self.call2()
-            return 'call2'
-        elif IR >= self.strategy_thresholds['make1']:
-            self.make1()
-            return 'make1'
-        elif IR >= -75 and self.position == 0:      # Hard-coded value for small-blind. Only works if player is small blind.
-            self.call1()
-            return 'call1'
+        if self.table.state == 0:       # We are in pre-flop
+            if IR >= self.strategy_thresholds['make4']:
+                self.make4()
+                return 'make4'
+            elif IR >= self.strategy_thresholds['make2']:
+                self.make2()
+                return 'make2'
+            elif IR >= 200 and self.position == 0:     # Hard-coded value for small-blind. Only works if player is small blind
+                self.call2()
+                return 'call2'
+            elif IR >= self.strategy_thresholds['make1']:
+                self.make1()
+                return 'make1'
+            elif IR >= -75 and self.position == 0:      # Hard-coded value for small-blind. Only works if player is small blind.
+                self.call1()
+                return 'call1'
+            else:
+                self.make0()        # Default strategy
+                return 'make0'
         else:
-            self.make0()        # Default strategy
-            return 'make0'
+            self.call()     # Temporary
 
     def update_player_position(self):
         '''Compute the thershold position number of the player.'''

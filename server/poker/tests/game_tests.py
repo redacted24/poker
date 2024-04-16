@@ -666,6 +666,21 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
         self.p1.receive([deck2.get('As'), deck2.get('Ad')])
         self.assertEqual(self.p1.play(),'make4') 
 
+    def test_smallBlindPreFlopOtherTests1(self):
+        '''
+        Moderate bot
+        Queue: p3,p4,p1,p2
+        Sb: p1
+        Bb: p2
+        6 5 suited IR = -52'''
+        deck2 = Deck()
+        self.table.pre_flop()
+        self.p3.call()
+        self.p4.call()
+        self.p1.clear_hand()
+        self.p1.receive([deck2.get('5s'), deck2.get('6s')])
+        self.assertEqual(self.p1.play(),'call1') 
+
 
         
 # ------------------------- #
