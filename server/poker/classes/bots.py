@@ -27,9 +27,9 @@ class AdvancedBot(Player):
     # 'tightness': [(make1 values), (make2 values), (make3 values)] where values are a tuple (base, increment)
     # The values for 'call1' and 'make1' are the same, as well as the values for 'call2' and 'make2'
     preflop_strategy_values = {
-        'tight': {'make1': (-50, 50), 'make2': (150, 50), 'make4': (300,0)},
-        'moderate': {'make1': (-50, 50), 'make2': (50, 50), 'make4': (300,0)},
-        'loose': {'make1': (-50, 50), 'make2': (0, 0), 'make4': (300,0)}
+        'tight': {'make1': (50, 50), 'make2': (200, 50), 'make4': (580,0)},
+        'moderate': {'make1': (50, 25), 'make2': (200, 25), 'make4': (580,0)},
+        'loose': {'make1': (50, 10), 'make2': (200, 10), 'make4': (580,0)}
     }
 
     def __init__(self, name, table, tightness):
@@ -51,22 +51,29 @@ class AdvancedBot(Player):
     def play(self):
         '''Playing function for the bot.'''
         IR = self.get_income_rate()
+        print('IR rate of the hand is', IR)
         if IR >= self.strategy_thresholds['make4']:
             self.make4()
+            return 'make4'
         elif IR >= self.strategy_thresholds['make2']:
             self.make2()
+            return 'make2'
         elif IR >= 450 and self.position == 0:     # Hard-coded value for small-blind. Only works if player is small blind
             self.call2()
+            return 'call2'
         elif IR >= self.strategy_thresholds['make1']:
             self.make1()
+            return 'make1'
         elif IR >= -75 and self.position == 0:      # Hard-coded value for small-blind. Only works if player is small blind.
             self.call1()
+            return 'call1'
         else:
             self.make0()        # Default strategy
+            return 'make0'
 
     def update_player_position(self):
-        '''Compute the position number of the player.'''
-        # Calculated by number of active players - the index of the player in queue.
+        '''Compute the thershold position number of the player.'''
+        # Calculated by number of active players - (the index of the player in queue + 1).
         # e.g. If we are checking for the position of the small blind in a two player match, it would be: 2 - 0 = 2. (because there are two players in the match, and small-blind is at the start of the player queue)
         if self.table.active_players() and self.table.player_queue:
             self.thresholds_position = int(len(self.table.active_players())-(self.table.player_queue.index(self)+1))        # The threshold position of the first player in queue should be length of players - 1.
@@ -78,7 +85,7 @@ class AdvancedBot(Player):
         self.strategy_thresholds['make1'] = self.chosen_pre_flop_strategy['make1'][0] + self.chosen_pre_flop_strategy['make1'][1]*self.thresholds_position
         self.strategy_thresholds['make2'] = self.chosen_pre_flop_strategy['make2'][0] + self.chosen_pre_flop_strategy['make2'][1]*self.thresholds_position
         self.strategy_thresholds['make4'] = self.chosen_pre_flop_strategy['make4'][0] + self.chosen_pre_flop_strategy['make4'][1]*self.thresholds_position
-    
+
     def get_income_rate(self):
         '''Return the IR rate of the bot's hand.'''
         temp = sorted(self.hand(), key=lambda x:x.value)

@@ -151,6 +151,10 @@ class Table():
         self.deal_hands()
         for _ in range(3):
             self.add_card()
+        for player in self.players:
+            if player.is_computer:
+                player.update_player_position()           # Must come before update strategy thresholds!
+                player.update_strategy_thresholds()
 
     def flop(self):
         '''Ready game for the flop.
