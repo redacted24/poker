@@ -2,8 +2,8 @@ try:
     from poker.classes.cards import Deck
     from poker.classes.game import Player
 except:
-    from cards import Deck
-    from game import Player
+    from cards import Deck      # type: ignore
+    from game import Player     # type: ignore
 
 class eval():
     def __init__(self, hand, board_cards):

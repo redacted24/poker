@@ -35,7 +35,7 @@ class AdvancedBot(Player):
         'loose': {'make1': (50, 10), 'make2': (200, 10), 'make4': (580,0)}
     }
 
-    def __init__(self, name, table, tightness):
+    def __init__(self, name, tightness, table=None):
         '''The general class for an advanced bot. Contains all the necessary information for advanced play. Children class will have specific methods that tweak information in this class in order to play.
         
         - Name (str)

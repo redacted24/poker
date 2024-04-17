@@ -1,7 +1,7 @@
 try:
     from poker.classes.cards import *
 except:
-    from cards import *
+    from cards import *     # type: ignore
 
 class Board():
     def __init__(self):
@@ -298,8 +298,9 @@ class Table():
 
     # Misc
     def add_player(self, player):
-        self.players.append(player)
-        player.join(self)
+        if player not in self.players:
+            self.players.append(player)
+            player.join(self)
 
     def view_state(self):
         '''Prints the cards on the board of the table, as well as the state (pre-flop, flop, turn, or river).'''
