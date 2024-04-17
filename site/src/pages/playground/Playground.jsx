@@ -83,6 +83,7 @@ const Playground = () => {
               key={name}
               name={name}
               player={player}
+              numPlayers={table.players.length}
               requiredBet={table.required_bet}
               requiredRaise={table.required_raise}
               setTable={setTable}

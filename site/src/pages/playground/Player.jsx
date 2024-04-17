@@ -3,7 +3,7 @@ import pokerService from '../../services/poker'
 import './player.css'
 import { useState } from 'react'
 
-const Player = ({ name, player, requiredBet, requiredRaise, setTable }) => {
+const Player = ({ name, player, numPlayers, requiredBet, requiredRaise, setTable }) => {
   const [isBetting, setIsBetting] = useState(false)
   const [betAmount, setBetAmount] = useState(0)
   const callAmount = requiredBet - player.current_bet
@@ -47,7 +47,11 @@ const Player = ({ name, player, requiredBet, requiredRaise, setTable }) => {
   const positionTag = () => {
     switch (player.position) {
       case 0:
-        return <img className='position-tag' src='./src/assets/positions/dealer.png' />
+        if (numPlayers == 2) {
+          return <img className='position-tag' src='./src/assets/positions/big-blind.png' />
+        } else {
+          return <img className='position-tag' src='./src/assets/positions/dealer.png' />
+        }
       case 1:
         return <img className='position-tag' src='./src/assets/positions/small-blind.png' />
       case 2:
