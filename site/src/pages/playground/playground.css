@@ -46,37 +46,10 @@
   gap: 32px;
 }
 
-#hand {
-  position: absolute;
-  top: calc(-40px + 4vh);
-  width: 100%;
-  display: flex;
-  justify-content: center;
-}
-
-#hand > .card {
-  margin: 0 calc(-2vh - 20px);
-}
-
 #river {
   height: 100%;
   width: 100%;
   display: flex;
   justify-content: center;
   gap: 32px;
-}
-
-#buttons {
-  position: absolute;
-  top: 80%;
-  display: flex;
-  width: 100%;
-  justify-content: center;
-  gap: 16px;
-}
-
-.action {
-  box-sizing: border-box;
-  width: 80px;
-  height: 24px;
 }

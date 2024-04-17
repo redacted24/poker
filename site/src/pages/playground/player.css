@@ -13,14 +13,14 @@
 
 #hand {
   position: absolute;
+  top: calc(-40px + 4vh);
   width: 100%;
   display: flex;
   justify-content: center;
-  gap: -19px
 }
 
 #hand > .card {
-  margin: 0 -38px;
+  margin: 0 calc(-2vh - 20px);
 }
 
 #balance {
@@ -30,3 +30,25 @@
   text-align: center;
   font-size: 1.2rem;
 }
+
+#buttons {
+  position: absolute;
+  top: 80%;
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  gap: 16px;
+}
+
+.action {
+  box-sizing: border-box;
+  width: 80px;
+  height: 24px;
+  line-height: 20px;
+}
+
+#dollar-sign {
+  position: absolute;
+  top: calc((100% - 18px) / 2);
+  left: calc(50% - 80px)
+} 

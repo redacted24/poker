@@ -1,13 +1,15 @@
 import Card from './Card'
 import pokerService from '../../services/poker'
 import './player.css'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 const Player = ({ name, player, numPlayers, requiredBet, requiredRaise, setTable }) => {
   const [isBetting, setIsBetting] = useState(false)
-  const [betAmount, setBetAmount] = useState(0)
   const callAmount = requiredBet - player.current_bet
-  const minBetAmount = callAmount + requiredRaise
+  const minBetAmount = requiredBet + requiredRaise
+  console.log(requiredBet, requiredRaise)
+  console.log(minBetAmount, callAmount)
+  const [betAmount, setBetAmount] = useState(minBetAmount)
 
   const handleChange = (e) => {
     setBetAmount(e.target.value)
@@ -16,6 +18,10 @@ const Player = ({ name, player, numPlayers, requiredBet, requiredRaise, setTable
   const toggleIsBetting = () => {
     setIsBetting(!isBetting)
   }
+
+  useEffect(() => {
+    setBetAmount(minBetAmount)
+  }, [minBetAmount])
 
   const call = async () => {
     const tableData = await pokerService.call({ name })
@@ -77,7 +83,7 @@ const Player = ({ name, player, numPlayers, requiredBet, requiredRaise, setTable
       }
       {isBetting && 
         <form onSubmit={bet} id='buttons'>
-          <input className='action' type='number' value={betAmount} onChange={handleChange}/>
+          <input className='action' type='number' value={betAmount} onChange={handleChange} min={minBetAmount} /> <span id='dollar-sign'>$</span>
           <button className='action' type='button' onClick={toggleIsBetting}>Go back</button>
           <button className='action' type='submit'>Confirm</button>
         </form>

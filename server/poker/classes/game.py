@@ -54,7 +54,7 @@ class Table():
         self.player_queue: list[Player] = []        # A list of all the players that will be playing in the round
         self.winning_player: Player|None = None     # The player who won the round. It is None while the game is in progress.
         self.required_bet: int = 0                  # How much money is required to stay in the game. Very useful to program the call function
-        self.min_raise: int = 10                    # Minimum amount of money a player needs to raise the bet
+        self.required_raise: int = 10               # Minimum amount of money a player needs to raise the bet
         self.last_move: list[str, str] = []         # [Player.name, 'nameOfMove'] A list of two elements containing the player name, and the name of their last move (e.g. bet)
         self.betting_cap = 0                        # Cap to bets. Players cannot raise past this.
         self.round_stats: dict = {        
@@ -114,7 +114,7 @@ class Table():
     def prepare_round(self, pre_flop=False):
         '''Prepares the table for the current round'''
         self.required_bet = 10 if pre_flop else 0
-        self.min_raise = 10
+        self.required_raise = 10
         self.clear_bets()
         self.last_move.clear()
         self.start_queue(pre_flop)
@@ -127,7 +127,7 @@ class Table():
     def set_blinds(self):
         '''Takes out the required contributions from the blinds to the pot'''
         sorted_players = sorted(self.players, key=lambda p: p.position)
-        small_blind, big_blind = (sorted_players * 2)[0:2]                          # Allows the list to loop back if there are only 2 players
+        small_blind, big_blind = (sorted_players * 2)[1:3]                          # Allows the list to loop back if there are only 2 players
         
         small_blind.balance -= 5
         small_blind.current_bet = 5
@@ -258,8 +258,9 @@ class Table():
         '''Player calls, matching the current bet.'''
         if player == self.player_queue[0]:
             self.update_table_stats(player, 'call')
-            player.balance -= self.required_bet
-            self.pot += self.required_bet
+            player.balance -= self.required_bet - player.current_bet
+            self.pot += self.required_bet - player.current_bet
+            player.current_bet = self.required_bet
             self.player_queue.pop(0)
         else:
             raise(ValueError('Not your turn yet!'))
@@ -287,10 +288,16 @@ class Table():
                 player.call()       # Call the betting cap
             else: 
                 self.update_table_stats(player, 'bet')
-                player.balance -= amount
-                player.current_bet += amount
-                self.increase_pot(amount)
-                self.required_bet = amount
+                amount_bet = amount - player.current_bet            # amount that the player throws into the pot
+
+                player.balance -= amount_bet
+                self.increase_pot(amount_bet)
+
+                player.current_bet = amount
+                self.required_raise = amount - self.required_bet    # amount that the player has raised the pot by. this is now the minimum raise value
+
+                self.required_bet = player.current_bet
+
                 self.player_queue.extend([p for p in self.players if (p not in self.player_queue) and p.active])
                 self.player_queue.pop(0)
         else:
@@ -317,6 +324,7 @@ class Table():
             'players': [p.toJSON() for p in self.players],
             'player_queue': [p.toJSON() for p in self.player_queue],
             'required_bet': self.required_bet,
+            'required_raise': self.required_raise,
             'state': self.state,
             'last_move': self.last_move,
             'winning_player': self.winning_player and self.winning_player.toJSON()
@@ -500,8 +508,7 @@ class Player():
 
         # Player moves
         def call(self):
-            if self.balance >= self.table.required_bet:
-                self.current_bet = self.table.required_bet
+            if self.balance >= self.table.required_bet - self.current_bet:
                 self.table.call(self)
 
         def check(self):
@@ -512,9 +519,9 @@ class Player():
             self.table.fold(self)
 
         def bet(self, amount):
-            if self.balance > amount:
+            if self.balance > (amount - self.current_bet):
                 self.table.bet(self, amount)
-            elif self.balance == amount:
+            elif self.balance == (amount - self.current_bet):
                 print('All-in')
                 self.table.bet(self, amount)
                 self.table.betting_cap = self.table.required_bet

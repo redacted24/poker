@@ -26,8 +26,8 @@ def init():
   deck = Deck()
   table = Table(deck)
 
-  table.add_player(player)
   table.add_player(AdvancedBot('yummyewrs', 'moderate'))
+  table.add_player(player)
 
   session['table'] = pickle.dumps(table)  
 
@@ -40,7 +40,7 @@ def start():
   if 'table' in session:
     table: Table = pickle.loads(session['table'])
   else:
-    player = Player('will_fix_later', False)
+    player = Player(req['name'], False)
 
     deck = Deck()
     table = Table(deck)
