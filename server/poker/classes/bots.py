@@ -79,7 +79,7 @@ class AdvancedBot(Player):
     def update_player_position(self):
         '''Compute the thershold position number of the player.'''
         # Calculated by number of active players - (the index of the player in queue + 1).
-        # e.g. [p1, p2, p3, p4] on Pre-Flop where p3 starts playing. Threshold pos of p3 = 3 because there are 3 turns to play before it is their turn again
+        # e.g. [p1, p2, p3, p4] on Pre-Flop where p4 starts playing. Threshold pos of p4 = 3 because there are 3 turns to play before it is their turn again
         if self.table.active_players() and self.table.player_queue:
             self.thresholds_position = int(len(self.table.active_players())-(self.table.player_queue.index(self)+1))        # The threshold position of the first player in queue should be length of players - 1.
         else:
