@@ -27,8 +27,7 @@ def init():
   table = Table(deck)
 
   table.add_player(player)
-  table.add_player(ScaryCat('computer1', True))
-  table.add_player(ScaryCat('computer2', True))
+  table.add_player(AdvancedBot('yummyewrs', table, 'moderate'))   # Doesn't work!!!
 
   session['table'] = pickle.dumps(table)  
 

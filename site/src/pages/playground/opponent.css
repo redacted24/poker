@@ -12,7 +12,9 @@
 }
 
 .opponent .position-tag {
-  position: static;
+  position: relative;
+  left: calc(-40px + 4vh);
+  margin-top: 10px;
   width: calc(25px + 3vh);
 }
 

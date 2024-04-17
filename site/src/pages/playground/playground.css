@@ -76,6 +76,7 @@
 }
 
 .action {
+  box-sizing: border-box;
   width: 80px;
   height: 24px;
 }
