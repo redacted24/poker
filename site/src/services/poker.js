@@ -16,8 +16,8 @@ const clear = async () => {
   return response.data
 }
 
-const start = async () => {
-  const response = await axios.post(`${baseUrl}/start`)
+const start = async (player) => {
+  const response = await axios.post(`${baseUrl}/start`, player)
   return response.data
 }
 
