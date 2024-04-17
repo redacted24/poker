@@ -60,7 +60,7 @@ class eval():
         print(win, tie, loss)
         return (win + 0.5 * tie) / sum([win, tie, loss])
 
-    def potential_hand_strength(self):
+    def potential_hand_strength(self, look_ahead):
         hand_potentials = [[0] * 3 for _ in range(3)]
         
         p1 = Player('player', True)
@@ -91,10 +91,10 @@ class eval():
 
             new_filtered_deck = self.remove_cards(filtered_deck, [c1, c2])
 
-            for c3, c4 in list(combinations(new_filtered_deck, 2)):
-                predicted_board_cards = self.board_cards + [c3, c4]
-                str_cards_p1 = ''.join(sorted([c.shortName for c in [c3, c4]]))
-                str_cards_p2 = ''.join(sorted([c.shortName for c in [c1, c2, c3, c4]]))
+            for new_board_cards in list(combinations(new_filtered_deck, look_ahead)):
+                predicted_board_cards = self.board_cards + list(new_board_cards)
+                str_cards_p1 = ''.join(sorted([c.shortName for c in new_board_cards]))
+                str_cards_p2 = ''.join(sorted([c.shortName for c in (c1, c2) + new_board_cards]))
 
                 if str_cards_p1 in computed_p1_ranks:
                     p1_rank_7 = computed_p1_ranks[str_cards_p1]
@@ -115,10 +115,10 @@ class eval():
                 else:
                     hand_potentials[i][2] += 1
 
-        ppot2 = (hand_potentials[2][0] + hand_potentials[2][1] / 2 + hand_potentials[1][0]) / (sum(hand_potentials[2]) + sum(hand_potentials[1]) / 2)
-        npot2 = (hand_potentials[0][2] + hand_potentials[0][1] / 2 + hand_potentials[1][2]) / (sum(hand_potentials[0]) + sum(hand_potentials[1]) / 2)
+        ppot = (hand_potentials[2][0] + hand_potentials[2][1] / 2 + hand_potentials[1][0]) / (sum(hand_potentials[2]) + sum(hand_potentials[1]) / 2)
+        npot = (hand_potentials[0][2] + hand_potentials[0][1] / 2 + hand_potentials[1][2]) / (sum(hand_potentials[0]) + sum(hand_potentials[1]) / 2)
 
-        return ppot2, npot2
+        return ppot, npot
 
     
 
@@ -129,4 +129,5 @@ board = [d.get('3h'), d.get('4c'), d.get('Jh')]
 
 e = eval(hand, board)
 
-print(e.potential_hand_strength())
+print(e.potential_hand_strength(1))
+print(e.potential_hand_strength(2))
