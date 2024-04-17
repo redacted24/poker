@@ -105,11 +105,11 @@ class Table():
     def start_queue(self, pre_flop=False):
         '''Adds a queue for the players' turn to play'''
         self.set_positions()
-        temp = sorted(self.players, key=lambda p:p.position)
+        sorted_players = sorted(self.active_players(), key=lambda p:p.position) * 2
         if pre_flop:
-            self.player_queue = temp[2:] + temp[0:2]
+            self.player_queue = sorted_players[1:1+len(self.players)]
         else:
-            self.player_queue = sorted(self.active_players(), key=lambda p:p.position)
+            self.player_queue = sorted_players[:len(self.players)]
 
     def prepare_round(self, pre_flop=False):
         '''Prepares the table for the current round'''
@@ -210,7 +210,7 @@ class Table():
         while len(self.player_queue) != 0:
             if len(self.active_players()) == 1:
                 self.player_queue.clear()
-                self.state = 4
+                self.state = 3
                 break
             current_player = self.player_queue[0]
             if (current_player.is_computer):
@@ -223,7 +223,7 @@ class Table():
             rounds = [self.pre_flop, self.flop, self.turn, self.river, self.showdown, self.reset]
             
             rounds[self.state]()
-            if self.state < 4:
+            if 0 < self.state < 4:
                 self.play()
 
     def reset(self):
@@ -317,6 +317,7 @@ class Table():
             'players': [p.toJSON() for p in self.players],
             'player_queue': [p.toJSON() for p in self.player_queue],
             'required_bet': self.required_bet,
+            'state': self.state,
             'last_move': self.last_move,
             'winning_player': self.winning_player and self.winning_player.toJSON()
         }
