@@ -31,8 +31,10 @@ class TestTableMethods(unittest.TestCase):
         self.assertEqual(len(self.table.board), 4, 'Incorrect number of cards on the baord (for the flop)')
 
     def test_PlayerQueue(self):        # Blinds play last on pre_flop
+        # p1,p2,p3,p4 with respective positions 0,1,2,3. 
+        # On preflop, positions should be played 3,0,1,2
         self.table.pre_flop()
-        self.assertListEqual(self.table.player_queue, [self.p3, self.p4, self.p1,self.p2])
+        self.assertListEqual(self.table.player_queue, [self.p4, self.p1, self.p2, self.p3])
         
     def test_boardSize_flop(self):
         self.table.pre_flop()
@@ -341,10 +343,10 @@ class TestAdvancedBotMethods(unittest.TestCase):
     def setUp(self):
         self.deck = Deck()
         self.table = Table(self.deck)
-        self.p1 = AdvancedBot('p1', self.table,'moderate')
-        self.p2 = AdvancedBot('p2', self.table,'loose')
-        self.p3 = AdvancedBot('p3', self.table,'moderate')
-        self.p4 = AdvancedBot('p4', self.table,'tight')
+        self.p1 = AdvancedBot('p1','moderate', self.table)
+        self.p2 = AdvancedBot('p2','loose', self.table)
+        self.p3 = AdvancedBot('p3','moderate', self.table)
+        self.p4 = AdvancedBot('p4','tight', self.table)
     
     def tearDown(self):
         self.table.end()
@@ -433,10 +435,10 @@ class TestAdvancedBotMethods(unittest.TestCase):
     def setUp(self):
         self.deck = Deck()
         self.table = Table(self.deck)
-        self.p1 = AdvancedBot('p1', self.table,'moderate')
-        self.p2 = AdvancedBot('p2', self.table, 'moderate')
-        self.p3 = AdvancedBot('p3', self.table, 'moderate')
-        self.p4 = AdvancedBot('p4', self.table, 'moderate')
+        self.p2 = AdvancedBot('p2', 'moderate', self.table)
+        self.p1 = AdvancedBot('p1', 'moderate', self.table)
+        self.p3 = AdvancedBot('p3', 'moderate', self.table)
+        self.p4 = AdvancedBot('p4', 'moderate', self.table)
         self.table.pre_flop()
 
     def tearDown(self):
@@ -559,10 +561,10 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
     def setUp(self):
         self.deck = Deck()
         self.table = Table(self.deck)
-        self.p1 = AdvancedBot('p1', self.table,'moderate')
-        self.p2 = AdvancedBot('p2', self.table, 'moderate')
-        self.p3 = AdvancedBot('p3', self.table, 'moderate')
-        self.p4 = AdvancedBot('p4', self.table, 'moderate')
+        self.p1 = AdvancedBot('p1', 'moderate', self.table)
+        self.p2 = AdvancedBot('p2', 'moderate', self.table)
+        self.p3 = AdvancedBot('p3', 'moderate', self.table)
+        self.p4 = AdvancedBot('p4', 'moderate', self.table)
         self.table.pre_flop()
 
     def tearDown(self):
@@ -751,7 +753,7 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
         self.assertEqual(self.p2.play(),'make4')
 
     def test_fullTestGame1(self):
-        '''Moderate bot game'''
+        '''Moderate bot game working'''
         print('game start ----------------------')
         print(self.table.player_queue)
         self.table.play()

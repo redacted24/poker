@@ -111,7 +111,10 @@ class Table():
         self.set_positions()
         sorted_players = sorted(self.active_players(), key=lambda p:p.position) * 2
         if pre_flop:
-            self.player_queue = sorted_players[1:1+len(self.active_players())]
+            temp = []
+            temp.append(sorted_players[-1])
+            temp.extend(sorted_players[0:len(self.active_players())-1])
+            self.player_queue = temp
         else:
             self.player_queue = sorted_players[:len(self.active_players())]
 
@@ -122,7 +125,7 @@ class Table():
         self.betting_cap = 0
         self.clear_bets()
         self.last_move.clear()
-        self.start_queue(pre_flop)
+        self.start_queue(True)
 
     def set_positions(self):
         '''Set the positions of the players for the current round'''
