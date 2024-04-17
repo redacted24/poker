@@ -1,4 +1,7 @@
-from poker.classes.game import *
+try:
+    from poker.classes.game import *
+except:
+    from game import *      # type: ignore
 
 class AdvancedBot(Player):
     # --- Pre-Flop Betting Strategy --- #
