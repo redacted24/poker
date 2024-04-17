@@ -738,7 +738,10 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
 
     def test_fullTestGame1(self):
         '''Moderate bot game'''
-        pass
+        print('game start ----------------------')
+        print(self.table.player_queue)
+        self.table.play()
+        print('game end -------------------------')
 
 # ------------------------- #
 # --- HAND EVAL TESTING --- #

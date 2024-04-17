@@ -196,13 +196,13 @@ class Table():
         winning_player = self.active_players()[0]
 
         for player in self.active_players():
-            print(player.handEval(self.board.cards()), winning_player.handEval(self.board.cards()))
+            print(f"{player} had {player.handEval(self.board.cards())}")
             if player.handEval(self.board.cards()) > winning_player.handEval(self.board.cards()):
                 winning_player = player
 
+        print(f'The winning player is {winning_player}, with a hand of {winning_player.handEval(self.board.cards())}')
         winning_player.rake()       # Winning player takes in all the money
         self.winning_player = winning_player
-        print(self.winning_player)
 
 
     def play(self):
@@ -291,7 +291,7 @@ class Table():
                 player.current_bet += amount
                 self.increase_pot(amount)
                 self.required_bet = amount
-                self.player_queue.extend([p for p in self.players if p not in self.player_queue])
+                self.player_queue.extend([p for p in self.players if (p not in self.player_queue) and p.active])
                 self.player_queue.pop(0)
         else:
             raise(ValueError('Not your turn yet!'))
