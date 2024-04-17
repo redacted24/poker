@@ -15,15 +15,17 @@ const Opponent = ({ player }) => {
     }
   }
 
+
+
   return (
-    <div className='opponent'>
+    <div className={`opponent`}>
       <div className='top-elements'>
         <div className='opponent-hand'>
           {player.hand.map(card => <Card key={`${card}`} card={card} />)}
         </div>
         {positionTag()}
       </div>
-      <p className='opponent-worth'>Balance: {player.balance}$</p>
+      <p className={`opponent-worth ${self.active}`}>Balance: {player.balance}$</p>
     </div>
   )
 }

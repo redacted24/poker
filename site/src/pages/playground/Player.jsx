@@ -7,8 +7,6 @@ const Player = ({ name, player, numPlayers, requiredBet, requiredRaise, setTable
   const [isBetting, setIsBetting] = useState(false)
   const callAmount = requiredBet - player.current_bet
   const minBetAmount = requiredBet + requiredRaise
-  console.log(requiredBet, requiredRaise)
-  console.log(minBetAmount, callAmount)
   const [betAmount, setBetAmount] = useState(minBetAmount)
 
   const handleChange = (e) => {
@@ -25,12 +23,14 @@ const Player = ({ name, player, numPlayers, requiredBet, requiredRaise, setTable
 
   const call = async () => {
     const tableData = await pokerService.call({ name })
+    setBetAmount(minBetAmount)
     setTable(tableData)
     console.log(tableData)
   }
 
   const check = async () => {
     const tableData = await pokerService.check({ name })
+    setBetAmount(minBetAmount)
     setTable(tableData)
     console.log(tableData)
   }
@@ -45,8 +45,9 @@ const Player = ({ name, player, numPlayers, requiredBet, requiredRaise, setTable
     e.preventDefault()
     const amount = parseInt(betAmount)
     const tableData = await pokerService.bet({ name, amount })
-    toggleIsBetting()
+    setBetAmount(minBetAmount)
     setTable(tableData)
+    toggleIsBetting()
     console.log(tableData)
   }
 

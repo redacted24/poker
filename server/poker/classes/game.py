@@ -111,14 +111,15 @@ class Table():
         self.set_positions()
         sorted_players = sorted(self.active_players(), key=lambda p:p.position) * 2
         if pre_flop:
-            self.player_queue = sorted_players[1:1+len(self.players)]
+            self.player_queue = sorted_players[1:1+len(self.active_players())]
         else:
-            self.player_queue = sorted_players[:len(self.players)]
+            self.player_queue = sorted_players[:len(self.active_players())]
 
     def prepare_round(self, pre_flop=False):
         '''Prepares the table for the current round'''
         self.required_bet = 10 if pre_flop else 0
         self.required_raise = 10
+        self.betting_cap = 0
         self.clear_bets()
         self.last_move.clear()
         self.start_queue(pre_flop)
@@ -295,7 +296,7 @@ class Table():
     def bet(self, player, amount):
         '''Player bets, raising the required bet to stay in for the entire table.'''
         if player == self.player_queue[0]:
-            if self.required_bet == self.betting_cap:
+            if self.betting_cap > 3 or amount == self.required_bet:
                 player.call()       # Call the betting cap
             else: 
                 self.update_table_stats(player, 'bet')
@@ -309,7 +310,12 @@ class Table():
 
                 self.required_bet = player.current_bet
 
-                self.player_queue.extend([p for p in self.players if (p not in self.player_queue) and p.active])
+                self.betting_cap += 1
+
+                print(self.player_queue)
+                self.player_queue.extend([p for p in self.active_players() if p not in self.player_queue])
+                print(self.player_queue)
+
                 self.player_queue.pop(0)
         else:
             raise(ValueError('Not your turn yet!'))
@@ -535,7 +541,6 @@ class Player():
             elif self.balance == (amount - self.current_bet):
                 print('All-in')
                 self.table.bet(self, amount)
-                self.table.betting_cap = self.table.required_bet
 
         def rake(self):
             self.balance += self.table.pot
