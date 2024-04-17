@@ -345,8 +345,8 @@ class TestAdvancedBotMethods(unittest.TestCase):
     def setUp(self):
         self.deck = Deck()
         self.table = Table(self.deck)
-        self.p2 = AdvancedBot('p2', 'moderate', self.table)
         self.p1 = AdvancedBot('p1', 'moderate', self.table)
+        self.p2 = AdvancedBot('p2', 'moderate', self.table)
         self.p3 = AdvancedBot('p3', 'moderate', self.table)
         self.p4 = AdvancedBot('p4', 'moderate', self.table)
         self.table.pre_flop()
@@ -356,13 +356,13 @@ class TestAdvancedBotMethods(unittest.TestCase):
 
     def test_call_1_case1(self):
         '''Test call1 method when another player has bet on the table + bot is the last to play. Bot should call'''
-        self.p3.bet(1)
-        self.assertEqual(self.p4.call1(),'call')
+        self.p4.bet(20)
+        self.assertEqual(self.p1.call1(),'call')
 
     def test_call_1_case2(self):
         '''Test call1 method when two other players have bet on the table + bot is the last to play. Bot should fold'''
-        self.p4.bet(1)
-        self.p1.bet(1)
+        self.p4.bet(100)
+        self.p1.bet(110)
         self.assertEqual(self.p2.call1(), 'fold')       # Two players have bet, and call1 specifies to fold if there are more than or equal to two bets on the board.
 
     def test_call_1_case3(self):
@@ -381,7 +381,7 @@ class TestAdvancedBotMethods(unittest.TestCase):
     def test_make1_case2(self):
         '''Test make1 method when one player has bet on the table + bot is the last to play. Bot should call'''
         self.p4.call()
-        self.p1.bet(10)
+        self.p1.bet(100)
         self.assertEqual(self.p2.make1(), 'call')
     
     def test_make1_case3(self):
@@ -399,8 +399,8 @@ class TestAdvancedBotMethods(unittest.TestCase):
     def test_call2_case2(self):
         '''Test make1 method when one player has bet on the table + bot is the last to play. Bot should call'''
         self.p4.call()
-        self.p1.bet(10)
-        self.assertEqual(self.p1.call2(), 'call')
+        self.p1.bet(20)
+        self.assertEqual(self.p2.call2(), 'call')
         
     def test_make2_case1(self):
         '''Test make2 method when no one has bet + bot is the last to play. Bot should bet'''
@@ -416,7 +416,7 @@ class TestAdvancedBotMethods(unittest.TestCase):
     
     def test_make4_case1(self):
         self.p4.call()
-        self.p1.bet(10)
+        self.p1.bet(20)
         self.assertEqual(self.p2.make2(), 'bet')
         self.p3.call()
         self.p4.bet(100)
@@ -425,7 +425,7 @@ class TestAdvancedBotMethods(unittest.TestCase):
     def test_blindRotation_case1(self):
         self.p4.call()
         self.p1.call()
-        self.assertEqual(self.p2.position, 0, 'p2 should be small blind here')
+        self.assertEqual(self.p2.position, 1, 'p2 should be small blind here')
     
     def test_blindRotation_case2(self):
         '''Test player positions after certain rounds are played'''
@@ -437,29 +437,29 @@ class TestAdvancedBotMethods(unittest.TestCase):
         self.table.reset()
         self.table.pre_flop()
         self.assertEqual(self.p1.position,1)
-        self.assertEqual(self.p2.position,0)
+        self.assertEqual(self.p2.position,2)
         self.assertEqual(self.p3.position,3)
-        self.assertEqual(self.p4.position,2)
-        self.p4.call()
-        self.p1.check()
+        self.assertEqual(self.p4.position,0)
         self.p3.call()
-        self.p2.call()
+        self.p4.call()
+        self.p1.call()
+        self.p2.check()
         self.table.reset()
         self.table.pre_flop()
         self.assertEqual(self.p1.position,2)
-        self.assertEqual(self.p2.position,1)
+        self.assertEqual(self.p2.position,3)
         self.assertEqual(self.p3.position,0)
-        self.assertEqual(self.p4.position,3)
-        self.p4.check()
-        self.p1.call()
+        self.assertEqual(self.p4.position,1)
         self.p2.call()
         self.p3.call()
+        self.p4.call()
+        self.p1.check()
         self.table.reset()
         self.table.pre_flop()
-        self.assertEqual(self.p4.position,2)
         self.assertEqual(self.p1.position,3)
         self.assertEqual(self.p2.position,0)
         self.assertEqual(self.p3.position,1)
+        self.assertEqual(self.p4.position,2)
 
 
 
