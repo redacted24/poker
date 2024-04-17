@@ -55,8 +55,7 @@ class Table():
         self.winning_player: Player|None = None     # The player who won the round. It is None while the game is in progress.
         self.required_bet: int = 0                  # How much money is required to stay in the game. Very useful to program the call function
         self.required_raise: int = 10               # Minimum amount of money a player needs to raise the bet
-        self.last_move: list[str, str] = []         # [Player.name, 'nameOfMove'] A list of two elements containing the player name, and the name of their last move (e.g. bet)
-        self.betting_cap = 0                        # Cap to bets. Players cannot raise past this.
+        self.last_move: list[str, str] = []         # [Player.name, 'nameOfMove'] A list of two elements containing the player name, and the name of their last move (e.g. bet)                   # Cap to bets. Players cannot raise past this.
         self.round_stats: dict = {        
             'bet': 0,
             'raise': 0,
@@ -171,8 +170,7 @@ class Table():
         - Clears last move
         - Starts the queue again for all players
         - Reveal cards on the board'''
-
-        # print('Flop')
+        print('Flop')
         self.prepare_round()
         self.board.reveal()
 
@@ -183,7 +181,7 @@ class Table():
         - Clears last move
         - Start the queue again for all players
         - Adds a card to the board.'''
-        # print('Turn')
+        print('Turn')
         self.prepare_round()
         self.add_card()
     
@@ -194,7 +192,7 @@ class Table():
         - Clears last move
         - Start the queue again for all players
         - Adds a card to the board.'''
-        # print('River')
+        print('River')
         self.prepare_round()
         self.add_card()
 
@@ -227,7 +225,7 @@ class Table():
                 current_player.play()
                 n_turns += 1
                 if n_turns > 1000:
-                    # raise Exception(self.round_stats)
+                    raise Exception(self.round_stats)
                     self.player_queue.clear()           # temp fix for bot problem
                     break
             else:
@@ -272,6 +270,7 @@ class Table():
     def call(self, player):
         '''Player calls, matching the current bet.'''
         if player == self.player_queue[0]:
+            print(f"{player} has called. They had {player.hand()}")
             self.update_table_stats(player, 'call')
             player.balance -= self.required_bet - player.current_bet
             self.pot += self.required_bet - player.current_bet
@@ -283,6 +282,7 @@ class Table():
     def check(self, player):
         '''Player checks, passing the turn without betting.'''
         if player == self.player_queue[0]:
+            print(f"{player} has checked. They had {player.hand()}")
             self.update_table_stats(player, 'check')
             self.player_queue.pop(0)
         else:
@@ -291,6 +291,7 @@ class Table():
     def fold(self, player):
         '''Player folds, giving up their hand.'''
         if player == self.player_queue[0]:
+            print(f"{player} has folded. They had {player.hand()}")
             self.update_table_stats(player, 'fold')
             self.player_queue.pop(0)
         else:
@@ -299,9 +300,11 @@ class Table():
     def bet(self, player, amount):
         '''Player bets, raising the required bet to stay in for the entire table.'''
         if player == self.player_queue[0]:
-            if self.betting_cap > 3 or amount == self.required_bet:
-                player.call()       # Call the betting cap
+            if self.round_stats['bet'] == 3:        # Player cannot raise past this
+                print('Betting Cap Reached')
+                self.call(player)     # Call the betting cap
             else: 
+                print(f"{player} has bet. They had {player.hand()}")
                 self.update_table_stats(player, 'bet')
                 amount_bet = amount - player.current_bet            # amount that the player throws into the pot
 
@@ -314,11 +317,7 @@ class Table():
                 self.required_bet = player.current_bet
 
                 self.betting_cap += 1
-
-                # print(self.player_queue)
                 self.player_queue.extend([p for p in self.active_players() if p not in self.player_queue])
-                # print(self.player_queue)
-
                 self.player_queue.pop(0)
         else:
             raise(ValueError('Not your turn yet!'))

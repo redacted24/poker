@@ -663,9 +663,26 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
     def test_fullTestGame1(self):
         '''Moderate bot game working'''
         print('game start ----------------------')
-        print(self.table.player_queue)
         self.table.play()
         print('game end -------------------------')
+    
+    def test_onlyBets(self):
+        '''Specific testing for make4 strat'''
+        # Queue: p4,p1,p2,p3
+        print('GAMEEEEEEEEEEEEEE start ----------------------')
+        deck2 = Deck()
+        self.p4.clear_hand()
+        self.p4.receive([deck2.get('As'), deck2.get('Ks')])
+        self.p3.clear_hand()
+        self.p3.receive([deck2.get('Ad'), deck2.get('Kd')])
+        self.p2.clear_hand()
+        self.p2.receive([deck2.get('Ac'), deck2.get('Kc')])
+        self.p1.clear_hand()
+        self.p1.receive([deck2.get('Ah'), deck2.get('Kh')])
+        self.table.play()
+        print(self.table.round_stats)
+        print('game end -------------------------')
+        
 
 # ------------------------- #
 # --- HAND EVAL TESTING --- #
