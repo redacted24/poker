@@ -185,9 +185,17 @@ class ScaryCat(Player):
     '''A bot that always if a single opponent bets. Otherwise, checks.'''
     def play(self):
         if self.current_bet == self.table.required_bet:
+            print(f'{self.name} has checked. They had: {self.hand()}')
             self.check()
         else:
+            print(f'{self.name} has called. They had: {self.hand()}')
             self.call()
+
+    def update_player_position(self):
+        pass
+    
+    def update_strategy_thresholds(self):
+        pass
 
 class Joker(Player):
     '''A bot that only does random actions. Can bet a random multiplier of the small blind'''

@@ -101,6 +101,10 @@ class Table():
     def active_players(self):
         '''Returns a list of the active players in the round'''
         return [p for p in self.players if p.active]
+    
+    def randomize(self):
+        from random import shuffle
+        shuffle(self.players)
 
     def start_queue(self, pre_flop=False):
         '''Adds a queue for the players' turn to play'''
@@ -207,6 +211,8 @@ class Table():
 
     def play(self):
         '''Lets all the computers play their turn, then starts the next round if needed.'''
+        n_turns = 0
+
         while len(self.player_queue) != 0:
             if len(self.active_players()) == 1:
                 self.player_queue.clear()
@@ -215,6 +221,11 @@ class Table():
             current_player = self.player_queue[0]
             if (current_player.is_computer):
                 current_player.play()
+                n_turns += 1
+                if n_turns > 1000:
+                    # raise Exception(self.round_stats)
+                    self.player_queue.clear()           # temp fix for bot problem
+                    break
             else:
                 break
         
