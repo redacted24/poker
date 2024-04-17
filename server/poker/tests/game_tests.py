@@ -577,7 +577,6 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
         2 7 offsuit IR = -432
         Make 0 threshold: under call1, or <= -75'''
         deck2 = Deck()
-        self.table.pre_flop()
         self.p3.call()
         self.p4.call()
         self.p1.clear_hand()
@@ -593,7 +592,6 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
         Call 1 threshold: fixed, 75 >= x >= -75
         5 J suited IR = -12'''
         deck2 = Deck()
-        self.table.pre_flop()
         self.p3.call()
         self.p4.call()
         self.p1.clear_hand()
@@ -609,12 +607,10 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
         Make1 threshold: 225 >= x >= 75
         6 A unsuited IR = 99'''
         deck2 = Deck()
-        self.table.pre_flop()
         self.p3.call()
         self.p4.call()
         self.p1.clear_hand()
         self.p1.receive([deck2.get('As'), deck2.get('6d')])
-        print(self.p1.hand)
         self.assertEqual(self.p1.play(),'make1')
 
     def test_smallBlindPreFlopPlayCall2(self):
@@ -626,12 +622,10 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
         Call2 threshold (fixed): 225 >= x >= 200
         A 3 suited IR = 211'''
         deck2 = Deck()
-        self.table.pre_flop()
         self.p3.call()
         self.p4.call()
         self.p1.clear_hand()
         self.p1.receive([deck2.get('As'), deck2.get('3s')])
-        print(self.p1.hand)
         self.assertEqual(self.p1.play(),'call2')
 
     def test_smallBlindPreFlopPlayMake2(self):
@@ -643,7 +637,6 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
         Make2 threshold: 580 >= x >= 225
         A 4 suited IR = 237'''
         deck2 = Deck()
-        self.table.pre_flop()
         self.p3.call()
         self.p4.call()
         self.p1.clear_hand()
@@ -659,7 +652,6 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
         Make4 threshold: x >= 580
         A A IR = 1554'''
         deck2 = Deck()
-        self.table.pre_flop()
         self.p3.call()
         self.p4.call()
         self.p1.clear_hand()
@@ -674,15 +666,80 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
         Bb: p2
         6 5 suited IR = -52'''
         deck2 = Deck()
-        self.table.pre_flop()
         self.p3.call()
         self.p4.call()
         self.p1.clear_hand()
         self.p1.receive([deck2.get('5s'), deck2.get('6s')])
         self.assertEqual(self.p1.play(),'call1') 
 
+    def test_bigBlindPreFlopMake0(self):
+        '''
+        Moderate bot
+        Queue: p3,p4,p1,p2
+        Sb: p1
+        Bb: p2
+        Make0 = x <= 50
+        6 5 suited IR = -52'''
+        deck2 = Deck()
+        self.p3.call()
+        self.p4.call()
+        self.p1.call()
+        self.p2.clear_hand()
+        self.p2.receive([deck2.get('5s'), deck2.get('6s')])
+        self.assertEqual(self.p2.play(),'make0') 
 
-        
+    def test_bigBlindPreFlopMake1(self):
+        '''
+        Moderate bot
+        Queue: p3,p4,p1,p2
+        Sb: p1
+        Bb: p2
+        Make1 = 200 > x >= 50
+        7 8 suited IR = 66'''
+        deck2 = Deck()
+        self.p3.call()
+        self.p4.call()
+        self.p1.call()
+        self.p2.clear_hand()
+        self.p2.receive([deck2.get('7s'), deck2.get('8s')])
+        self.assertEqual(self.p2.play(),'make1')
+
+    def test_bigBlindPreFlopMake2(self):
+        '''
+        Moderate bot
+        Queue: p3,p4,p1,p2
+        Sb: p1
+        Bb: p2
+        Make2 = 200 <= x < 580
+        9 A suited IR = 381'''
+        deck2 = Deck()
+        self.p3.call()
+        self.p4.call()
+        self.p1.call()
+        self.p2.clear_hand()
+        self.p2.receive([deck2.get('9s'), deck2.get('As')])
+        self.assertEqual(self.p2.play(),'make2')
+
+    def test_bigBlindPreFlopMake4(self):
+        '''
+        Moderate bot
+        Queue: p3,p4,p1,p2
+        Sb: p1
+        Bb: p2
+        Make2 = x >= 580
+        A Q suited IR = 594'''
+        deck2 = Deck()
+        self.p3.call()
+        self.p4.call()
+        self.p1.call()
+        self.p2.clear_hand()
+        self.p2.receive([deck2.get('Qs'), deck2.get('As')])
+        self.assertEqual(self.p2.play(),'make4')
+
+    def test_fullTestGame1(self):
+        '''Moderate bot game'''
+        pass
+
 # ------------------------- #
 # --- HAND EVAL TESTING --- #
 # ------------------------- #
