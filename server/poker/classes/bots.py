@@ -1,4 +1,7 @@
-from poker.classes.game import *
+try:
+    from poker.classes.game import *
+except:
+    from game import *      # type: ignore
 
 class AdvancedBot(Player):
     # --- Pre-Flop Betting Strategy --- #
@@ -32,7 +35,7 @@ class AdvancedBot(Player):
         'loose': {'make1': (50, 10), 'make2': (200, 10), 'make4': (580,0)}
     }
 
-    def __init__(self, name, table, tightness):
+    def __init__(self, name, tightness, table=None):
         '''The general class for an advanced bot. Contains all the necessary information for advanced play. Children class will have specific methods that tweak information in this class in order to play.
         
         - Name (str)
@@ -58,13 +61,13 @@ class AdvancedBot(Player):
             elif IR >= self.strategy_thresholds['make2']:
                 self.make2()
                 return 'make2'
-            elif IR >= 200 and self.position == 0:     # Hard-coded value for small-blind. Only works if player is small blind
+            elif IR >= 200 and self.position == 1:     # Hard-coded value for small-blind. Only works if player is small blind
                 self.call2()
                 return 'call2'
             elif IR >= self.strategy_thresholds['make1']:
                 self.make1()
                 return 'make1'
-            elif IR >= -75 and self.position == 0:      # Hard-coded value for small-blind. Only works if player is small blind.
+            elif IR >= -75 and self.position == 1:      # Hard-coded value for small-blind. Only works if player is small blind.
                 self.call1()
                 return 'call1'
             else:
@@ -76,7 +79,7 @@ class AdvancedBot(Player):
     def update_player_position(self):
         '''Compute the thershold position number of the player.'''
         # Calculated by number of active players - (the index of the player in queue + 1).
-        # e.g. [p1, p2, p3, p4] on Pre-Flop where p3 starts playing. Threshold pos of p3 = 3 because there are 3 turns to play before it is their turn again
+        # e.g. [p1, p2, p3, p4] on Pre-Flop where p4 starts playing. Threshold pos of p4 = 3 because there are 3 turns to play before it is their turn again
         if self.table.active_players() and self.table.player_queue:
             self.thresholds_position = int(len(self.table.active_players())-(self.table.player_queue.index(self)+1))        # The threshold position of the first player in queue should be length of players - 1.
         else:
@@ -182,9 +185,17 @@ class ScaryCat(Player):
     '''A bot that always if a single opponent bets. Otherwise, checks.'''
     def play(self):
         if self.current_bet == self.table.required_bet:
+            print(f'{self.name} has checked. They had: {self.hand()}')
             self.check()
         else:
+            print(f'{self.name} has called. They had: {self.hand()}')
             self.call()
+
+    def update_player_position(self):
+        pass
+    
+    def update_strategy_thresholds(self):
+        pass
 
 class Joker(Player):
     '''A bot that only does random actions. Can bet a random multiplier of the small blind'''

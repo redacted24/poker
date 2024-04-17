@@ -27,7 +27,9 @@ def init():
   table = Table(deck)
 
   table.add_player(player)
-  table.add_player(AdvancedBot('yummyewrs', table, 'moderate'))   # Doesn't work!!!
+  table.add_player(AdvancedBot('moderate_bot', 'moderate'))
+  table.add_player(AdvancedBot('tight_bot', 'moderate'))
+  table.add_player(AdvancedBot('loose_bot', 'moderate'))
 
   session['table'] = pickle.dumps(table)  
 
@@ -36,7 +38,17 @@ def init():
 @bp.post('/start')
 def start():
   '''Beings the pre-flop phase of the game. Deals 3 cards on the table and a hand to each player.'''
-  table: Table = pickle.loads(session['table'])
+  req = request.get_json()
+  if 'table' in session:
+    table: Table = pickle.loads(session['table'])
+  else:
+    player = Player(req['name'], False)
+
+    deck = Deck()
+    table = Table(deck)
+
+    table.add_player(player)
+    table.add_player(AdvancedBot('yummyewrs', 'moderate'))
 
   table.pre_flop()
   table.play()

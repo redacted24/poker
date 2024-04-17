@@ -1,7 +1,7 @@
 try:
     from poker.classes.cards import *
 except:
-    from cards import *
+    from cards import *     # type: ignore
 
 class Board():
     def __init__(self):
@@ -54,7 +54,7 @@ class Table():
         self.player_queue: list[Player] = []        # A list of all the players that will be playing in the round
         self.winning_player: Player|None = None     # The player who won the round. It is None while the game is in progress.
         self.required_bet: int = 0                  # How much money is required to stay in the game. Very useful to program the call function
-        self.min_raise: int = 10                    # Minimum amount of money a player needs to raise the bet
+        self.required_raise: int = 10               # Minimum amount of money a player needs to raise the bet
         self.last_move: list[str, str] = []         # [Player.name, 'nameOfMove'] A list of two elements containing the player name, and the name of their last move (e.g. bet)
         self.betting_cap = 0                        # Cap to bets. Players cannot raise past this.
         self.round_stats: dict = {        
@@ -101,23 +101,31 @@ class Table():
     def active_players(self):
         '''Returns a list of the active players in the round'''
         return [p for p in self.players if p.active]
+    
+    def randomize(self):
+        from random import shuffle
+        shuffle(self.players)
 
     def start_queue(self, pre_flop=False):
         '''Adds a queue for the players' turn to play'''
         self.set_positions()
-        temp = sorted(self.players, key=lambda p:p.position)
+        sorted_players = sorted(self.active_players(), key=lambda p:p.position) * 2
         if pre_flop:
-            self.player_queue = temp[2:] + temp[0:2]
+            temp = []
+            temp.append(sorted_players[-1])
+            temp.extend(sorted_players[0:len(self.active_players())-1]) 
+            self.player_queue = temp
         else:
-            self.player_queue = sorted(self.active_players(), key=lambda p:p.position)
+            self.player_queue = sorted_players[:len(self.active_players())]
 
     def prepare_round(self, pre_flop=False):
         '''Prepares the table for the current round'''
         self.required_bet = 10 if pre_flop else 0
-        self.min_raise = 10
+        self.required_raise = 10
+        self.betting_cap = 0
         self.clear_bets()
         self.last_move.clear()
-        self.start_queue(pre_flop)
+        self.start_queue(True)
 
     def set_positions(self):
         '''Set the positions of the players for the current round'''
@@ -127,7 +135,7 @@ class Table():
     def set_blinds(self):
         '''Takes out the required contributions from the blinds to the pot'''
         sorted_players = sorted(self.players, key=lambda p: p.position)
-        small_blind, big_blind = (sorted_players * 2)[0:2]                          # Allows the list to loop back if there are only 2 players
+        small_blind, big_blind = (sorted_players * 2)[1:3]                          # Allows the list to loop back if there are only 2 players
         
         small_blind.balance -= 5
         small_blind.current_bet = 5
@@ -144,7 +152,7 @@ class Table():
         - Adds a queue for players to start playing
         - Set blinds for the current round
         - Shuffle deck and add three cards to the board, and deal cards to players'''
-        print('Pre-flop')
+        # print('Pre-flop')
         self.prepare_round(pre_flop=True)
         self.set_blinds()
         self.deck.shuffle()
@@ -164,7 +172,7 @@ class Table():
         - Starts the queue again for all players
         - Reveal cards on the board'''
 
-        print('Flop')
+        # print('Flop')
         self.prepare_round()
         self.board.reveal()
 
@@ -175,7 +183,7 @@ class Table():
         - Clears last move
         - Start the queue again for all players
         - Adds a card to the board.'''
-        print('Turn')
+        # print('Turn')
         self.prepare_round()
         self.add_card()
     
@@ -186,7 +194,7 @@ class Table():
         - Clears last move
         - Start the queue again for all players
         - Adds a card to the board.'''
-        print('River')
+        # print('River')
         self.prepare_round()
         self.add_card()
 
@@ -207,14 +215,21 @@ class Table():
 
     def play(self):
         '''Lets all the computers play their turn, then starts the next round if needed.'''
+        n_turns = 0
+
         while len(self.player_queue) != 0:
             if len(self.active_players()) == 1:
                 self.player_queue.clear()
-                self.state = 4
+                self.state = 3
                 break
             current_player = self.player_queue[0]
             if (current_player.is_computer):
                 current_player.play()
+                n_turns += 1
+                if n_turns > 1000:
+                    # raise Exception(self.round_stats)
+                    self.player_queue.clear()           # temp fix for bot problem
+                    break
             else:
                 break
         
@@ -223,14 +238,14 @@ class Table():
             rounds = [self.pre_flop, self.flop, self.turn, self.river, self.showdown, self.reset]
             
             rounds[self.state]()
-            if self.state < 4:
+            if 0 < self.state < 4:
                 self.play()
 
     def reset(self):
         '''Clears current cards on the board, resets deck, and removes all player handheld cards.
         Clears current round stats. Game stats are left unchanged.
         Players are still on the table, but shifted by one seat'''
-        print('Reset')
+        # print('Reset')
         self.pot = 0
         self.state = 0
         self.board.clear()
@@ -258,8 +273,9 @@ class Table():
         '''Player calls, matching the current bet.'''
         if player == self.player_queue[0]:
             self.update_table_stats(player, 'call')
-            player.balance -= self.required_bet
-            self.pot += self.required_bet
+            player.balance -= self.required_bet - player.current_bet
+            self.pot += self.required_bet - player.current_bet
+            player.current_bet = self.required_bet
             self.player_queue.pop(0)
         else:
             raise(ValueError('Not your turn yet!'))
@@ -283,23 +299,35 @@ class Table():
     def bet(self, player, amount):
         '''Player bets, raising the required bet to stay in for the entire table.'''
         if player == self.player_queue[0]:
-            if self.required_bet == self.betting_cap:
+            if self.betting_cap > 3 or amount == self.required_bet:
                 player.call()       # Call the betting cap
             else: 
                 self.update_table_stats(player, 'bet')
-                player.balance -= amount
-                player.current_bet += amount
-                self.increase_pot(amount)
-                self.required_bet = amount
-                self.player_queue.extend([p for p in self.players if (p not in self.player_queue) and p.active])
+                amount_bet = amount - player.current_bet            # amount that the player throws into the pot
+
+                player.balance -= amount_bet
+                self.increase_pot(amount_bet)
+
+                player.current_bet = amount
+                self.required_raise = amount - self.required_bet    # amount that the player has raised the pot by. this is now the minimum raise value
+
+                self.required_bet = player.current_bet
+
+                self.betting_cap += 1
+
+                # print(self.player_queue)
+                self.player_queue.extend([p for p in self.active_players() if p not in self.player_queue])
+                # print(self.player_queue)
+
                 self.player_queue.pop(0)
         else:
             raise(ValueError('Not your turn yet!'))
 
     # Misc
     def add_player(self, player):
-        self.players.append(player)
-        player.join(self)
+        if player not in self.players:
+            self.players.append(player)
+            player.join(self)
 
     def view_state(self):
         '''Prints the cards on the board of the table, as well as the state (pre-flop, flop, turn, or river).'''
@@ -316,6 +344,8 @@ class Table():
             'players': [p.toJSON() for p in self.players],
             'player_queue': [p.toJSON() for p in self.player_queue],
             'required_bet': self.required_bet,
+            'required_raise': self.required_raise,
+            'state': self.state,
             'last_move': self.last_move,
             'winning_player': self.winning_player and self.winning_player.toJSON()
         }
@@ -498,8 +528,7 @@ class Player():
 
         # Player moves
         def call(self):
-            if self.balance >= self.table.required_bet:
-                self.current_bet = self.table.required_bet
+            if self.balance >= self.table.required_bet - self.current_bet:
                 self.table.call(self)
 
         def check(self):
@@ -510,12 +539,11 @@ class Player():
             self.table.fold(self)
 
         def bet(self, amount):
-            if self.balance > amount:
+            if self.balance > (amount - self.current_bet):
                 self.table.bet(self, amount)
-            elif self.balance == amount:
+            elif self.balance == (amount - self.current_bet):
                 print('All-in')
                 self.table.bet(self, amount)
-                self.table.betting_cap = self.table.required_bet
 
         def rake(self):
             self.balance += self.table.pot

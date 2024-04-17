@@ -31,7 +31,7 @@ const Playground = () => {
   }, [name])
 
   const start = async () => {
-    const tableData = await pokerService.start()
+    const tableData = await pokerService.start({ name })
     setInGame(true)
     setTable(tableData)
     setDisplayBoard(true)
@@ -83,6 +83,7 @@ const Playground = () => {
               key={name}
               name={name}
               player={player}
+              numPlayers={table.players.length}
               requiredBet={table.required_bet}
               requiredRaise={table.required_raise}
               setTable={setTable}

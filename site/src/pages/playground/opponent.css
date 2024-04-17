@@ -1,5 +1,7 @@
 .opponent {
   width: 10vw;
+  padding: 4px;
+  height: 150%;
   display: flex;
   flex-direction: column;
 }
@@ -16,6 +18,13 @@
   left: calc(-40px + 4vh);
   margin-top: 10px;
   width: calc(25px + 3vh);
+}
+
+.opponent-hand {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: -19px
 }
 
 .opponent-hand {

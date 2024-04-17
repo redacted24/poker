@@ -1,13 +1,13 @@
 import Card from './Card'
 import pokerService from '../../services/poker'
 import './player.css'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
-const Player = ({ name, player, requiredBet, requiredRaise, setTable }) => {
+const Player = ({ name, player, numPlayers, requiredBet, requiredRaise, setTable }) => {
   const [isBetting, setIsBetting] = useState(false)
-  const [betAmount, setBetAmount] = useState(0)
   const callAmount = requiredBet - player.current_bet
-  const minBetAmount = callAmount + requiredRaise
+  const minBetAmount = requiredBet + requiredRaise
+  const [betAmount, setBetAmount] = useState(minBetAmount)
 
   const handleChange = (e) => {
     setBetAmount(e.target.value)
@@ -17,14 +17,20 @@ const Player = ({ name, player, requiredBet, requiredRaise, setTable }) => {
     setIsBetting(!isBetting)
   }
 
+  useEffect(() => {
+    setBetAmount(minBetAmount)
+  }, [minBetAmount])
+
   const call = async () => {
     const tableData = await pokerService.call({ name })
+    setBetAmount(minBetAmount)
     setTable(tableData)
     console.log(tableData)
   }
 
   const check = async () => {
     const tableData = await pokerService.check({ name })
+    setBetAmount(minBetAmount)
     setTable(tableData)
     console.log(tableData)
   }
@@ -39,15 +45,20 @@ const Player = ({ name, player, requiredBet, requiredRaise, setTable }) => {
     e.preventDefault()
     const amount = parseInt(betAmount)
     const tableData = await pokerService.bet({ name, amount })
-    toggleIsBetting()
+    setBetAmount(minBetAmount)
     setTable(tableData)
+    toggleIsBetting()
     console.log(tableData)
   }
 
   const positionTag = () => {
     switch (player.position) {
       case 0:
-        return <img className='position-tag' src='./src/assets/positions/dealer.png' />
+        if (numPlayers == 2) {
+          return <img className='position-tag' src='./src/assets/positions/big-blind.png' />
+        } else {
+          return <img className='position-tag' src='./src/assets/positions/dealer.png' />
+        }
       case 1:
         return <img className='position-tag' src='./src/assets/positions/small-blind.png' />
       case 2:
@@ -73,7 +84,7 @@ const Player = ({ name, player, requiredBet, requiredRaise, setTable }) => {
       }
       {isBetting && 
         <form onSubmit={bet} id='buttons'>
-          <input className='action' type='number' value={betAmount} onChange={handleChange}/>
+          <input className='action' type='number' value={betAmount} onChange={handleChange} min={minBetAmount} /> <span id='dollar-sign'>$</span>
           <button className='action' type='button' onClick={toggleIsBetting}>Go back</button>
           <button className='action' type='submit'>Confirm</button>
         </form>
