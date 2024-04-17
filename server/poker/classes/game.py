@@ -208,6 +208,10 @@ class Table():
     def play(self):
         '''Lets all the computers play their turn, then starts the next round if needed.'''
         while len(self.player_queue) != 0:
+            if len(self.active_players()) == 1:
+                self.player_queue.clear()
+                self.state = 4
+                break
             current_player = self.player_queue[0]
             if (current_player.is_computer):
                 current_player.play()
@@ -273,10 +277,6 @@ class Table():
         if player == self.player_queue[0]:
             self.update_table_stats(player, 'fold')
             self.player_queue.pop(0)
-            if len(self.active_players()) == 1:
-                self.player_queue.clear()
-                self.state = 4
-                self.showdown()
         else:
             raise(ValueError('Not your turn yet!'))     # ValueError is accounted for in tests, i.e. its appearance is checked for several testCases. You may decide to use another way of handling error, we'll just need to also change the test file.
 

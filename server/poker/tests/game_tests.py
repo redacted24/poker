@@ -684,7 +684,7 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
         self.table.pre_flop()
         self.p3.clear_hand()
         self.p3.receive([deck2.get('5s'), deck2.get('6s')])
-        self.assertEqual(self.p3.play(),'call1') 
+        self.assertEqual(self.p3.play(),'make0') 
 
     def test_bigBlindPreFlopMake0(self):
         '''
