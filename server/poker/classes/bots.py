@@ -61,13 +61,13 @@ class AdvancedBot(Player):
             elif IR >= self.strategy_thresholds['make2']:
                 self.make2()
                 return 'make2'
-            elif IR >= 200 and self.position == 0:     # Hard-coded value for small-blind. Only works if player is small blind
+            elif IR >= 200 and self.position == 1:     # Hard-coded value for small-blind. Only works if player is small blind
                 self.call2()
                 return 'call2'
             elif IR >= self.strategy_thresholds['make1']:
                 self.make1()
                 return 'make1'
-            elif IR >= -75 and self.position == 0:      # Hard-coded value for small-blind. Only works if player is small blind.
+            elif IR >= -75 and self.position == 1:      # Hard-coded value for small-blind. Only works if player is small blind.
                 self.call1()
                 return 'call1'
             else:

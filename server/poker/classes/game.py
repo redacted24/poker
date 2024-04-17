@@ -113,7 +113,7 @@ class Table():
         if pre_flop:
             temp = []
             temp.append(sorted_players[-1])
-            temp.extend(sorted_players[0:len(self.active_players())-1])
+            temp.extend(sorted_players[0:len(self.active_players())-1]) 
             self.player_queue = temp
         else:
             self.player_queue = sorted_players[:len(self.active_players())]
@@ -152,7 +152,7 @@ class Table():
         - Adds a queue for players to start playing
         - Set blinds for the current round
         - Shuffle deck and add three cards to the board, and deal cards to players'''
-        print('Pre-flop')
+        # print('Pre-flop')
         self.prepare_round(pre_flop=True)
         self.set_blinds()
         self.deck.shuffle()
@@ -172,7 +172,7 @@ class Table():
         - Starts the queue again for all players
         - Reveal cards on the board'''
 
-        print('Flop')
+        # print('Flop')
         self.prepare_round()
         self.board.reveal()
 
@@ -183,7 +183,7 @@ class Table():
         - Clears last move
         - Start the queue again for all players
         - Adds a card to the board.'''
-        print('Turn')
+        # print('Turn')
         self.prepare_round()
         self.add_card()
     
@@ -194,7 +194,7 @@ class Table():
         - Clears last move
         - Start the queue again for all players
         - Adds a card to the board.'''
-        print('River')
+        # print('River')
         self.prepare_round()
         self.add_card()
 
@@ -245,7 +245,7 @@ class Table():
         '''Clears current cards on the board, resets deck, and removes all player handheld cards.
         Clears current round stats. Game stats are left unchanged.
         Players are still on the table, but shifted by one seat'''
-        print('Reset')
+        # print('Reset')
         self.pot = 0
         self.state = 0
         self.board.clear()
@@ -315,9 +315,9 @@ class Table():
 
                 self.betting_cap += 1
 
-                print(self.player_queue)
+                # print(self.player_queue)
                 self.player_queue.extend([p for p in self.active_players() if p not in self.player_queue])
-                print(self.player_queue)
+                # print(self.player_queue)
 
                 self.player_queue.pop(0)
         else:
