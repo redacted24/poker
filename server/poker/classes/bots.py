@@ -58,7 +58,6 @@ class AdvancedBot(Player):
         # from time import sleep
         # sleep(1)
         IR = self.get_income_rate()
-        print('EHS:', self.ehs)
 
         if self.table.state == 0:       # We are in pre-flop
             if IR >= self.strategy_thresholds['make4']:
@@ -80,7 +79,7 @@ class AdvancedBot(Player):
                 self.make0()        # Default strategy
                 return 'make0'
             
-        elif self.table.state == 1:         # We are in flop
+        elif 1 <= self.table.state <= 3:         # We are in flop and River
             self.compute_ehs_happy()
             if self.ehs >= 0.85:
                 self.make2()
@@ -88,10 +87,12 @@ class AdvancedBot(Player):
             elif self.ehs >= 0.50:
                 self.make1()
                 return 'make1'
+            elif self.table.required_bet == 0:      # Means that bot should check before proceeding to the last option
+                self.check()
+                return 'check'
             elif self.ehs <= 0.50:
                 self.make0()        # Temporary, before adding semi-bluffing, pot odds and showdown odds
                 return 'make0'
-            
 
     def update_player_position(self):
         '''Compute the thershold position number of the player.'''
@@ -203,12 +204,12 @@ class AdvancedBot(Player):
     def make2(self):
         '''Bet/raise if less than two bets/raises have been made this round, otherwise call. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         if self.table.round_stats['bet'] < 2:
-            self.bet(100)
             print("(make2):", end=' ')
+            self.bet(100)
             return 'bet'
         else:
-            self.call()
             print("(make2):", end=' ')
+            self.call()
             return 'call'
 
     def make4(self):

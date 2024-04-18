@@ -123,6 +123,8 @@ class Table():
 
     def prepare_round(self, pre_flop=False):
         '''Prepares the table for the current round'''
+        for key in self.round_stats.keys():     # Reset round stats
+            self.round_stats[key] = 0
         self.required_bet = 10 if pre_flop else 0
         self.required_raise = 10
         self.betting_cap = 0
@@ -174,9 +176,10 @@ class Table():
         - Clears last move
         - Starts the queue again for all players
         - Reveal cards on the board'''
-        print('Flop')
+        print('Flop', end = ': ')
         self.prepare_round()
         self.board.reveal()
+        print(self.board.cards())
 
     def turn(self):
         '''Ready game for the turn.
@@ -185,9 +188,10 @@ class Table():
         - Clears last move
         - Start the queue again for all players
         - Adds a card to the board.'''
-        print('Turn')
+        print('Turn', end = ': ')
         self.prepare_round()
         self.add_card()
+        print(self.board.cards())
     
     def river(self):
         '''Ready game for the river.
@@ -196,9 +200,10 @@ class Table():
         - Clears last move
         - Start the queue again for all players
         - Adds a card to the board.'''
-        print('River')
+        print('River', end=': ')
         self.prepare_round()
         self.add_card()
+        print(self.board.cards())
 
     def showdown(self):
         '''Checks who will win.'''
@@ -275,7 +280,7 @@ class Table():
     def call(self, player):
         '''Player calls, matching the current bet.'''
         if player == self.player_queue[0]:
-            print(f"{player} has called. They had {player.hand()}")
+            print(f"{player} has called. They had {player.hand()}", "EHS:", player.ehs)
             self.update_table_stats(player, 'call')
             player.balance -= self.required_bet - player.current_bet
             self.pot += self.required_bet - player.current_bet
@@ -287,7 +292,7 @@ class Table():
     def check(self, player):
         '''Player checks, passing the turn without betting.'''
         if player == self.player_queue[0]:
-            print(f"{player} has checked. They had {player.hand()}")
+            print(f"{player} has checked. They had {player.hand()}", "EHS:", player.ehs)
             self.update_table_stats(player, 'check')
             self.player_queue.pop(0)
         else:
@@ -296,7 +301,7 @@ class Table():
     def fold(self, player):
         '''Player folds, giving up their hand.'''
         if player == self.player_queue[0]:
-            print(f"{player} has folded. They had {player.hand()}")
+            print(f"{player} has folded. They had {player.hand()}", "EHS:", player.ehs)
             self.update_table_stats(player, 'fold')
             self.player_queue.pop(0)
         else:
@@ -309,7 +314,7 @@ class Table():
                 print('Betting Cap Reached')
                 self.call(player)     # Call the betting cap
             else: 
-                print(f"{player} has bet. They had {player.hand()}")
+                print(f"{player} has bet. They had {player.hand()}", "EHS:", player.ehs)
                 self.update_table_stats(player, 'bet')
                 amount_bet = amount - player.current_bet            # amount that the player throws into the pot
 

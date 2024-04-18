@@ -42,7 +42,7 @@ class eval():
 
         d = Deck()
         filtered_deck = self.remove_cards(d, self.hand + self.board_cards)
-        print(filtered_deck)
+        # print(filtered_deck)
         
         win = tie = loss = 0
         for i, c1 in enumerate(filtered_deck):
@@ -58,7 +58,7 @@ class eval():
                 else:
                     loss += 1
         
-        print(win, tie, loss)
+        # print(win, tie, loss)
         return (win + 0.5 * tie) / sum([win, tie, loss])
 
     def potential_hand_strength(self, look_ahead):
@@ -131,5 +131,5 @@ board = [d.get('3h'), d.get('4c'), d.get('Jh')]
 
 e = eval(hand, board)
 
-print(e.potential_hand_strength(1))
-print(e.potential_hand_strength(2))
+# print(e.potential_hand_strength(1))
+# print(e.potential_hand_strength(2))

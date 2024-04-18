@@ -660,12 +660,6 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
         self.p3.receive([deck2.get('Qs'), deck2.get('As')])
         self.assertEqual(self.p3.play(),'make4')
 
-    def test_fullTestGame1(self):
-        '''Moderate bot game working'''
-        print('game start ----------------------')
-        self.table.play()
-        print('game end -------------------------')
-    
     def test_onlyBets(self):
         '''Specific testing for make4 strat'''
         # Queue: p4,p1,p2,p3
@@ -679,6 +673,14 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
         self.p2.receive([deck2.get('Ac'), deck2.get('Kc')])
         self.p1.clear_hand()
         self.p1.receive([deck2.get('Ah'), deck2.get('Kh')])
+        self.table.play()
+        print(self.table.round_stats)
+        print('game end -------------------------')
+
+    def test_fullGame(self):
+        '''Specific testing for make4 strat'''
+        # Queue: p4,p1,p2,p3
+        print('GAMEEEEEEEEEEEEEE start ----------------------')
         self.table.play()
         print(self.table.round_stats)
         print('game end -------------------------')
