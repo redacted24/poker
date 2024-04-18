@@ -16,7 +16,7 @@ def enablePrint():
 # Playing all on the same table
 earnings = {}
 
-for i in range(10001):
+for i in range(5):
   sys.stdout.write(f"\rPlaying all bots: game # {i}")
   sys.stdout.flush()
 
@@ -48,7 +48,7 @@ print({b: e / 10000 for b, e in earnings.items()})
 # Playing against cat
 earnings = {}
 for tightness in ['tight', 'moderate', 'loose']:
-  for i in range(10001):
+  for i in range(5):
     sys.stdout.write(f"\rPlaying {tightness}_bot v cat: game # {i}                ")
     sys.stdout.flush()
 

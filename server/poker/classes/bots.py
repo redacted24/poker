@@ -32,9 +32,9 @@ class AdvancedBot(Player):
     # 'tightness': [(make1 values), (make2 values), (make3 values)] where values are a tuple (base, increment)
     # The values for 'call1' and 'make1' are the same, as well as the values for 'call2' and 'make2'
     preflop_strategy_values = {
-        'tight': {'make1': (50, 50), 'make2': (200, 50), 'make4': (580,0)},
-        'moderate': {'make1': (50, 25), 'make2': (200, 25), 'make4': (580,0)},
-        'loose': {'make1': (50, 10), 'make2': (200, 10), 'make4': (580,0)}
+        'tight': {'make1': (75, 50), 'make2': (225, 50), 'make4': (600,0)},
+        'moderate': {'make1': (25, 25), 'make2': (200, 25), 'make4': (580,0)},
+        'loose': {'make1': (25, 10), 'make2': (175, 10), 'make4': (480,0)}
     }
 
     def __init__(self, name, tightness, table=None):
@@ -52,27 +52,28 @@ class AdvancedBot(Player):
             'make2': 0,
             'make4': 0
         }
+        self.IR = 0     # IR rate, used to calculate pre_flop strategy
     
     def play(self):
         '''Playing function for the bot.'''
         # from time import sleep
         # sleep(1)
-        IR = self.get_income_rate()
+        self.IR = self.get_income_rate()
 
         if self.table.state == 0:       # We are in pre-flop
-            if IR >= self.strategy_thresholds['make4']:
+            if self.IR >= self.strategy_thresholds['make4']:
                 self.make4()
                 return 'make4'
-            elif IR >= self.strategy_thresholds['make2']:
+            elif self.IR >= self.strategy_thresholds['make2']:
                 self.make2()
                 return 'make2'
-            elif IR >= 200 and self.position == 1:     # Hard-coded value for small-blind. Only works if player is small blind
+            elif self.IR >= 200 and self.position == 1:     # Hard-coded value for small-blind. Only works if player is small blind
                 self.call2()
                 return 'call2'
-            elif IR >= self.strategy_thresholds['make1']:
+            elif self.IR >= self.strategy_thresholds['make1']:
                 self.make1()
                 return 'make1'
-            elif IR >= -75 and self.position == 1:      # Hard-coded value for small-blind. Only works if player is small blind.
+            elif self.IR >= -75 and self.position == 1:      # Hard-coded value for small-blind. Only works if player is small blind.
                 self.call1()
                 return 'call1'
             else:

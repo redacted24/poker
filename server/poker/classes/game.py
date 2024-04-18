@@ -194,7 +194,7 @@ class Table():
         print(self.board.cards())
     
     def river(self):
-        '''Ready game for the river.
+        '''Ready game for the rivefr.
         - Sets required bet to 0
         - Clears all bets for all players
         - Clears last move
@@ -280,10 +280,10 @@ class Table():
     def call(self, player):
         '''Player calls, matching the current bet.'''
         if player == self.player_queue[0]:
-            print(f"{player} has called. They had {player.hand()}", "EHS:", player.ehs)
             self.update_table_stats(player, 'call')
+            print(f"{player} has called for {self.required_bet-player.current_bet}$ (pot is now {self.pot}$). They had {player.hand()}", "EHS:", player.ehs)
             player.balance -= self.required_bet - player.current_bet
-            self.pot += self.required_bet - player.current_bet
+            self.increase_pot(self.required_bet - player.current_bet)
             player.current_bet = self.required_bet
             self.player_queue.pop(0)
         else:
@@ -311,10 +311,8 @@ class Table():
         '''Player bets, raising the required bet to stay in for the entire table.'''
         if player == self.player_queue[0]:
             if self.round_stats['bet'] == 3:        # Player cannot raise past this
-                print('Betting Cap Reached')
                 self.call(player)     # Call the betting cap
             else: 
-                print(f"{player} has bet. They had {player.hand()}", "EHS:", player.ehs)
                 self.update_table_stats(player, 'bet')
                 amount_bet = amount - player.current_bet            # amount that the player throws into the pot
 
@@ -327,6 +325,7 @@ class Table():
                 self.required_bet = player.current_bet
 
                 self.betting_cap += 1
+                print(f"{player} has bet {amount}$ (the pot is now {self.pot}$). They had {player.hand()}", "EHS:", player.ehs)
                 self.player_queue.extend([p for p in self.active_players() if p not in self.player_queue])
                 self.player_queue.pop(0)
         else:
