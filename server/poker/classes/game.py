@@ -227,7 +227,7 @@ class Table():
             current_player = self.player_queue[0]
             if (current_player.is_computer):
                 current_player.play()
-                requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
+                # requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
                 n_turns += 1
                 if n_turns > 1000:
                     raise Exception(self.round_stats)
@@ -395,8 +395,7 @@ class Player():
             # Important stats for player modeling and computer play
             self.aggro_factor = 0
             self.aggro_frequency = 0
-            self.hand_strength = 0              # Hand strength. Mostly used to decide what to do in pre-flop
-            self.hand_potential = 0             # Hand potential. Mostly used to decide what to do after cards are revealed. Might take a lot of computational time.
+            self.ehs = 0              # Effective Hand strength. Mostly used to decide what to do in pre-flop
 
             if table:
                 table.add_player(self)              # Add player to table
@@ -567,6 +566,7 @@ class Player():
             self.clear_hand()
             self.position = None
             self.previous_step = []
+            self.ehs = 0
 
         def toJSON(self):
             return {

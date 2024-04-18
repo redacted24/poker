@@ -1,7 +1,9 @@
 try:
     from poker.classes.game import *
+    from poker.classes.eval import *
 except:
     from game import *      # type: ignore
+    from eval import *
 
 class AdvancedBot(Player):
     # --- Pre-Flop Betting Strategy --- #
@@ -56,6 +58,8 @@ class AdvancedBot(Player):
         # from time import sleep
         # sleep(1)
         IR = self.get_income_rate()
+        print('EHS:', self.ehs)
+
         if self.table.state == 0:       # We are in pre-flop
             if IR >= self.strategy_thresholds['make4']:
                 self.make4()
@@ -75,8 +79,19 @@ class AdvancedBot(Player):
             else:
                 self.make0()        # Default strategy
                 return 'make0'
-        else:
-            self.call()     # Temporary
+            
+        elif self.table.state == 1:         # We are in flop
+            self.compute_ehs_happy()
+            if self.ehs >= 0.85:
+                self.make2()
+                return 'make2'
+            elif self.ehs >= 0.50:
+                self.make1()
+                return 'make1'
+            elif self.ehs <= 0.50:
+                self.make0()        # Temporary, before adding semi-bluffing, pot odds and showdown odds
+                return 'make0'
+            
 
     def update_player_position(self):
         '''Compute the thershold position number of the player.'''
@@ -92,6 +107,36 @@ class AdvancedBot(Player):
         self.strategy_thresholds['make1'] = self.chosen_pre_flop_strategy['make1'][0] + self.chosen_pre_flop_strategy['make1'][1]*self.thresholds_position
         self.strategy_thresholds['make2'] = self.chosen_pre_flop_strategy['make2'][0] + self.chosen_pre_flop_strategy['make2'][1]*self.thresholds_position
         self.strategy_thresholds['make4'] = self.chosen_pre_flop_strategy['make4'][0] + self.chosen_pre_flop_strategy['make4'][1]*self.thresholds_position
+    
+    def compute_ehs_happy(self):
+        '''Compute ehs using the happier version of the effective hand strength, i.e. the optimistic one that only accounts for PPOT (potential of winning) and ignoring NPOT (potential of losing). Modifies the ehs value of the class instance. Mostly used for aggressive playstyles'''
+        a = eval(self.hand(), self.table.board.cards())
+        # You're about to witness the worst piece of code ever coded
+        if self.table.state == 1:       # Flop
+            look_ahead = 2
+        elif self.table.state == 2:     # Turn
+            look_ahead = 1
+        else:
+            return
+        hsn = a.hand_strength()
+        self.ehs = hsn+(1-hsn)*a.potential_hand_strength(look_ahead)[0]
+        return self.ehs
+
+    def compute_ehs_sad(self):
+        '''Compute ehs using the sadder version of the effective hand strength, i.e. the pessimistic one that  accounts for PPOT (potential of winning) and NPOT (potential of losing). Modifies the ehs value of the class instance. Mostly used for passive playstyles'''
+        a = eval(self.hand(), self.table.board.cards())
+        # You're about to witness the worst piece of code ever coded, the Encore.
+        if self.table.state == 1:       # Flop
+            look_ahead = 2
+        elif self.table.state == 2:     # Turn
+            look_ahead = 1
+        else:
+            return
+        hsn = a.hand_strength()
+        pots = a.potential_hand_strength(look_ahead)
+        self.ehs = hsn+(1-hsn)*pots[0]-hsn*pots[1]
+        return self.ehs
+
 
     def get_income_rate(self):
         '''Return the IR rate of the bot's hand.'''

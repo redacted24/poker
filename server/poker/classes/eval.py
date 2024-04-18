@@ -35,6 +35,7 @@ class eval():
         return new_deck
 
     def hand_strength(self):
+        '''Determine the hand strength of your current cards + cards on the board'''
         p1 = Player('player', True)
         p1.receive(self.hand)
         p1_rank = p1.handEval(self.board_cards)
@@ -61,6 +62,7 @@ class eval():
         return (win + 0.5 * tie) / sum([win, tie, loss])
 
     def potential_hand_strength(self, look_ahead):
+        '''Compute potential hand strength. look_ahead is an integer that specifies the number of cards to look ahead for. On turn, it should be one, and on flop, it should be 2.'''
         hand_potentials = [[0] * 3 for _ in range(3)]
         
         p1 = Player('player', True)
