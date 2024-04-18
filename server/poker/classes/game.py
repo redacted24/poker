@@ -1,4 +1,5 @@
 import requests
+import pickle
 
 try:
     from poker.classes.cards import *
@@ -54,10 +55,11 @@ class Table():
         self.players: list[Player] = []             # [PlayerObject,'move']
         self.dealer: int = 0                        # Index of the player who is currently the dealer. The small/big blind players are also determined by this number.
         self.player_queue: list[Player] = []        # A list of all the players that will be playing in the round
-        self.winning_player: Player|None = None     # The player who won the round. It is None while the game is in progress.
+        self.winning_player: Player | None = None   # The player who won the round. It is None while the game is in progress.
         self.required_bet: int = 0                  # How much money is required to stay in the game. Very useful to program the call function
         self.required_raise: int = 10               # Minimum amount of money a player needs to raise the bet
         self.last_move: list[str, str] = []         # [Player.name, 'nameOfMove'] A list of two elements containing the player name, and the name of their last move (e.g. bet)                   # Cap to bets. Players cannot raise past this.
+        self.id: str | None = None
         self.round_stats: dict = {        
             'bet': 0,
             'raise': 0,
@@ -225,9 +227,7 @@ class Table():
             current_player = self.player_queue[0]
             if (current_player.is_computer):
                 current_player.play()
-                x = requests.post('http://127.0.0.1:5000/api/poker/count', cookies={ 'session': 'a' })
-                x = requests.post('http://127.0.0.1:5000/api/poker/count', cookies={ 'session': 'a' })
-                print(x.text)
+                requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
                 n_turns += 1
                 if n_turns > 1000:
                     raise Exception(self.round_stats)
@@ -351,7 +351,8 @@ class Table():
             'required_raise': self.required_raise,
             'state': self.state,
             'last_move': self.last_move,
-            'winning_player': self.winning_player and self.winning_player.toJSON()
+            'winning_player': self.winning_player and self.winning_player.toJSON(),
+            'id': self.id
         }
 
     def end(self):

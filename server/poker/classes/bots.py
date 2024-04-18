@@ -53,6 +53,8 @@ class AdvancedBot(Player):
     
     def play(self):
         '''Playing function for the bot.'''
+        # from time import sleep
+        # sleep(1)
         IR = self.get_income_rate()
         if self.table.state == 0:       # We are in pre-flop
             if IR >= self.strategy_thresholds['make4']:

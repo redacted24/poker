@@ -3,7 +3,7 @@ import pokerService from '../../services/poker'
 import './player.css'
 import { useEffect, useState } from 'react'
 
-const Player = ({ name, player, numPlayers, requiredBet, requiredRaise, setTable }) => {
+const Player = ({ name, player, numPlayers, requiredBet, requiredRaise, getTableId, setTable, toggleFetching }) => {
   const [isBetting, setIsBetting] = useState(false)
   const callAmount = requiredBet - player.current_bet
   const minBetAmount = requiredBet + requiredRaise
@@ -22,21 +22,27 @@ const Player = ({ name, player, numPlayers, requiredBet, requiredRaise, setTable
   }, [minBetAmount])
 
   const call = async () => {
-    const tableData = await pokerService.call({ name })
+    toggleFetching(true)
+    const tableData = await pokerService.call({ name, id: getTableId() })
+    toggleFetching(false)
     setBetAmount(minBetAmount)
     setTable(tableData)
     console.log(tableData)
   }
 
   const check = async () => {
-    const tableData = await pokerService.check({ name })
+    toggleFetching(true)
+    const tableData = await pokerService.check({ name, id: getTableId() })
+    toggleFetching(false)
     setBetAmount(minBetAmount)
     setTable(tableData)
     console.log(tableData)
   }
 
   const fold = async () => {
-    const tableData = await pokerService.fold({ name })
+    toggleFetching(true)
+    const tableData = await pokerService.fold({ name, id: getTableId() })
+    toggleFetching(false)
     setTable(tableData)
     console.log(tableData)
   }
@@ -44,7 +50,9 @@ const Player = ({ name, player, numPlayers, requiredBet, requiredRaise, setTable
   const bet = async (e) => {
     e.preventDefault()
     const amount = parseInt(betAmount)
-    const tableData = await pokerService.bet({ name, amount })
+    toggleFetching(true)
+    const tableData = await pokerService.bet({ name, amount, id: getTableId() })
+    toggleFetching(false)
     setBetAmount(minBetAmount)
     setTable(tableData)
     toggleIsBetting()
