@@ -313,17 +313,13 @@ class Table():
             if self.round_stats['bet'] == 3:        # Player cannot raise past this
                 self.call(player)     # Call the betting cap
             else: 
-                self.update_table_stats(player, 'bet')
+                self.update_table_stats(player, 'bet')              # Update table stats
                 amount_bet = amount - player.current_bet            # amount that the player throws into the pot
-
-                player.balance -= amount_bet
-                self.increase_pot(amount_bet)
-
-                player.current_bet = amount
-                self.required_raise = amount - self.required_bet    # amount that the player has raised the pot by. this is now the minimum raise value
-
-                self.required_bet = player.current_bet
-
+                player.balance -= amount_bet                        # Remove amount bet from player balance. The exact amount is not removed, because player could already have some money in the pot (current bet)
+                self.increase_pot(amount_bet)                       # Increase the table pot by the extra amount that the player has bet on top of what they have already bet
+                player.current_bet = amount                         # Set the player bet to the full current amount
+                self.required_raise = amount - self.required_bet    # amount that the player has raised the pot by. this is now the minimum raise value, and the next raises cannot be lower than this
+                self.required_bet = player.current_bet              
                 self.betting_cap += 1
                 print(f"{player} has bet {amount}$ (the pot is now {self.pot}$). They had {player.hand()}", "EHS:", player.ehs)
                 self.player_queue.extend([p for p in self.active_players() if p not in self.player_queue])
@@ -336,14 +332,6 @@ class Table():
         if player not in self.players:
             self.players.append(player)
             player.join(self)
-
-    def view_state(self):
-        '''Prints the cards on the board of the table, as well as the state (pre-flop, flop, turn, or river).'''
-        states = ['PRE-FLOP', 'FLOP', 'TURN', 'RIVER']
-        print(f'### {states[self.state]} ###')
-        if self.state != 0:
-            print(f'The current cards on the table are: {self.board}')
-            print(f'The current pot is {self.pot}$')
 
     def toJSON(self):
         return {
