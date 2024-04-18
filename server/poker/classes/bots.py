@@ -61,13 +61,13 @@ class AdvancedBot(Player):
             elif IR >= self.strategy_thresholds['make2']:
                 self.make2()
                 return 'make2'
-            elif IR >= 200 and self.position == 0:     # Hard-coded value for small-blind. Only works if player is small blind
+            elif IR >= 200 and self.position == 1:     # Hard-coded value for small-blind. Only works if player is small blind
                 self.call2()
                 return 'call2'
             elif IR >= self.strategy_thresholds['make1']:
                 self.make1()
                 return 'make1'
-            elif IR >= -75 and self.position == 0:      # Hard-coded value for small-blind. Only works if player is small blind.
+            elif IR >= -75 and self.position == 1:      # Hard-coded value for small-blind. Only works if player is small blind.
                 self.call1()
                 return 'call1'
             else:
@@ -79,7 +79,7 @@ class AdvancedBot(Player):
     def update_player_position(self):
         '''Compute the thershold position number of the player.'''
         # Calculated by number of active players - (the index of the player in queue + 1).
-        # e.g. [p1, p2, p3, p4] on Pre-Flop where p3 starts playing. Threshold pos of p3 = 3 because there are 3 turns to play before it is their turn again
+        # e.g. [p1, p2, p3, p4] on Pre-Flop where p4 starts playing. Threshold pos of p4 = 3 because there are 3 turns to play before it is their turn again
         if self.table.active_players() and self.table.player_queue:
             self.thresholds_position = int(len(self.table.active_players())-(self.table.player_queue.index(self)+1))        # The threshold position of the first player in queue should be length of players - 1.
         else:
@@ -101,43 +101,43 @@ class AdvancedBot(Player):
     
     def make0(self):
         '''Fold if it costs more than zero to play. i.e.: folds every round'''
-        print(f'{self} has folded (make0). They had: {self.hand()}')
+        print("(make0):", end=' ')
         self.fold()
         
     def call1(self):
         '''Fold if it costs more than 1 bet to continue playing and the bot hasn't put money into the pot this round yet, otherwise check/call. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         # Not really used except for small blind, who has different thresholds for it
         if self.table.round_stats['bet'] > 1:
-            print(f'{self} has folded (call1). They had: {self.hand()}')
+            print("(call1):", end=' ')
             self.fold()
             return 'fold'
         else:
             if self.current_bet == self.table.required_bet:     # Player is big blind. So, player would check.
-                print(f'{self} has checked (call1). They had: {self.hand()}')
+                print("(call1):", end=' ')
                 self.check()
                 return 'check'
             else:
-                print(f'{self} has called (call1). They had: {self.hand()}')
+                print("(call1):", end=' ')
                 self.call()     # Player is not big blind, so player has to put in the minimum
                 return 'call'
         
     def make1(self):
         '''If no bets have been made this round, then bet. Fold if two or more bets are required to continue. Otherwise check/call. THIS STRATEGY SHOULD NOT BE CALLED IF BOT IS THE BIG BLIND (it shouldn't happen). Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         if self.table.round_stats['bet'] > 1:
-            print(f'{self} has folded (make1). They had: {self.hand()}')
+            print("(make1):", end=' ')
             self.fold()
             return 'fold'
         elif self.table.round_stats['bet'] == 0:
-            print(f'{self} has bet (make1). They had: {self.hand()}')
+            print("(make1):", end=' ')
             self.bet(100)
             return 'bet'
         else:       # Else is when bet stat is == 1
             if self.current_bet == self.table.required_bet:     # Player is big blind.
-                print(f'{self} has checked (make1). They had: {self.hand()}')
+                print("(make1):", end=' ')
                 self.check()
                 return 'check'
             else:       # Player is not big blind.
-                print(f'{self} has called (make1). They had: {self.hand()}')
+                print("(make1):", end=' ')
                 self.call()
                 return 'call'
 
@@ -145,11 +145,11 @@ class AdvancedBot(Player):
         '''Always check/call, whatever bet is on the table. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         # Not really used except for small blind
         if self.current_bet == self.table.required_bet:
-            print(f'{self} has checked (calll2). They had: {self.hand()}')
+            print("(call2):", end=' ')
             self.check()
             return 'check'
         else:
-            print(f'{self} has called (call2). They had: {self.hand()}')
+            print("(call2):", end=' ')
             self.call()
             return 'call'
 
@@ -157,17 +157,17 @@ class AdvancedBot(Player):
         '''Bet/raise if less than two bets/raises have been made this round, otherwise call. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         if self.table.round_stats['bet'] < 2:
             self.bet(100)
-            print(f'{self} has bet (make2). They had: {self.hand()}')
+            print("(make2):", end=' ')
             return 'bet'
         else:
             self.call()
-            print(f'{self} has called (make2). They had: {self.hand()}')
+            print("(make2):", end=' ')
             return 'call'
 
     def make4(self):
         '''Bet/raise until betting is capped, or player goes all-in. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
+        print("(make4):", end=' ')
         self.bet(100)
-        print(f'{self} has bet (make4). They had: {self.hand()}')
         return 'bet'
 
 # Meme bots
