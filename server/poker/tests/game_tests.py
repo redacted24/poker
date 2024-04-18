@@ -60,6 +60,40 @@ class TestTableMethods(unittest.TestCase):
         self.table.burn()
         self.assertEqual(len(self.table.deck), 51, 'Burn method does not work')
 
+    def test_blindRotation_case2(self):
+        '''Test player positions after certain rounds are played'''
+        self.table.pre_flop()
+        self.p4.call()
+        self.p1.call()
+        self.p2.call()
+        self.p3.check()
+        self.table.reset()
+        self.table.pre_flop()
+        self.assertEqual(self.p1.position,1)
+        self.assertEqual(self.p2.position,2)
+        self.assertEqual(self.p3.position,3)
+        self.assertEqual(self.p4.position,0)
+        self.p3.call()
+        self.p4.call()
+        self.p1.call()
+        self.p2.check()
+        self.table.reset()
+        self.table.pre_flop()
+        self.assertEqual(self.p1.position,2)
+        self.assertEqual(self.p2.position,3)
+        self.assertEqual(self.p3.position,0)
+        self.assertEqual(self.p4.position,1)
+        self.p2.call()
+        self.p3.call()
+        self.p4.call()
+        self.p1.check()
+        self.table.reset()
+        self.table.pre_flop()
+        self.assertEqual(self.p1.position,3)
+        self.assertEqual(self.p2.position,0)
+        self.assertEqual(self.p3.position,1)
+        self.assertEqual(self.p4.position,2)
+
 
 
 # ---
@@ -432,40 +466,6 @@ class TestAdvancedBotMethods(unittest.TestCase):
         self.p1.call()
         self.assertEqual(self.p2.position, 1, 'p2 should be small blind here')
     
-    def test_blindRotation_case2(self):
-        '''Test player positions after certain rounds are played'''
-        self.table.pre_flop()
-        self.p4.call()
-        self.p1.call()
-        self.p2.call()
-        self.p3.check()
-        self.table.reset()
-        self.table.pre_flop()
-        self.assertEqual(self.p1.position,1)
-        self.assertEqual(self.p2.position,2)
-        self.assertEqual(self.p3.position,3)
-        self.assertEqual(self.p4.position,0)
-        self.p3.call()
-        self.p4.call()
-        self.p1.call()
-        self.p2.check()
-        self.table.reset()
-        self.table.pre_flop()
-        self.assertEqual(self.p1.position,2)
-        self.assertEqual(self.p2.position,3)
-        self.assertEqual(self.p3.position,0)
-        self.assertEqual(self.p4.position,1)
-        self.p2.call()
-        self.p3.call()
-        self.p4.call()
-        self.p1.check()
-        self.table.reset()
-        self.table.pre_flop()
-        self.assertEqual(self.p1.position,3)
-        self.assertEqual(self.p2.position,0)
-        self.assertEqual(self.p3.position,1)
-        self.assertEqual(self.p4.position,2)
-
 
 
 # ---
