@@ -1,3 +1,5 @@
+import requests
+
 try:
     from poker.classes.cards import *
 except:
@@ -222,6 +224,9 @@ class Table():
             current_player = self.player_queue[0]
             if (current_player.is_computer):
                 current_player.play()
+                x = requests.post('http://127.0.0.1:5000/api/poker/count', cookies={ 'session': 'a' })
+                x = requests.post('http://127.0.0.1:5000/api/poker/count', cookies={ 'session': 'a' })
+                print(x.text)
                 n_turns += 1
                 if n_turns > 1000:
                     # raise Exception(self.round_stats)
@@ -373,6 +378,7 @@ class Player():
             self.current_bet = 0                # Balance of the player's bet for the current round
             self.active = True                  # Whether the player is still in round (hasn't folded yet).
             self.position = None                # Determines the position of the player. 0 = dealer, 1 = small blind, 2 = big blind, etc.
+            self.previous_step = []
             self.stats = {
                 'bet': 0,
                 'raise': 0,
@@ -527,20 +533,25 @@ class Player():
         def call(self):
             if self.balance >= self.table.required_bet - self.current_bet:
                 self.table.call(self)
+                self.previous_step = ['call', self.table.required_bet]
 
         def check(self):
             self.table.check(self)
+            self.previous_step = ['check']
         
         def fold(self):
             self.active = False
             self.table.fold(self)
+            self.previous_step = ['fold']
 
         def bet(self, amount):
             if self.balance > (amount - self.current_bet):
                 self.table.bet(self, amount)
+                self.previous_step = ['bet', amount]
             elif self.balance == (amount - self.current_bet):
                 print('All-in')
                 self.table.bet(self, amount)
+                self.previous_step = ['all-in', self.balance]
 
         def rake(self):
             self.balance += self.table.pot
@@ -552,6 +563,7 @@ class Player():
             self.active = True
             self.clear_hand()
             self.position = None
+            self.previous_step = []
 
         def toJSON(self):
             return {
@@ -561,6 +573,7 @@ class Player():
                 'balance': self.balance,
                 'current_bet': self.current_bet,
                 'active': self.active,
+                'previous_step': self.previous_step,
                 'position': self.position
             }
 

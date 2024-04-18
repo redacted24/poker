@@ -15,7 +15,18 @@ const Opponent = ({ player }) => {
     }
   }
 
-
+  const previousStep = () => {
+    if (player.previous_step) {
+      if (player.previous_step.length == 2) {
+        return <p>{player.previous_step.join(' ') + ' $'}</p>
+      } else {
+        return <p>{player.previous_step[0]}</p>
+      }
+    } else {
+      return
+    }
+  }
+  
 
   return (
     <div className={`opponent`}>
@@ -24,8 +35,10 @@ const Opponent = ({ player }) => {
           {player.hand.map(card => <Card key={`${card}`} card={card} />)}
         </div>
         {positionTag()}
+        {previousStep()}
       </div>
-      <p className={`opponent-worth ${self.active}`}>Balance: {player.balance}$</p>
+      {!player.active && <em><p className={`opponent-worth`}>Balance: {player.balance}$</p></em>}
+      {player.active && <p className={`opponent-worth`}>Balance: {player.balance}$</p>}
     </div>
   )
 }

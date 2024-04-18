@@ -48,7 +48,9 @@ def start():
     table = Table(deck)
 
     table.add_player(player)
-    table.add_player(AdvancedBot('yummyewrs', 'moderate'))
+    table.add_player(AdvancedBot('moderate_bot', 'moderate'))
+    table.add_player(AdvancedBot('tight_bot', 'moderate'))
+    table.add_player(AdvancedBot('loose_bot', 'moderate'))
 
   table.pre_flop()
   table.play()
