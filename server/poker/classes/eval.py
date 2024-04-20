@@ -62,13 +62,16 @@ class eval():
         return (win + 0.5 * tie) / sum([win, tie, loss])
 
     def potential_hand_strength(self, look_ahead):
-        '''Compute potential hand strength. look_ahead is an integer that specifies the number of cards to look ahead for. On turn, it should be one, and on flop, it should be 2.'''
+        '''Compute potential hand strength. look_ahead is an integer that specifies the number of cards to look ahead for. On turn, it should be one, and on flop, it should be 2.'''      
         hand_potentials = [[0] * 3 for _ in range(3)]
         
         p1 = Player('player', True)
         p2 = Player('opponent', True)
 
         p1.receive(self.hand)
+
+        sum_board_cards = sum(self.board_cards)
+        sum_p1_cards_5 = sum(self.hand) + sum_board_cards
 
         p1_rank_5 = p1.handEval(self.board_cards)
 
@@ -78,9 +81,11 @@ class eval():
 
         filtered_deck = self.remove_cards(d, self.hand + self.board_cards)
 
-        for c1, c2 in list(combinations(filtered_deck, 2)):
+        for p2_hand in list(combinations(filtered_deck, 2)):
             p2.clear_hand()
-            p2.receive([c1, c2])
+            p2.receive(list(p2_hand))
+
+            sum_p2_cards_5 = sum(p2_hand) + sum_board_cards
 
             p2_rank_5 = p2.handEval(self.board_cards)
 
@@ -91,24 +96,27 @@ class eval():
             else:
                 i = 2           # We are behind
 
-            new_filtered_deck = self.remove_cards(filtered_deck, [c1, c2])
+            new_filtered_deck = self.remove_cards(filtered_deck, list(p2_hand))
 
             for new_board_cards in list(combinations(new_filtered_deck, look_ahead)):
                 predicted_board_cards = self.board_cards + list(new_board_cards)
-                str_cards_p1 = sum([int(c) for c in new_board_cards])
-                str_cards_p2 = sum([int(c) for c in (c1, c2) + new_board_cards])
 
-                if str_cards_p1 in computed_p1_ranks:
-                    p1_rank_7 = computed_p1_ranks[str_cards_p1]
+                sum_new_board_cards = sum(new_board_cards)
+
+                sum_p1_cards_7 = sum_p1_cards_5 + sum_new_board_cards
+                sum_p2_cards_7 = sum_p2_cards_5 + sum_new_board_cards
+
+                if sum_p1_cards_7 in computed_p1_ranks:
+                    p1_rank_7 = computed_p1_ranks[sum_p1_cards_7]
                 else:
                     p1_rank_7 = p1.handEval(predicted_board_cards)
-                    computed_p1_ranks[str_cards_p1] = p1_rank_7
+                    computed_p1_ranks[sum_p1_cards_7] = p1_rank_7
 
-                if str_cards_p2 in computed_p2_ranks:
-                    p2_rank_7 = computed_p2_ranks[str_cards_p2]
+                if sum_p2_cards_7 in computed_p2_ranks:
+                    p2_rank_7 = computed_p2_ranks[sum_p2_cards_7]
                 else:
                     p2_rank_7 = p2.handEval(predicted_board_cards)
-                    computed_p2_ranks[str_cards_p2] = p2_rank_7
+                    computed_p2_ranks[sum_p2_cards_7] = p2_rank_7
             
                 if p1_rank_7 > p2_rank_7:
                     hand_potentials[i][0] += 1
@@ -122,7 +130,7 @@ class eval():
 
         return ppot, npot
 
-    
+
 
 d = Deck()
 

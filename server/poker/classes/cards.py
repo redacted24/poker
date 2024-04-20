@@ -21,6 +21,12 @@ class Cards:
     def __gt__(self, other):
         return self.value > other.value
     
+    def __add__(self, other):
+        return self.num + other
+    
+    def __radd__(self, other):
+        return self.num + other
+
     def __int__(self):
         return self.num
 
