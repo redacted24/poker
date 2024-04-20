@@ -61,7 +61,7 @@ class eval():
         # print(win, tie, loss)
         return (win + 0.5 * tie) / sum([win, tie, loss])
 
-    def potential_hand_strength(self, look_ahead):
+    def potential_hand_strength(self, look_ahead, only_ppot=False):
         '''Compute potential hand strength. look_ahead is an integer that specifies the number of cards to look ahead for. On turn, it should be one, and on flop, it should be 2.'''      
         hand_potentials = [[0] * 3 for _ in range(3)]
         
@@ -69,9 +69,6 @@ class eval():
         p2 = Player('opponent', True)
 
         p1.receive(self.hand)
-
-        sum_board_cards = sum(self.board_cards)
-        sum_p1_cards_5 = sum(self.hand) + sum_board_cards
 
         p1_rank_5 = p1.handEval(self.board_cards)
 
@@ -85,12 +82,15 @@ class eval():
             p2.clear_hand()
             p2.receive(list(p2_hand))
 
-            sum_p2_cards_5 = sum(p2_hand) + sum_board_cards
+            sum_p2_hand = sum(p2_hand)
 
             p2_rank_5 = p2.handEval(self.board_cards)
 
             if p1_rank_5 > p2_rank_5:
-                i = 0           # We are ahead
+                if only_ppot:
+                    continue    # ppot does not need cases were we are winning
+                else:
+                    i = 0       # We are ahead
             elif p1_rank_5 == p2_rank_5:
                 i = 1           # We are tied
             else:
@@ -103,20 +103,20 @@ class eval():
 
                 sum_new_board_cards = sum(new_board_cards)
 
-                sum_p1_cards_7 = sum_p1_cards_5 + sum_new_board_cards
-                sum_p2_cards_7 = sum_p2_cards_5 + sum_new_board_cards
+                sum_p1_cards = sum_new_board_cards
+                sum_p2_cards = sum_p2_hand + sum_new_board_cards
 
-                if sum_p1_cards_7 in computed_p1_ranks:
-                    p1_rank_7 = computed_p1_ranks[sum_p1_cards_7]
+                if sum_p1_cards in computed_p1_ranks:
+                    p1_rank_7 = computed_p1_ranks[sum_p1_cards]
                 else:
                     p1_rank_7 = p1.handEval(predicted_board_cards)
-                    computed_p1_ranks[sum_p1_cards_7] = p1_rank_7
+                    computed_p1_ranks[sum_p1_cards] = p1_rank_7
 
-                if sum_p2_cards_7 in computed_p2_ranks:
-                    p2_rank_7 = computed_p2_ranks[sum_p2_cards_7]
+                if sum_p2_cards in computed_p2_ranks:
+                    p2_rank_7 = computed_p2_ranks[sum_p2_cards]
                 else:
                     p2_rank_7 = p2.handEval(predicted_board_cards)
-                    computed_p2_ranks[sum_p2_cards_7] = p2_rank_7
+                    computed_p2_ranks[sum_p2_cards] = p2_rank_7
             
                 if p1_rank_7 > p2_rank_7:
                     hand_potentials[i][0] += 1
@@ -125,9 +125,17 @@ class eval():
                 else:
                     hand_potentials[i][2] += 1
 
-        ppot = (hand_potentials[2][0] + hand_potentials[2][1] / 2 + hand_potentials[1][0]) / (sum(hand_potentials[2]) + sum(hand_potentials[1]) / 2)
-        npot = (hand_potentials[0][2] + hand_potentials[0][1] / 2 + hand_potentials[1][2]) / (sum(hand_potentials[0]) + sum(hand_potentials[1]) / 2)
-
+        try:
+            ppot = (hand_potentials[2][0] + hand_potentials[2][1] / 2 + hand_potentials[1][0]) / (sum(hand_potentials[2]) + sum(hand_potentials[1]) / 2)
+            if only_ppot:
+                npot = 0
+            else:
+                npot = (hand_potentials[0][2] + hand_potentials[0][1] / 2 + hand_potentials[1][2]) / (sum(hand_potentials[0]) + sum(hand_potentials[1]) / 2)
+        except:
+            print(self.hand, self.board_cards)
+            ppot = 0
+            npot = 0
+            
         return ppot, npot
 
 
@@ -139,5 +147,6 @@ board = [d.get('3h'), d.get('4c'), d.get('Jh')]
 
 e = eval(hand, board)
 
-print(e.potential_hand_strength(1))
-print(e.potential_hand_strength(2))
+# print(e.potential_hand_strength(1))
+# print(e.potential_hand_strength(2, only_ppot=True))
+# print(e.potential_hand_strength(2))

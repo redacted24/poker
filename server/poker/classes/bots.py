@@ -3,7 +3,7 @@ try:
     from poker.classes.eval import *
 except:
     from game import *      # type: ignore
-    from eval import *
+    from eval import *      # type: ignore
 
 class AdvancedBot(Player):
     # --- Pre-Flop Betting Strategy --- #
@@ -121,7 +121,7 @@ class AdvancedBot(Player):
         else:
             return
         hsn = a.hand_strength()
-        self.ehs = hsn+(1-hsn)*a.potential_hand_strength(look_ahead)[0]
+        self.ehs = hsn+(1-hsn)*a.potential_hand_strength(look_ahead, only_ppot=True)[0]
         return self.ehs
 
     def compute_ehs_sad(self):
