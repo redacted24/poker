@@ -85,7 +85,7 @@ class eval():
             p2_rank_5 = p2.handEval(self.board_cards)
 
             if p1_rank_5 > p2_rank_5:
-                i = 0           # We are ahaed
+                i = 0           # We are ahead
             elif p1_rank_5 == p2_rank_5:
                 i = 1           # We are tied
             else:
@@ -95,8 +95,8 @@ class eval():
 
             for new_board_cards in list(combinations(new_filtered_deck, look_ahead)):
                 predicted_board_cards = self.board_cards + list(new_board_cards)
-                str_cards_p1 = ''.join(sorted([c.shortName for c in new_board_cards]))
-                str_cards_p2 = ''.join(sorted([c.shortName for c in (c1, c2) + new_board_cards]))
+                str_cards_p1 = sum([int(c) for c in new_board_cards])
+                str_cards_p2 = sum([int(c) for c in (c1, c2) + new_board_cards])
 
                 if str_cards_p1 in computed_p1_ranks:
                     p1_rank_7 = computed_p1_ranks[str_cards_p1]
@@ -131,5 +131,5 @@ board = [d.get('3h'), d.get('4c'), d.get('Jh')]
 
 e = eval(hand, board)
 
-# print(e.potential_hand_strength(1))
-# print(e.potential_hand_strength(2))
+print(e.potential_hand_strength(1))
+print(e.potential_hand_strength(2))

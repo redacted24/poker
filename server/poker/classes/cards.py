@@ -2,11 +2,12 @@ import random
 import copy
 
 class Cards:
-    def __init__(self, fullName: str, shortName: str, suit: str, value: int):
+    def __init__(self, fullName: str, shortName: str, suit: str, value: int, num: int):
         self.fullName = fullName
         self.shortName = shortName
         self.suit = suit
         self.value = int(value)
+        self.num = num
 
     def __repr__(self):
         return self.shortName
@@ -19,6 +20,9 @@ class Cards:
     
     def __gt__(self, other):
         return self.value > other.value
+    
+    def __int__(self):
+        return self.num
 
 class Deck:
     class DeckStack(list):
@@ -53,9 +57,9 @@ class Deck:
         cardsIndex = 0
         value = 14
 
-        for suit in suits:
+        for idx, suit in enumerate(suits):
             for rank in ranks:
-                self.cards_list[cards[cardsIndex]] = Cards(f'{rank} of {suit}', cards[cardsIndex], suit, value)
+                self.cards_list[cards[cardsIndex]] = Cards(f'{rank} of {suit}', cards[cardsIndex], suit, value, idx * 13 + value)
                 value -= 1
                 cardsIndex += 1
             value = 14
@@ -93,9 +97,9 @@ class Deck:
 if __name__ == "__main__":
     deck = Deck()
     print(deck.draw())
-    x = Cards('Nine of Spades', '9s', 'Spades', '9')
-    y = Cards('Ten of Spades', '10s', 'Spades', '10')
-    z = Cards('Ten of Hearts', '10h', 'Hearts', '10')
+    x = Cards('Nine of Spades', '9s', 'Spades', 9, 9)
+    y = Cards('Ten of Spades', '10s', 'Spades', 10, 10)
+    z = Cards('Ten of Hearts', '10h', 'Hearts', 10, 36)
     assert x < y
     assert not x > y
     assert y == z

@@ -42,7 +42,7 @@ for i in range(5):
   enablePrint()
 
 print()
-print({b: e / 10000 for b, e in earnings.items()})
+print({b: e / 4 for b, e in earnings.items()})
 
 
 # Playing against cat
@@ -71,13 +71,13 @@ for tightness in ['tight', 'moderate', 'loose']:
     enablePrint()
 
 print()
-print({b: e / 10000 for b, e in earnings.items()})
+print({b: e / 4 for b, e in earnings.items()})
 
 # Playing against each other
 earnings = [[0] * 3 for _ in range(3)]
 for j, t1 in enumerate(['tight', 'moderate', 'loose']):
   for k, t2 in enumerate(['tight', 'moderate', 'loose']):
-    for i in range(10001):
+    for i in range(5):
       sys.stdout.write(f"\rPlaying {t1}_bot v {t2}_bot: game # {i}")
       sys.stdout.flush()
 
@@ -105,5 +105,5 @@ tightness = ['  Tight  ', '   Mid   ', '  Loose  ']
 for i, r in enumerate(earnings):
   print(f'{tightness[i]}', end='')
   for e in r:
-    print(f'| {e / 10000:.5f} ', end='')
+    print(f'| {e / 4:.5f} ', end='')
   print()
