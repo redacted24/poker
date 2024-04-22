@@ -63,7 +63,6 @@ class AdvancedBot(Player):
             'make1': AdvancedBot.ehs[self.tightness]['make1'],
             'make2': AdvancedBot.ehs[self.tightness]['make2'],
         }
-        print(self.ehs_thresholds)
         self.IR = 0     # IR rate, used to calculate pre_flop strategy
     
     def play(self):
