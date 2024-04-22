@@ -118,8 +118,10 @@ class Table():
             temp.append(sorted_players[-1])
             temp.extend(sorted_players[0:len(self.active_players())-1]) 
             self.player_queue = temp
+            print(self.player_queue)
         else:
             self.player_queue = sorted_players[:len(self.active_players())]
+            print(self.player_queue)
 
     def prepare_round(self, pre_flop=False):
         '''Prepares the table for the current round'''
@@ -281,9 +283,10 @@ class Table():
         '''Player calls, matching the current bet.'''
         if player == self.player_queue[0]:
             self.update_table_stats(player, 'call')
+            amount_to_call = self.required_bet - player.current_bet
+            player.balance -= amount_to_call
+            self.increase_pot(amount_to_call)
             print(f"{player} has called for {self.required_bet-player.current_bet}$ (pot is now {self.pot}$). They had {player.hand()}", "EHS:", player.ehs)
-            player.balance -= self.required_bet - player.current_bet
-            self.increase_pot(self.required_bet - player.current_bet)
             player.current_bet = self.required_bet
             self.player_queue.pop(0)
         else:
@@ -310,7 +313,7 @@ class Table():
     def bet(self, player, amount):
         '''Player bets, raising the required bet to stay in for the entire table.'''
         if player == self.player_queue[0]:
-            if self.round_stats['bet'] == 3:        # Player cannot raise past this
+            if self.round_stats['bet'] == 3 or amount == self.required_bet:        # Player cannot raise past this
                 self.call(player)     # Call the betting cap
             else: 
                 self.update_table_stats(player, 'bet')              # Update table stats

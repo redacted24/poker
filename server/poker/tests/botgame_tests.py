@@ -20,7 +20,7 @@ class TestFullGame(unittest.TestCase):
     
     def test_fullGame(self):
         self.table.play()
-
+ 
 
 if __name__ == "__main__":
     unittest.main()

@@ -474,7 +474,7 @@ class TestAdvancedBotMethods(unittest.TestCase):
         'moderate': {'make1': (50, 25), 'make2': (200, 25), 'make4': (580,0)},
         'loose': {'make1': (50, 10), 'make2': (200, 10), 'make4': (580,0)}
     },'modifying thresholds renders these tests useless')
-class TestAdvancedBotPlaySituations(unittest.TestCase):
+class TestAdvancedBotStrategyPicking(unittest.TestCase):
     '''Test game cases'''
     def setUp(self):
         self.deck = Deck()
@@ -687,14 +687,33 @@ class TestAdvancedBotPlaySituations(unittest.TestCase):
         print(self.table.round_stats)
         print('game end -------------------------')
 
-    def test_fullGame(self):
-        '''Specific testing for make4 strat'''
-        # Queue: p4,p1,p2,p3
-        print('GAMEEEEEEEEEEEEEE start ----------------------')
-        self.table.play()
-        print(self.table.round_stats)
-        print('game end -------------------------')
-        
+class TestGameProcess(unittest.TestCase):
+    def setUp(self):
+        self.deck = Deck()
+        self.table = Table(self.deck)
+        self.p1 = AdvancedBot('p1', 'moderate', self.table)
+        self.p2 = AdvancedBot('p2', 'moderate', self.table)
+        self.p3 = AdvancedBot('p3', 'moderate', self.table)
+        self.p4 = AdvancedBot('p4', 'moderate', self.table)
+        self.table.pre_flop()
+
+    def tearDown(self):
+        self.table.end()
+
+    def test_secondCall(self):
+        '''Check if second call works on the same turn.'''
+        # Queue: p4, p1, p2, p3
+        # p2 is small blind, p3 is big blind
+        self.p4.fold()
+        self.p1.bet(100)
+        self.p2.call()
+        print(self.table.required_bet)
+        self.p3.bet(200)
+        self.assertEqual(self.p1.balance, 900)
+        self.p1.call()      # Calling should remove from balance
+        self.assertEqual(self.p1.balance, 800)
+        self.assertEqual(self.p2.balance, 900)
+        self.assertEqual(self.p3.balance, 800)
 
 # ------------------------- #
 # --- HAND EVAL TESTING --- #
