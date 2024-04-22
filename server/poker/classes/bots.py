@@ -62,7 +62,15 @@ class AdvancedBot(Player):
         self.IR = self.get_income_rate()
 
         if self.table.state == 0:       # We are in pre-flop
-            if self.IR >= self.strategy_thresholds['make4']:
+            if self.table.required_bet == 10 and self.IR <= -100:       # Prevents bots from folding too early (before someone even puts a bet in preflop), unless their hand is horrendous.
+                if self.position == 2:              # Big blind cannot call because they have already put the minimum amount in the pot. So we make big blind check here.
+                    print('(minimum play):', end=' ')
+                    self.check()
+                    return 'check'
+                print('(minimum play):', end=' ')
+                self.call()
+                return 'call'
+            elif self.IR >= self.strategy_thresholds['make4']:
                 self.make4()
                 return 'make4'
             elif self.IR >= self.strategy_thresholds['make2']:
