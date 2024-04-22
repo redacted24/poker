@@ -36,6 +36,12 @@ class AdvancedBot(Player):
         'moderate': {'make1': (25, 25), 'make2': (200, 25), 'make4': (580,0)},
         'loose': {'make1': (25, 10), 'make2': (175, 10), 'make4': (480,0)}
     }
+    # The values for the thresholds of effective hand strength used to determine post-flop strategies. All vary by 0.05, depending on the tightness.
+    ehs = {
+        'tight': {'make2': 0.90, 'make1': 0.55},
+        'moderate': {'make2': 0.85, 'make1': 0.50},
+        'loose': {'make2': 0.80, 'make1': 0.45}
+    }
 
     def __init__(self, name, tightness, table=None):
         '''The general class for an advanced bot. Contains all the necessary information for advanced play. Children class will have specific methods that tweak information in this class in order to play.
@@ -53,6 +59,11 @@ class AdvancedBot(Player):
             'make2': 0,
             'make4': 0
         }
+        self.ehs_thresholds = {
+            'make1': AdvancedBot.ehs[self.tightness]['make1'],
+            'make2': AdvancedBot.ehs[self.tightness]['make2'],
+        }
+        print(self.ehs_thresholds)
         self.IR = 0     # IR rate, used to calculate pre_flop strategy
     
     def play(self):
@@ -95,16 +106,16 @@ class AdvancedBot(Player):
             else:
                 self.compute_ehs_happy()         # For moderate and loose bot, use optimistic version of EHS computation func.
 
-            if self.ehs >= 0.85:
+            if self.ehs >= self.ehs_thresholds['make2']:
                 self.make2()
                 return 'make2'
-            elif self.ehs >= 0.50:
+            elif self.ehs >= self.ehs_thresholds['make1']:
                 self.make1()
                 return 'make1'
             elif self.table.required_bet == 0:      # Means that bot should check before proceeding to the last option
                 self.check()
                 return 'check'
-            elif self.ehs <= 0.50:
+            elif self.ehs <= self.ehs_thresholds['make1']:
                 self.make0()        # Temporary, before adding semi-bluffing, pot odds and showdown odds
                 return 'make0'
 
