@@ -45,6 +45,7 @@ class AdvancedBot(Player):
 
         There is no is_computer parameter since it is put as True by default in AdvancedBot class.'''
         Player.__init__(self, name, True, table)
+        self.tightness = tightness
         self.chosen_pre_flop_strategy = AdvancedBot.preflop_strategy_values[tightness]        # Chosen strategy is moderate by default. The variable is a dictionnary. See preflop_strategy_values
         self.thresholds_position = 0       # The number of players to play before it goes back to the player who started the round (small blind in most rounds except pre-flop)
         self.strategy_thresholds = {
@@ -81,7 +82,11 @@ class AdvancedBot(Player):
                 return 'make0'
             
         elif 1 <= self.table.state <= 3:         # We are in flop and River
-            self.compute_ehs_happy()
+            if self.tightness == 'tight':
+                self.compute_ehs_sad()           # For tight bot, use pessimistic version of EHS computation func.
+            else:
+                self.compute_ehs_happy()         # For moderate and loose bot, use optimistic version of EHS computation func.
+
             if self.ehs >= 0.85:
                 self.make2()
                 return 'make2'
@@ -178,7 +183,7 @@ class AdvancedBot(Player):
             return 'fold'
         elif self.table.round_stats['bet'] == 0:
             print("(make1):", end=' ')
-            self.bet(100)
+            self.bet(self.table.required_bet + 30)
             return 'bet'
         else:       # Else is when bet stat is == 1
             if self.current_bet == self.table.required_bet:     # Player is big blind.
@@ -206,7 +211,7 @@ class AdvancedBot(Player):
         '''Bet/raise if less than two bets/raises have been made this round, otherwise call. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         if self.table.round_stats['bet'] < 2:
             print("(make2):", end=' ')
-            self.bet(100)
+            self.bet(self.table.required_bet + 30)
             return 'bet'
         else:
             print("(make2):", end=' ')
@@ -216,7 +221,7 @@ class AdvancedBot(Player):
     def make4(self):
         '''Bet/raise until betting is capped, or player goes all-in. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         print("(make4):", end=' ')
-        self.bet(100)
+        self.bet(self.table.required_bet + 50)
         return 'bet'
 
 # Meme bots

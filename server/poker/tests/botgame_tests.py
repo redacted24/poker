@@ -10,8 +10,8 @@ class TestFullGame(unittest.TestCase):
         self.deck = Deck()
         self.table = Table(self.deck)
         self.p1 = AdvancedBot('p1', 'loose', self.table)
-        self.p2 = AdvancedBot('p2', 'loose', self.table)
-        self.p3 = AdvancedBot('p3', 'loose', self.table)
+        self.p2 = AdvancedBot('p2', 'tight', self.table)
+        self.p3 = AdvancedBot('p3', 'moderate', self.table)
         self.p4 = AdvancedBot('p4', 'loose', self.table)
         self.table.pre_flop()
 

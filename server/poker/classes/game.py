@@ -313,8 +313,10 @@ class Table():
     def bet(self, player, amount):
         '''Player bets, raising the required bet to stay in for the entire table.'''
         if player == self.player_queue[0]:
-            if self.round_stats['bet'] == 3 or amount == self.required_bet:        # Player cannot raise past this
+            if self.round_stats['bet'] == 3:        # Player cannot raise past this
                 self.call(player)     # Call the betting cap
+            elif amount==self.required_bet and len(self.player_queue) == 1:     # If last player bets the same amount as the required bet, it is considered a call and ends the round (does not extend the player queue as does the normal bet function)
+                self.call(player)
             else: 
                 self.update_table_stats(player, 'bet')              # Update table stats
                 amount_bet = amount - player.current_bet            # amount that the player throws into the pot
