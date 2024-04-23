@@ -16,8 +16,13 @@ def enablePrint():
 # Playing all on the same table
 earnings = {}
 
-for i in range(10000):
-  sys.stdout.write(f"\rPlaying all bots: game # {i}")
+print()
+print()
+
+for i in range(0):
+  [sys.stdout.write("\x1b[1A\x1b[2K") for _ in range(2)]
+  print(f"Playing all bots: game # {i}")
+  print({ b: e / i+1 for b, e in earnings.items() })
   sys.stdout.flush()
 
   blockPrint()
@@ -42,14 +47,16 @@ for i in range(10000):
   enablePrint()
 
 print()
-print({b: e / 9999 for b, e in earnings.items()})
-
+print()
+print()
 
 # Playing against cat
 earnings = {}
 for tightness in ['tight', 'moderate', 'loose']:
-  for i in range(3000):
-    sys.stdout.write(f"\rPlaying {tightness}_bot v cat: game # {i}                ")
+  for i in range(0):
+    [sys.stdout.write("\x1b[1A\x1b[2K") for _ in range(2)]
+    sys.stdout.write(f"\rPlaying {tightness}_bot v cat: game # {i}")
+    print({b: e / 2999 for b, e in earnings.items()})
     sys.stdout.flush()
 
     blockPrint()
@@ -71,14 +78,26 @@ for tightness in ['tight', 'moderate', 'loose']:
     enablePrint()
 
 print()
-print({b: e / 2999 for b, e in earnings.items()})
+print()
+print()
 
 # Playing against each other
 earnings = [[0] * 3 for _ in range(3)]
-for j, t1 in enumerate(['tight', 'moderate', 'loose']):
-  for k, t2 in enumerate(['tight', 'moderate', 'loose']):
-    for i in range(1000):
-      sys.stdout.write(f"\rPlaying {t1}_bot v {t2}_bot: game # {i}                    ")
+for i in range(100000):
+  for j, t1 in enumerate(['tight', 'moderate', 'loose']):
+    for k, t2 in enumerate(['tight', 'moderate', 'loose']):
+      [sys.stdout.write("\x1b[1A\x1b[2K") for _ in range(6)]
+      
+      print(f"Playing {t1}_bot v {t2}_bot: game # {i}")
+      print(f'         |  Tight  |   Mid   |  Loose  ')
+      print(f'--------------------------------------')
+      tightness = ['  Tight  ', '   Mid   ', '  Loose  ']
+      for l, r in enumerate(earnings):
+        print(f'{tightness[l]}', end='')
+        for m, e in enumerate(r):
+          print(f'| {(e / (i+1)):6.5f} ', end='')
+        print()
+
       sys.stdout.flush()
 
       blockPrint()
