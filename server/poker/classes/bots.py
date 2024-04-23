@@ -72,7 +72,6 @@ class AdvancedBot(Player):
         }
         self.bluff_threshold = AdvancedBot.bluff_percentage[self.tightness]
         self.IR = 0     # IR rate, used to calculate preflop strategy
-        self.ehs = 0                # Effective Hand strength. Mostly used to decide what to do in pre-flop
         self.bluffing = False    # Defines whether the bot is in "bluffing" process or not
         self.fake_ehs = 0.90        # EHS used when bluffing
         self.fake_IR = 700          # IR used when bluffing
@@ -148,14 +147,13 @@ class AdvancedBot(Player):
     def are_we_bluffing(self):
         '''Checks, according to randomness, if the bot should be bluffing.'''
         rand = random()
-        print(self, 'bluff threshold: ', self.bluff_threshold)
         if rand < self.bluff_threshold:
             self.bluffing = True
             self.IR = self.fake_IR
             self.ehs = self.fake_ehs
             return True
         else:
-            self.bluff_threshold += AdvancedBot.bluff_percentage[self.tightness]/5      # Increment the bluff percentage threshold so that the bot has more chances of doing a bluff later on. Increment depends on bot playstyle; if loose, increments fast, if tight, increments slowly
+            self.bluff_threshold += AdvancedBot.bluff_percentage[self.tightness]/10      # Increment the bluff percentage threshold so that the bot has more chances of doing a bluff later on. Increment depends on bot playstyle; if loose, increments fast, if tight, increments slowly
             return False
         
     def reset_bluff_values(self):

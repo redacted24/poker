@@ -27,10 +27,12 @@ class TestFullGame(unittest.TestCase):
         self.table.play()
         self.table.reset()
         print('game end >>>>>>>>>>>>>>>>>>>>>>>>>>')
-        print('game start -------------------------')
-        self.table.pre_flop()
-        self.table.play()
-        print('game end >>>>>>>>>>>>>>>>>>>>>>>>>>')
+        for i in range(2):
+            print('game start -------------------------')
+            self.table.pre_flop()
+            self.table.play()
+            self.table.reset()
+            print('game end >>>>>>>>>>>>>>>>>>>>>>>>>>')
  
 
 if __name__ == "__main__":

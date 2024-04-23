@@ -388,6 +388,7 @@ class Player():
                 'fold': 0
             }
             self.actions_done = 0
+            self.ehs = 0
             
             # Important stats for player modeling and computer play
             self.aggro_factor = 0
