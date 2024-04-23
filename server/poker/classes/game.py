@@ -388,11 +388,11 @@ class Player():
                 'fold': 0
             }
             self.actions_done = 0
+            self.ehs = 0
             
             # Important stats for player modeling and computer play
             self.aggro_factor = 0
             self.aggro_frequency = 0
-            self.ehs = 0              # Effective Hand strength. Mostly used to decide what to do in pre-flop
 
             if table:
                 table.add_player(self)              # Add player to table
@@ -563,7 +563,6 @@ class Player():
             self.clear_hand()
             self.position = None
             self.previous_step = []
-            self.ehs = 0
 
         def toJSON(self):
             return {

@@ -4,6 +4,7 @@ try:
 except:
     from game import *      # type: ignore
     from eval import *      # type: ignore
+from random import random
 
 class AdvancedBot(Player):
     # --- Pre-Flop Betting Strategy --- #
@@ -42,6 +43,12 @@ class AdvancedBot(Player):
         'moderate': {'make2': 0.85, 'make1': 0.50},
         'loose': {'make2': 0.80, 'make1': 0.45}
     }
+    # The values for which the bots would bluff.
+    bluff_percentage = {
+        'tight': 0.05,
+        'moderate': 0.1,
+        'loose': 0.15
+    }
 
     def __init__(self, name, tightness, table=None):
         '''The general class for an advanced bot. Contains all the necessary information for advanced play. Children class will have specific methods that tweak information in this class in order to play.
@@ -63,17 +70,31 @@ class AdvancedBot(Player):
             'make1': AdvancedBot.ehs[self.tightness]['make1'],
             'make2': AdvancedBot.ehs[self.tightness]['make2'],
         }
+        self.bluff_threshold = AdvancedBot.bluff_percentage[self.tightness]
         self.IR = 0     # IR rate, used to calculate preflop strategy
-    
+        self.bluffing = False    # Defines whether the bot is in "bluffing" process or not
+        self.fake_ehs = 0.90        # EHS used when bluffing
+        self.fake_IR = 700          # IR used when bluffing
+        self.number_of_play_actions = 0    # Helps for the are_we_bluffing() func. Makes it only triggers when the play function for the bot runs the first time    
+
     def play(self):
         '''Playing function for the bot.'''
         # from time import sleep
         # sleep(1)
-        self.IR = self.get_income_rate()
 
         if self.table.state == 0:       # We are in pre-flop
+            self.IR = self.get_income_rate()
+            #
+            #
+            # ----- Comment this function out if you don't want bluffing
+            if self.number_of_play_actions == 0:
+                if self.are_we_bluffing():
+                    print('(bluffing): ', end='')
+            # -----
+            #
+            #
             if self.table.required_bet == 10 and self.IR <= -100:       # Prevents bots from folding too early (before someone even puts a bet in preflop), unless their hand is horrendous.
-                if self.position == 2:              # Big blind cannot call because they have already put the minimum amount in the pot. So we make big blind check here.
+                if self.position == 2:                                  # Big blind cannot call because they have already put the minimum amount in the pot. So we make big blind check here.
                     print('(minimum play):', end=' ')
                     self.check()
                     return 'check'
@@ -100,11 +121,13 @@ class AdvancedBot(Player):
                 return 'make0'
             
         elif 1 <= self.table.state <= 3:         # We are in flop and River
-            if self.tightness == 'tight':
-                self.compute_ehs_sad()           # For tight bot, use pessimistic version of EHS computation func.
+            if self.bluffing:
+                self.ehs = self.fake_ehs
             else:
-                self.compute_ehs_happy()         # For moderate and loose bot, use optimistic version of EHS computation func.
-
+                if self.tightness == 'tight':
+                    self.compute_ehs_sad()           # For tight bot, use pessimistic version of EHS computation func.
+                else:
+                    self.compute_ehs_happy()         # For moderate and loose bot, use optimistic version of EHS computation func.
             if self.ehs >= self.ehs_thresholds['make2']:
                 self.make2()
                 return 'make2'
@@ -117,6 +140,27 @@ class AdvancedBot(Player):
             elif self.ehs <= self.ehs_thresholds['make1']:
                 self.make0()        # Temporary, before adding semi-bluffing, pot odds and showdown odds
                 return 'make0'
+        
+        else:
+            self.reset_bluff_values()
+        
+    def are_we_bluffing(self):
+        '''Checks, according to randomness, if the bot should be bluffing.'''
+        rand = random()
+        if rand < self.bluff_threshold:
+            self.bluffing = True
+            self.IR = self.fake_IR
+            self.ehs = self.fake_ehs
+            return True
+        else:
+            self.bluff_threshold += AdvancedBot.bluff_percentage[self.tightness]/10      # Increment the bluff percentage threshold so that the bot has more chances of doing a bluff later on. Increment depends on bot playstyle; if loose, increments fast, if tight, increments slowly
+            return False
+        
+    def reset_bluff_values(self):
+        '''Reset all values related to bluffs'''
+        self.bluff_threshold = AdvancedBot.bluff_percentage[self.tightness]
+        self.bluffing = False
+        self.number_of_play_actions = 0
 
     def update_player_position(self):
         '''Compute the threshold position number of the player.'''
@@ -271,10 +315,3 @@ class ScaryCat(Player):
 
 class Joker(Player):
     '''A bot that only does random actions. Can bet a random multiplier of the small blind'''
-
-# Real playstyles
-class TightPassive(AdvancedBot):
-    '''A bot that plays very few hands and is usually always checking, calling, or folding most of the time.'''
-    # Currently working on implementing always checking/calling unless required bet is more than half of its own balance.
-    def play(self):
-        pass
