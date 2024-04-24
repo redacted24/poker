@@ -209,6 +209,17 @@ class AdvancedBot(Player):
         else:
             return AdvancedBot.income_rates[temp[0].value-2][temp[1].value-2]
     
+    def find_bet_amount(self):
+        '''Compute an amount to bet based on different factors. Returns the bet amount'''
+        if self.table.state == 0:       # Preflop
+            amount = int((((self.IR + 432)/1986)/5)*self.balance)
+            return self.table.required_raise if amount <= self.table.required_raise else amount
+
+        else:
+            amount = int((self.ehs*self.table.pot))
+            return self.table.required_raise if amount <= self.table.required_raise else amount
+
+    # Strategies
     def make0(self):
         '''Fold if it costs more than zero to play. i.e.: folds every round'''
         print("(make0):", end=' ')
@@ -239,7 +250,7 @@ class AdvancedBot(Player):
             return 'fold'
         elif self.table.round_stats['bet'] == 0:
             print("(make1):", end=' ')
-            self.bet(self.table.required_bet + 30)
+            self.bet(self.find_bet_amount())
             return 'bet'
         else:       # Else is when bet stat is == 1
             if self.current_bet == self.table.required_bet:     # Player is big blind.
@@ -267,7 +278,7 @@ class AdvancedBot(Player):
         '''Bet/raise if less than two bets/raises have been made this round, otherwise call. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         if self.table.round_stats['bet'] < 2:
             print("(make2):", end=' ')
-            self.bet(self.table.required_bet + 30)
+            self.bet(self.find_bet_amount())
             return 'bet'
         else:
             print("(make2):", end=' ')
@@ -277,7 +288,7 @@ class AdvancedBot(Player):
     def make4(self):
         '''Bet/raise until betting is capped, or player goes all-in. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         print("(make4):", end=' ')
-        self.bet(self.table.required_bet + 50)
+        self.bet(self.find_bet_amount())
         return 'bet'
 
     def reset(self):
@@ -307,12 +318,10 @@ class ScaryCat(Player):
     def play(self):
         # Preflop
         if self.table.required_bet == 10 and self.current_bet == 10:
-            # print(f'{self.name} has checked. They had: {self.hand()}') to delete if unnecessary
             self.check()
             return 'check'
         # Postflop
         else:
-            # print(f'{self.name} has folded. They had: {self.hand()}') to delete iof unnecessary
             self.fold()
             return 'fold'
 

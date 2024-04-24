@@ -284,7 +284,7 @@ class TestPlayerMethods(unittest.TestCase):
     
     def test_activePlayers(self):
         self.table.pre_flop()
-        self.assertListEqual(self.table.active_players(), [self.p1, self.p2, self.p3, self.p4])
+        self.assertListEqual(self.table.active_players(), [self.p4, self.p1, self.p2, self.p3])
 
 
 
