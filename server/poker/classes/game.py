@@ -58,8 +58,9 @@ class Table():
         self.winning_player: Player | None = None   # The player who won the round. It is None while the game is in progress.
         self.required_bet: int = 0                  # How much money is required to stay in the game. Very useful to program the call function
         self.required_raise: int = 10               # Minimum amount of money a player needs to raise the bet
-        self.last_move: list[str, str] = []         # [Player.name, 'nameOfMove'] A list of two elements containing the player name, and the name of their last move (e.g. bet)                   # Cap to bets. Players cannot raise past this.
+        self.last_move: list[str, str] = []         # [Player.name, 'nameOfMove'] A list of two elements containing the player name, and the name of their last move (e.g. bet)
         self.id: str | None = None
+        self.betting_cap = 0                        # Cap to the amount of bets that can be made
         self.round_stats: dict = {        
             'bet': 0,
             'raise': 0,
@@ -261,8 +262,9 @@ class Table():
         self.board.clear()
         self.deck.reset()
         self.winning_player = None
-        self.dealer = (self.dealer + 1) % len(self.players)      # Shift players
-        self.betting_cap = 0        # Reset betting cap
+        self.dealer = (self.dealer + 1) % len(self.players)     # Shift players
+        self.betting_cap = 0                                    # Reset betting cap
+        self.last_move: list[str, str] = []                     # Reset self.last_move
         for stat in self.game_stats.keys():
             self.round_stats[stat] = 0
         for player in self.players:
@@ -361,6 +363,13 @@ class Table():
             self.game_stats[stat] = 0
 
 # -------------------------- #
+
+
+
+
+
+
+
 
 # -------------------------- #
 class Player():
@@ -530,6 +539,7 @@ class Player():
 
         # Player moves
         def call(self):
+            '''Try calling, otherwise go all-in and bet'''
             if self.balance >= self.table.required_bet - self.current_bet:
                 self.table.call(self)
                 self.previous_step = ['call', self.table.required_bet]

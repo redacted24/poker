@@ -313,5 +313,30 @@ class ScaryCat(Player):
     def update_strategy_thresholds(self):
         pass
 
-class Joker(Player):
-    '''A bot that only does random actions. Can bet a random multiplier of the small blind'''
+class CopyCat(Player):
+    '''A bot that copies whatever the last move was. If they are the first to play, they would check/call depending if they are BB or not.'''
+    def play(self):
+        '''Play function for the bot.'''
+        if self.table.last_move:
+            if self.table.last_move[1] == 'call':
+                self.call()
+            elif self.table.last_move[1] == 'fold':
+                self.fold()
+            elif self.table.last_move[1] == 'bet':
+                self.bet(30)
+            elif self.table.last_move[1] == 'check':
+                self.check()
+        else:
+            if self.position == 2:              # If player is big blind, they must check
+                self.check()
+                return 'check'
+            self.call()
+            return 'call'
+
+    def update_player_position(self):
+        '''Not needed'''
+        pass
+    
+    def update_strategy_thresholds(self):
+        '''Not needed'''
+        pass
