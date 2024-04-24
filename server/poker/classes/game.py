@@ -388,11 +388,7 @@ class Table():
 # -------------------------- #
 class Player():
         def __init__(self, name, is_computer, table=None, balance = 1000):
-            '''
-            - name: player name (str)
-            - is_computer: is the player a computer or not? (bool) 
-            - table: which table is the player sat on (object) 
-            - balance: how much money does the player begin with (int)'''
+            '''The Player class. All bots/computers inherit from this class.'''
             self.name = name
             self.is_computer = is_computer
             self.table: Table | None = None

@@ -45,9 +45,9 @@ class AdvancedBot(Player):
     }
     # The values for which the bots would bluff.
     bluff_percentage = {
-        'tight': 0.05,
-        'moderate': 0.1,
-        'loose': 0.15
+        'tight': 0.04,
+        'moderate': 0.07,
+        'loose': 0.10
     }
 
     def __init__(self, name, tightness, table=None):
@@ -210,7 +210,7 @@ class AdvancedBot(Player):
     def find_bet_amount(self):
         '''Compute an amount to bet based on different factors. Returns the bet amount'''
         if self.table.state == 0:       # Preflop
-            amount = int((((self.IR + 432)/1986)/5)*self.balance) + self.current_bet
+            amount = int((((self.IR + 432)/1986)/10)*self.balance) + self.current_bet
             if amount-self.table.required_bet < self.table.required_raise:      # If the amount bet - table bet is smaller than the minimum raise, then we have to bet at least the table bet + the minimum raise 
                 return self.table.required_bet + self.table.required_raise
             else:
