@@ -279,7 +279,6 @@ class Table():
         self.round_stats[move] += 1
         player.stats[move] += 1
         self.last_move = [player.name, move]
-        player.actions_done = sum(player.stats.values())  
 
     def call(self, player):
         '''Player calls, matching the current bet.'''
@@ -388,6 +387,7 @@ class Player():
             self.active = True                  # Whether the player is still in round (hasn't folded yet).
             self.position = None                # Determines the position of the player. 0 = dealer, 1 = small blind, 2 = big blind, etc.
             self.previous_step = []
+            self.ehs = 0
             self.stats = {
                 'bet': 0,
                 'raise': 0,
@@ -396,12 +396,6 @@ class Player():
                 'all-in': 0,
                 'fold': 0
             }
-            self.actions_done = 0
-            self.ehs = 0
-            
-            # Important stats for player modeling and computer play
-            self.aggro_factor = 0
-            self.aggro_frequency = 0
 
             if table:
                 table.add_player(self)              # Add player to table
@@ -573,6 +567,7 @@ class Player():
             self.clear_hand()
             self.position = None
             self.previous_step = []
+            self.bluffing = False
 
         def toJSON(self):
             return {

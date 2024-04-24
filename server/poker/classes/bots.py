@@ -72,10 +72,10 @@ class AdvancedBot(Player):
         }
         self.bluff_threshold = AdvancedBot.bluff_percentage[self.tightness]
         self.IR = 0     # IR rate, used to calculate preflop strategy
-        self.bluffing = False    # Defines whether the bot is in "bluffing" process or not
         self.fake_ehs = 0.90        # EHS used when bluffing
         self.fake_IR = 700          # IR used when bluffing
         self.number_of_play_actions = 0    # Helps for the are_we_bluffing() func. Makes it only triggers when the play function for the bot runs the first time    
+        self.bluffing = False
 
     def play(self):
         '''Playing function for the bot.'''
@@ -141,9 +141,6 @@ class AdvancedBot(Player):
                 self.make0()        # Temporary, before adding semi-bluffing, pot odds and showdown odds
                 return 'make0'
         
-        else:
-            self.reset_bluff_values()
-        
     def are_we_bluffing(self):
         '''Checks, according to randomness, if the bot should be bluffing.'''
         rand = random()
@@ -155,12 +152,6 @@ class AdvancedBot(Player):
         else:
             self.bluff_threshold += AdvancedBot.bluff_percentage[self.tightness]/10      # Increment the bluff percentage threshold so that the bot has more chances of doing a bluff later on. Increment depends on bot playstyle; if loose, increments fast, if tight, increments slowly
             return False
-        
-    def reset_bluff_values(self):
-        '''Reset all values related to bluffs'''
-        self.bluff_threshold = AdvancedBot.bluff_percentage[self.tightness]
-        self.bluffing = False
-        self.number_of_play_actions = 0
 
     def update_player_position(self):
         '''Compute the threshold position number of the player.'''
@@ -286,6 +277,17 @@ class AdvancedBot(Player):
         self.bet(self.table.required_bet + 50)
         return 'bet'
 
+    def reset(self):
+        '''Resets the bot. Overrides parent class reset method.'''
+        self.current_bet = 0
+        self.active = True
+        self.clear_hand()
+        self.position = None
+        self.previous_step = []
+        self.bluffing = False
+        self.bluff_threshold = AdvancedBot.bluff_percentage[self.tightness]
+        self.number_of_play_actions = 0
+
 # Meme bots
 class Better(Player):
     '''A bot that always bets 99$, or all of his balance if it is less than 99$.'''
@@ -298,14 +300,36 @@ class Better(Player):
             self.bet(self.balance)  # Otherwise, bet the remaining balance of the bot, as an all-in.
 
 class ScaryCat(Player):
-    '''A bot that always if a single opponent bets. Otherwise, checks.'''
+    '''A bot that always folds if a single opponent bets. Otherwise, checks.'''
     def play(self):
-        if self.current_bet == self.table.required_bet:
-            print(f'{self.name} has checked. They had: {self.hand()}')
+        # Preflop
+        if self.table.required_bet == 10 and self.current_bet == 10:
+            # print(f'{self.name} has checked. They had: {self.hand()}') to delete if unnecessary
             self.check()
+            return 'check'
+        # Postflop
         else:
-            print(f'{self.name} has called. They had: {self.hand()}')
+            # print(f'{self.name} has folded. They had: {self.hand()}') to delete iof unnecessary
+            self.fold()
+            return 'fold'
+
+    def update_player_position(self):
+        pass
+    
+    def update_strategy_thresholds(self):
+        pass
+
+class RingRingItsTheCaller(Player):
+    '''A bot that always calls whatever bet is on the table.'''
+    def play(self):
+        # Preflop
+        if self.table.required_bet == self.current_bet:
+            self.check()
+            return 'check'
+        # Postflop
+        else:
             self.call()
+            return 'call'
 
     def update_player_position(self):
         pass
