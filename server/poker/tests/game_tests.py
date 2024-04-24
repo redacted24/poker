@@ -751,6 +751,7 @@ class TestGameProcessAdvancedBot(unittest.TestCase):
         self.p4.call()
         self.p1.bet(73)
         self.p2.bet(73+63)
+        self.assertEqual(self.table.last_move, [self.p2.name, 'bet'])       # means the bet function passed
 
     def test_bet_turns_call(self):
         '''Test if a bet turns into a call if the bet amount is the same as required bet'''

@@ -211,18 +211,16 @@ class AdvancedBot(Player):
         '''Compute an amount to bet based on different factors. Returns the bet amount'''
         if self.table.state == 0:       # Preflop
             amount = int((((self.IR + 432)/1986)/5)*self.balance) + self.current_bet
-            if amount-self.table.required_bet < self.table.required_raise:
+            if amount-self.table.required_bet < self.table.required_raise:      # If the amount bet - table bet is smaller than the minimum raise, then we have to bet at least the table bet + the minimum raise 
                 return self.table.required_bet + self.table.required_raise
             else:
-                print(f'calculated {amount}')
                 return amount
 
         else:       # Postflop
-            amount = int(((self.ehs*0.3)*self.table.pot)) + self.current_bet
+            amount = int(((self.ehs*0.1)*self.table.pot)) + self.current_bet
             if amount-self.table.required_bet < self.table.required_raise:
                 return self.table.required_bet + self.table.required_raise
             else:
-                print(f'calculated {amount}')
                 return amount
 
     # Strategies
