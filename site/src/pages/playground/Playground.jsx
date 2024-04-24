@@ -29,7 +29,6 @@ const Playground = () => {
       }
     }
     
-
     reset()
     window.addEventListener('beforeunload', removeTableId)
 
@@ -40,6 +39,7 @@ const Playground = () => {
     }
   }, [])
 
+
   useEffect(() => {
     const init = async () => {
       const tableData = await pokerService.init({ name })
@@ -49,9 +49,11 @@ const Playground = () => {
     init()
   }, [name])
 
+
   const getTableId = () => {
     return window.localStorage.getItem('tableId')
   }
+
 
   const toggleFetching = (fetching) => {
     if (fetching) {
@@ -80,6 +82,7 @@ const Playground = () => {
     console.log(tableData)
   }
 
+
   useEffect(() => {
     const checkWinner = async () => {
       if (table && table.winning_player) {
@@ -91,6 +94,14 @@ const Playground = () => {
     }
     checkWinner()
   }, [table])
+
+  
+  const updateTableQueue = () => {
+    const newPlayerQueue = table.player_queue.slice(1)
+    setTable({ player_queue: newPlayerQueue, ...table })
+    console.log(table)
+  }
+
 
   if (!inGame) {
     return (
@@ -123,7 +134,6 @@ const Playground = () => {
         {table.players.filter(player => player.name == name).map(player => {
             return <Player 
               key={name}
-              name={name}
               player={player}
               numPlayers={table.players.length}
               requiredBet={table.required_bet}
@@ -131,9 +141,10 @@ const Playground = () => {
               getTableId={getTableId}
               setTable={setTable}
               toggleFetching={toggleFetching}
+              updateTableQueue={updateTableQueue}
             />
         })}
-        <Opponents opponents={table.players.filter(player => player.name !== name)} />
+        <Opponents opponents={table.players.filter(player => player.name !== name)} playerQueue={table.player_queue} />
 
       </div>
     </>

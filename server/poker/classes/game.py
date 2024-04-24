@@ -227,6 +227,7 @@ class Table():
         '''Lets all the computers play their turn, then starts the next round if needed.'''
         n_turns = 0
 
+        requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
         while len(self.player_queue) != 0:
             if len(self.active_players()) == 1:
                 self.player_queue.clear()
@@ -235,7 +236,7 @@ class Table():
             current_player = self.player_queue[0]
             if (current_player.is_computer):
                 current_player.play()
-                # requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
+                requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
                 n_turns += 1
                 if n_turns > 1000:
                     raise Exception(self.round_stats)
@@ -553,7 +554,7 @@ class Player():
         def bet(self, amount):
             if self.balance > (amount - self.current_bet):
                 self.table.bet(self, amount)
-                self.previous_step = ['bet', amount]
+                self.previous_step = ['bet', self.current_bet]
             elif self.balance == (amount - self.current_bet):
                 print('All-in')
                 self.table.bet(self, amount)

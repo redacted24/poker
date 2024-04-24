@@ -3,7 +3,17 @@ import pokerService from '../../services/poker'
 import './player.css'
 import { useEffect, useState } from 'react'
 
-const Player = ({ name, player, numPlayers, requiredBet, requiredRaise, getTableId, setTable, toggleFetching }) => {
+const Player = ({ 
+    player,
+    numPlayers,
+    requiredBet,
+    requiredRaise,
+    getTableId,
+    setTable,
+    toggleFetching,
+    updateTableQueue
+  }) => {
+
   const [isBetting, setIsBetting] = useState(false)
   const callAmount = requiredBet - player.current_bet
   const minBetAmount = requiredBet + requiredRaise
@@ -21,42 +31,33 @@ const Player = ({ name, player, numPlayers, requiredBet, requiredRaise, getTable
     setBetAmount(minBetAmount)
   }, [minBetAmount])
 
-  const call = async () => {
+  const sendRequest = async (request, content) => {
+    updateTableQueue()
     toggleFetching(true)
-    const tableData = await pokerService.call({ name, id: getTableId() })
+    const tableData = await request(content)
     toggleFetching(false)
     setBetAmount(minBetAmount)
     setTable(tableData)
     console.log(tableData)
   }
 
-  const check = async () => {
-    toggleFetching(true)
-    const tableData = await pokerService.check({ name, id: getTableId() })
-    toggleFetching(false)
-    setBetAmount(minBetAmount)
-    setTable(tableData)
-    console.log(tableData)
+  const call = () => {
+    sendRequest(pokerService.call, { name: player.name, id: getTableId() })
   }
 
-  const fold = async () => {
-    toggleFetching(true)
-    const tableData = await pokerService.fold({ name, id: getTableId() })
-    toggleFetching(false)
-    setTable(tableData)
-    console.log(tableData)
+  const check = () => {
+    sendRequest(pokerService.check, { name: player.name, id: getTableId() })
+  }
+
+  const fold = () => {
+    sendRequest(pokerService.fold, { name: player.name, id: getTableId() })
   }
   
   const bet = async (e) => {
     e.preventDefault()
     const amount = parseInt(betAmount)
-    toggleFetching(true)
-    const tableData = await pokerService.bet({ name, amount, id: getTableId() })
-    toggleFetching(false)
-    setBetAmount(minBetAmount)
-    setTable(tableData)
+    sendRequest(pokerService.bet, { name: player.name, amount, id: getTableId() })
     toggleIsBetting()
-    console.log(tableData)
   }
 
   const positionTag = () => {
