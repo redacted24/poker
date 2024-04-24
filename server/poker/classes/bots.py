@@ -150,7 +150,7 @@ class AdvancedBot(Player):
         if rand < self.bluff_threshold:
             self.bluffing = True
             self.IR = self.fake_IR
-            self.ehs = self.fake_ehs
+            self.ehs = round(self.fake_ehs + random()/10, 4)
             return True
         else:
             self.bluff_threshold += AdvancedBot.bluff_percentage[self.tightness]/10      # Increment the bluff percentage threshold so that the bot has more chances of doing a bluff later on. Increment depends on bot playstyle; if loose, increments fast, if tight, increments slowly
@@ -182,8 +182,7 @@ class AdvancedBot(Player):
         else:
             return
         hsn = a.hand_strength()
-        self.ehs = hsn+(1-hsn)*a.potential_hand_strength(look_ahead, only_ppot=True)[0]
-        return self.ehs
+        self.ehs = round(hsn+(1-hsn)*a.potential_hand_strength(look_ahead, only_ppot=True)[0], 4)
 
     def compute_ehs_sad(self):
         '''Compute ehs using the sadder version of the effective hand strength, i.e. the pessimistic one that  accounts for PPOT (potential of winning) and NPOT (potential of losing). Modifies the ehs value of the class instance. Mostly used for passive playstyles'''
@@ -197,8 +196,7 @@ class AdvancedBot(Player):
             return
         hsn = a.hand_strength()
         pots = a.potential_hand_strength(look_ahead)
-        self.ehs = hsn+(1-hsn)*pots[0]-hsn*pots[1]
-        return self.ehs
+        self.ehs = round(hsn+(1-hsn)*pots[0]-hsn*pots[1], 4)
 
 
     def get_income_rate(self):
@@ -212,12 +210,20 @@ class AdvancedBot(Player):
     def find_bet_amount(self):
         '''Compute an amount to bet based on different factors. Returns the bet amount'''
         if self.table.state == 0:       # Preflop
-            amount = int((((self.IR + 432)/1986)/5)*self.balance)
-            return self.table.required_raise if amount <= self.table.required_raise else amount
+            amount = int((((self.IR + 432)/1986)/5)*self.balance) + self.current_bet
+            if amount-self.table.required_bet < self.table.required_raise:
+                return self.table.required_bet + self.table.required_raise
+            else:
+                print(f'calculated {amount}')
+                return amount
 
-        else:
-            amount = int(((self.ehs*0.5)*self.table.pot))
-            return self.table.required_raise if amount <= self.table.required_raise else amount
+        else:       # Postflop
+            amount = int(((self.ehs*0.3)*self.table.pot)) + self.current_bet
+            if amount-self.table.required_bet < self.table.required_raise:
+                return self.table.required_bet + self.table.required_raise
+            else:
+                print(f'calculated {amount}')
+                return amount
 
     # Strategies
     def make0(self):
@@ -273,7 +279,7 @@ class AdvancedBot(Player):
             print("(call2):", end=' ')
             self.call()
             return 'call'
-
+  
     def make2(self):
         '''Bet/raise if less than two bets/raises have been made this round, otherwise call. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         if self.table.round_stats['bet'] < 2:
@@ -301,6 +307,7 @@ class AdvancedBot(Player):
         self.bluffing = False
         self.bluff_threshold = AdvancedBot.bluff_percentage[self.tightness]
         self.number_of_play_actions = 0
+        self.ehs = 0
 
 # Meme bots
 class Better(Player):

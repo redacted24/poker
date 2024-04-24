@@ -8,7 +8,7 @@ test_AdvancedBots = True            # 4 advancedbots
 test_CopyCat = False                # 1 copycat vs 3 advancedbots
 test_RingRingItsTheCaller = False   # 1 caller vs 3 advancedbots
 
-iterations = 1
+iterations = 5
 
 # ---
 @unittest.skipUnless(test_AdvancedBots, 'separate tests')

@@ -735,6 +735,29 @@ class TestGameProcessAdvancedBot(unittest.TestCase):
         self.p4.call()
         self.p1.call()
         self.assertRaises(Exception, lambda: self.p2.check())
+    
+    def test_requiredRaise(self):
+        '''Check if required raise criteria is met.'''
+        self.p4.bet(110)        # Raising by 100
+        self.assertRaises(Exception, lambda:self.p1.bet(50))
+    
+    def test_requiredRaiseCase2(self):
+        '''More cases for the required raise criteria test'''
+        self.p4.bet(110)
+        self.assertRaises(Exception, lambda:self.p1.bet(100))
+
+    def test_requiredRaiseCase3(self):
+        '''More cases for the required raise criteria test'''
+        self.p4.call()
+        self.p1.bet(73)
+        self.p2.bet(73+63)
+
+    def test_bet_turns_call(self):
+        '''Test if a bet turns into a call if the bet amount is the same as required bet'''
+        self.p4.bet(110)
+        self.p1.bet(110)
+        self.assertEqual(self.table.round_stats['call'], 1)
+
 
 
 # ------------------------- #

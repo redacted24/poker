@@ -295,7 +295,7 @@ class Table():
             amount_to_call = self.required_bet - player.current_bet
             player.balance -= amount_to_call
             self.increase_pot(amount_to_call)
-            print(f"{player} has called for {self.required_bet-player.current_bet}$ (pot is now {self.pot}$). They had {player.hand()}", "EHS:", player.ehs)
+            print(f"{player} has called for {self.required_bet-player.current_bet}$ (balance: {player.balance}) (pot is now {self.pot}$). They had {player.hand()}", "EHS:", player.ehs)
             player.current_bet = self.required_bet
             self.player_queue.pop(0)
         else:
@@ -305,7 +305,7 @@ class Table():
         '''Player checks, passing the turn without betting.'''
         if player == self.player_queue[0]:
             if player.current_bet == self.required_bet:
-                print(f"{player} has checked. They had {player.hand()}", "EHS:", player.ehs)
+                print(f"{player} has checked. (balance: {player.balance}) They had {player.hand()}", "EHS:", player.ehs)
                 self.update_table_stats(player, 'check')
                 self.player_queue.pop(0)
             else:
@@ -316,7 +316,7 @@ class Table():
     def fold(self, player):
         '''Player folds, giving up their hand.'''
         if player == self.player_queue[0]:
-            print(f"{player} has folded. They had {player.hand()}", "EHS:", player.ehs)
+            print(f"{player} has folded. (balance: {player.balance}) They had {player.hand()}", "EHS:", player.ehs)
             self.update_table_stats(player, 'fold')
             self.player_queue.pop(0)
         else:
@@ -326,9 +326,13 @@ class Table():
         '''Player bets, raising the required bet to stay in for the entire table.'''
         if player == self.player_queue[0]:
             if self.round_stats['bet'] == 3:        # Player cannot raise past this
-                self.call(player)     # Call the betting cap
-            elif amount==self.required_bet and len(self.player_queue) == 1:     # If last player bets the same amount as the required bet, it is considered a call and ends the round (does not extend the player queue as does the normal bet function)
+                self.call(player)                   # Call the betting cap
+            elif amount==self.required_bet:     # If bet amount is the same as required bet, it's basically a call.
                 self.call(player)
+            elif amount-self.required_bet < self.required_raise:
+                raise Exception('cannot bet under minimum raise requirement')
+            elif amount > player.balance:
+                raise Exception('cant bet that, player has to go all-in. Remove this exception once allin method is done')  # Remove this when allin method is done
             else: 
                 self.update_table_stats(player, 'bet')              # Update table stats
                 amount_bet = amount - player.current_bet            # amount that the player throws into the pot
@@ -338,7 +342,7 @@ class Table():
                 self.required_raise = amount - self.required_bet    # amount that the player has raised the pot by. this is now the minimum raise value, and the next raises cannot be lower than this
                 self.required_bet = player.current_bet              
                 self.betting_cap += 1
-                print(f"{player} has bet {amount}$ (the pot is now {self.pot}$). They had {player.hand()}", "EHS:", player.ehs)
+                print(f"{player} has bet {amount}$ (balance: {player.balance}) (the pot is now {self.pot}$). They had {player.hand()}", "EHS:", player.ehs)
                 self.extend_queue(self.state)
                 self.player_queue.pop(0)
         else:
@@ -579,6 +583,7 @@ class Player():
             self.position = None
             self.previous_step = []
             self.bluffing = False
+            self.ehs = 0
 
         def toJSON(self):
             return {
