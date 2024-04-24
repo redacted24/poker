@@ -216,7 +216,7 @@ class AdvancedBot(Player):
             return self.table.required_raise if amount <= self.table.required_raise else amount
 
         else:
-            amount = int((self.ehs*self.table.pot))
+            amount = int(((self.ehs*0.5)*self.table.pot))
             return self.table.required_raise if amount <= self.table.required_raise else amount
 
     # Strategies
