@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 const Player = ({ 
     player,
     numPlayers,
+    playerQueue,
     requiredBet,
     requiredRaise,
     getTableId,
@@ -77,27 +78,38 @@ const Player = ({
     }
   }
 
+  const buttons = () => {
+    if (playerQueue[0] && playerQueue[0].name == player.name) {
+      if (!isBetting) {
+        return (
+          <div id='buttons'>
+            {!!callAmount && <button className='action' onClick={call}>Call ({callAmount}$)</button>}
+            {!callAmount && <button className='action' onClick={check}>Check</button>}
+            <button className='action' onClick={fold}>Fold</button>
+            <button className='action' onClick={toggleIsBetting}>Bet</button>
+          </div>
+        )
+      } else {
+        return (
+          <form onSubmit={bet} id='buttons'>
+            <input className='action' type='number' value={betAmount} onChange={handleChange} min={minBetAmount} /> <span id='dollar-sign'>$</span>
+            <button className='action' type='button' onClick={toggleIsBetting}>Go back</button>
+            <button className='action' type='submit'>Confirm</button>
+          </form>
+        )
+      }
+    } else {
+      return null
+    }
+  }
+
   return (
     <div id='player'>
       <div id='hand'>
         {player.hand.map(card => <Card key={`${card}`} card={card} />)}
       </div>
       {positionTag()}
-      {!isBetting &&
-        <div id='buttons'>
-          {!!callAmount && <button className='action' onClick={call}>Call ({callAmount}$)</button>}
-          {!callAmount && <button className='action' onClick={check}>Check</button>}
-          <button className='action' onClick={fold}>Fold</button>
-          <button className='action' onClick={toggleIsBetting}>Bet</button>
-        </div>
-      }
-      {isBetting && 
-        <form onSubmit={bet} id='buttons'>
-          <input className='action' type='number' value={betAmount} onChange={handleChange} min={minBetAmount} /> <span id='dollar-sign'>$</span>
-          <button className='action' type='button' onClick={toggleIsBetting}>Go back</button>
-          <button className='action' type='submit'>Confirm</button>
-        </form>
-      }
+      {buttons()}
       <p id='balance'>Balance: {player.balance}$</p>
     </div>
   )

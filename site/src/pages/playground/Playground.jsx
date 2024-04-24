@@ -136,6 +136,7 @@ const Playground = () => {
               key={name}
               player={player}
               numPlayers={table.players.length}
+              playerQueue={table.player_queue}
               requiredBet={table.required_bet}
               requiredRaise={table.required_raise}
               getTableId={getTableId}

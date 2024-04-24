@@ -102,9 +102,19 @@ class Table():
         for p in self.active_players():
             p.current_bet = 0
 
-    def active_players(self):
+    def active_players(self, pre_flop=False): 
         '''Returns a list of the active players in the round'''
-        return [p for p in self.players if p.active]
+        self.set_positions()
+        if self.player_queue:
+            starting_position = self.player_queue[0].position
+        elif pre_flop:
+            starting_position = 3
+        else:
+            starting_position = 0
+
+        sorted_players = sorted(self.players, key=lambda p:(p.position - starting_position) % len(self.players))
+
+        return [p for p in sorted_players if p.active]
     
     def randomize(self):
         from random import shuffle
@@ -112,17 +122,13 @@ class Table():
 
     def start_queue(self, pre_flop=False):
         '''Adds a queue for the players' turn to play'''
-        self.set_positions()
-        sorted_players = sorted(self.active_players(), key=lambda p:p.position) * 2
-        if pre_flop:
-            temp = []
-            temp.append(sorted_players[-1])
-            temp.extend(sorted_players[0:len(self.active_players())-1]) 
-            self.player_queue = temp
-            print(self.player_queue)
-        else:
-            self.player_queue = sorted_players[:len(self.active_players())]
-            print(self.player_queue)
+        print('setting queue')
+        self.player_queue = self.active_players(pre_flop)
+        print(self.player_queue)
+
+    def extend_queue(self, game_state):
+        '''Extends the current queue for players to call/fold the bet'''
+        self.player_queue.extend([p for p in self.active_players(game_state == 0) if p not in self.player_queue])
 
     def prepare_round(self, pre_flop=False):
         '''Prepares the table for the current round'''
@@ -133,7 +139,7 @@ class Table():
         self.betting_cap = 0
         self.clear_bets()
         self.last_move.clear()
-        self.start_queue(True)
+        self.start_queue(pre_flop)
 
     def set_positions(self):
         '''Set the positions of the players for the current round'''
@@ -227,7 +233,6 @@ class Table():
         '''Lets all the computers play their turn, then starts the next round if needed.'''
         n_turns = 0
 
-        requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
         while len(self.player_queue) != 0:
             if len(self.active_players()) == 1:
                 self.player_queue.clear()
@@ -235,6 +240,8 @@ class Table():
                 break
             current_player = self.player_queue[0]
             if (current_player.is_computer):
+                current_player.previous_step = None
+                requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
                 current_player.play()
                 requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
                 n_turns += 1
@@ -332,7 +339,7 @@ class Table():
                 self.required_bet = player.current_bet              
                 self.betting_cap += 1
                 print(f"{player} has bet {amount}$ (the pot is now {self.pot}$). They had {player.hand()}", "EHS:", player.ehs)
-                self.player_queue.extend([p for p in self.active_players() if p not in self.player_queue])
+                self.extend_queue(self.state)
                 self.player_queue.pop(0)
         else:
             raise(ValueError('Not your turn yet!'))
