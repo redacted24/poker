@@ -296,9 +296,12 @@ class Table():
     def check(self, player):
         '''Player checks, passing the turn without betting.'''
         if player == self.player_queue[0]:
-            print(f"{player} has checked. They had {player.hand()}", "EHS:", player.ehs)
-            self.update_table_stats(player, 'check')
-            self.player_queue.pop(0)
+            if player.current_bet == self.required_bet:
+                print(f"{player} has checked. They had {player.hand()}", "EHS:", player.ehs)
+                self.update_table_stats(player, 'check')
+                self.player_queue.pop(0)
+            else:
+                raise Exception("Can't check if your current bet does not match required bet!")
         else:
             raise(ValueError('Not your turn yet!'))
 
