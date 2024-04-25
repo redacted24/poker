@@ -758,6 +758,14 @@ class TestGameProcessAdvancedBot(unittest.TestCase):
         self.p4.bet(110)
         self.p1.bet(110)
         self.assertEqual(self.table.round_stats['call'], 1)
+    
+    def test_allin(self):
+        print('eeeeeeee')
+        self.p4.call()
+        self.p1.all_in()
+        self.p2.fold()
+        self.p3.fold()
+        self.p4.call()
 
 
 

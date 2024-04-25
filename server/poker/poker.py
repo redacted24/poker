@@ -29,7 +29,7 @@ def init():
   table.add_player(player)
   table.add_player(AdvancedBot('moderate_bot', 'moderate'))
   table.add_player(AdvancedBot('tight_bot', 'moderate'))
-  table.add_player(AdvancedBot('loose_bot', 'moderate'))
+  table.add_player(RingRingItsTheCaller('caller', True))
 
   res = requests.post('http://localhost:3003/api/session', json={ 'table': pickle.dumps(table).decode('latin1') })
 

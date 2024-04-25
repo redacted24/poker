@@ -105,12 +105,16 @@ class Table():
     def active_players(self, pre_flop=False): 
         '''Returns a list of the active players in the round'''
         self.set_positions()
+        print([p.position for p in self.player_queue])
+        print('playerqu', self.player_queue)
         if self.player_queue:
             starting_position = self.player_queue[0].position
         elif pre_flop:
             starting_position = 3
         else:
             starting_position = 0
+        
+        print('startpos:' ,starting_position)
 
         sorted_players = sorted(self.players, key=lambda p:(p.position - starting_position) % len(self.players))
 
@@ -143,6 +147,7 @@ class Table():
 
     def set_positions(self):
         '''Set the positions of the players for the current round'''
+        print('looking at players', self.players)
         for i, player in enumerate(self.players):
             player.position = (i + self.dealer) % len(self.players)
 
@@ -303,6 +308,7 @@ class Table():
         for player in self.players:
             player.reset()
         self.players = [p for p in self.players if p.balance > 0]       # kicks players who have no money left
+        self.player_queue.clear()
         self.start_queue(pre_flop=True)
 
 
@@ -623,7 +629,7 @@ class Player():
         def reset(self):
             self.current_bet = 0
             self.active = True
-            self.all_in = False
+            self.is_all_in = False
             self.clear_hand()
             self.position = None
             self.previous_step = []
