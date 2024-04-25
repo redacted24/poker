@@ -60,7 +60,7 @@ const Playground = () => {
       const fetchData = async () => {
         console.log('fetching')
         const tableData = await pokerService.getTable({ id: getTableId() })
-        setTable(tableData)
+        updateTable(tableData)
         console.log(tableData)
       }
       const tempIntervalId = setInterval(fetchData, 250)
@@ -77,7 +77,7 @@ const Playground = () => {
     const tableData = await pokerService.start({ id: getTableId() })
     toggleFetching(false)
     setInGame(true)
-    setTable(tableData)
+    updateTable(tableData)
     setDisplayBoard(true)
     console.log(tableData)
   }
@@ -88,7 +88,7 @@ const Playground = () => {
       if (table && table.winning_player) {
         alert(`${table.winning_player.name} has won ${table.pot}!`)
         const tableData = await pokerService.next({ id: getTableId() })
-        setTable(tableData)
+        updateTable(tableData)
         setDisplayBoard(false)
       }
     }
@@ -96,9 +96,19 @@ const Playground = () => {
   }, [table])
 
   
+  const updateTable = (newTableData) => {
+    console.log(newTableData.players)
+    if (newTableData.players.some(p => p.name == name)) {
+      setTable(newTableData)
+    } else {
+      alert("You lost all your money and you've been kicked out of the table! Better luck next time :(")
+      window.location.reload()
+    }
+  }
+
   const updateTableQueue = () => {
     const newPlayerQueue = table.player_queue.slice(1)
-    setTable({ player_queue: newPlayerQueue, ...table })
+    updateTable({ player_queue: newPlayerQueue, ...table })
     console.log(table)
   }
 
@@ -140,7 +150,7 @@ const Playground = () => {
               requiredBet={table.required_bet}
               requiredRaise={table.required_raise}
               getTableId={getTableId}
-              setTable={setTable}
+              updateTable={updateTable}
               toggleFetching={toggleFetching}
               updateTableQueue={updateTableQueue}
             />

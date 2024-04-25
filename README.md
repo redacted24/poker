@@ -123,7 +123,7 @@ Open the website on [localhost:](http://localhost:5173/), and follow the instruc
 <!-- ROADMAP -->
 ## Roadmap
 
-- [x] Improve CSS
+- [ ] Improve CSS
 - [ ] Deploy site
 - [ ] Fix bugs
 

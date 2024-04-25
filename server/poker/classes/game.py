@@ -151,11 +151,29 @@ class Table():
         sorted_players = sorted(self.players, key=lambda p: p.position)
         small_blind, big_blind = (sorted_players * 2)[1:3]                          # Allows the list to loop back if there are only 2 players
         
-        small_blind.balance -= 5
-        small_blind.current_bet = 5
-        big_blind.balance -= 10
-        big_blind.current_bet = 10
-        self.pot += 15
+        if small_blind.balance >= 5:
+            small_blind.balance -= 5
+            small_blind.current_bet = 5
+            self.pot += 5
+        else:
+            self.pot += small_blind.balance
+            small_blind.current_bet = small_blind.balance
+            small_blind.balance = 0
+            small_blind.is_all_in = True
+            self.update_table_stats(small_blind, 'all-in')
+            print(f"{small_blind} has gone all-in with {small_blind.balance}$ (balance: {small_blind.balance}) (the pot is now {self.pot}$). They had {small_blind.hand()}", "EHS:", small_blind.ehs)
+        
+        if big_blind.balance >= 10:
+            big_blind.balance -= 10
+            big_blind.current_bet = 10
+            self.pot += 10
+        else:
+            self.pot += big_blind.balance
+            big_blind.current_bet = big_blind.balance
+            big_blind.balance = 0
+            big_blind.is_all_in = True
+            self.update_table_stats(big_blind, 'all-in')
+            print(f"{big_blind} has gone all-in with {big_blind.balance}$ (balance: {big_blind.balance}) (the pot is now {self.pot}$). They had {big_blind.hand()}", "EHS:", big_blind.ehs)
         
     # Game Rounds
     def pre_flop(self):
@@ -234,11 +252,18 @@ class Table():
         n_turns = 0
 
         while len(self.player_queue) != 0:
-            if len(self.active_players()) == 1:
+            if len([p for p in self.active_players() if not p.is_all_in]) == 1:
                 self.player_queue.clear()
                 self.state = 3
                 break
             current_player = self.player_queue[0]
+
+            if current_player.is_all_in:                 # the player does not need to act if they are already all in
+                requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
+                self.player_queue.pop(0)
+                requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
+                continue
+
             if (current_player.is_computer):
                 current_player.previous_step = None
                 requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
@@ -277,6 +302,7 @@ class Table():
             self.round_stats[stat] = 0
         for player in self.players:
             player.reset()
+        self.players = [p for p in self.players if p.balance > 0]       # kicks players who have no money left
         self.start_queue(pre_flop=True)
 
 
@@ -329,7 +355,7 @@ class Table():
                 self.call(player)                   # Call the betting cap
             elif amount==self.required_bet:     # If bet amount is the same as required bet, it's basically a call.
                 self.call(player)
-            elif amount-self.required_bet < self.required_raise:
+            elif amount - self.required_bet < self.required_raise:
                 raise Exception('cannot bet under minimum raise requirement')
             elif amount > player.balance:
                 raise Exception('cant bet that, player has to go all-in. Remove this exception once allin method is done')  # Remove this when allin method is done
@@ -347,6 +373,21 @@ class Table():
                 self.player_queue.pop(0)
         else:
             raise(ValueError('Not your turn yet!'))
+
+    def all_in(self, player):
+        '''Player all-ins, betting the remainder of their balance to stay in the game.'''
+        if player == self.player_queue[0]:
+            self.update_table_stats(player, 'all-in')                                                   # Update table stats
+            self.increase_pot(player.balance)                                                           # Increase the table pot by the extra amount that the player has bet on top of what they have already bet
+            player.current_bet += player.balance                                                        # Set the player bet to the full current amount
+            self.required_raise = max(player.balance - self.required_bet, self.required_raise)          # The maximum raise becomes the raise that the player has just performed if it is larger than the current raise
+            self.required_bet = max(player.current_bet, self.required_bet)              
+            self.betting_cap += 1
+            print(f"{player} has gone all-in with {player.balance}$ (balance: {player.balance}) (the pot is now {self.pot}$). They had {player.hand()}", "EHS:", player.ehs)
+            player.balance = 0                                                                         # Remove amount bet from player balance. The exact amount is not removed, because player could already have some money in the pot (current bet)
+            player.is_all_in = True
+            self.extend_queue(self.state)
+            self.player_queue.pop(0)
 
     # Misc
     def add_player(self, player):
@@ -399,6 +440,7 @@ class Player():
             self.position = None                # Determines the position of the player. 0 = dealer, 1 = small blind, 2 = big blind, etc.
             self.previous_step = []
             self.ehs = 0
+            self.is_all_in = False
             self.stats = {
                 'bet': 0,
                 'raise': 0,
@@ -545,9 +587,12 @@ class Player():
         # Player moves
         def call(self):
             '''Try calling, otherwise go all-in and bet'''
-            if self.balance >= self.table.required_bet - self.current_bet:
+            if self.balance > self.table.required_bet - self.current_bet:
                 self.table.call(self)
                 self.previous_step = ['call', self.table.required_bet]
+            else:
+                self.all_in()
+
 
         def check(self):
             self.table.check(self)
@@ -562,10 +607,13 @@ class Player():
             if self.balance > (amount - self.current_bet):
                 self.table.bet(self, amount)
                 self.previous_step = ['bet', self.current_bet]
-            elif self.balance == (amount - self.current_bet):
-                print('All-in')
-                self.table.bet(self, amount)
-                self.previous_step = ['all-in', self.balance]
+            else:
+                self.all_in()
+
+        def all_in(self):
+            print('All-in')
+            self.table.all_in(self)
+            self.previous_step = ['all-in', self.balance]
 
         def rake(self):
             self.balance += self.table.pot
@@ -575,6 +623,7 @@ class Player():
         def reset(self):
             self.current_bet = 0
             self.active = True
+            self.all_in = False
             self.clear_hand()
             self.position = None
             self.previous_step = []
@@ -589,6 +638,7 @@ class Player():
                 'balance': self.balance,
                 'current_bet': self.current_bet,
                 'active': self.active,
+                'is_all_in': self.is_all_in,
                 'previous_step': self.previous_step,
                 'position': self.position
             }
