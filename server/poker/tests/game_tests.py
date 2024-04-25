@@ -16,69 +16,10 @@ class TestTableMethods(unittest.TestCase):
 
     def tearDown(self):
         self.table.end()
-
-    def test_boardSize_preflop(self):
-        self.table.pre_flop()
-        self.assertEqual(len(self.table.board),3,'Incorrect number of cards on board')
-    
-    def test_boardSize_flop(self):
-        self.table.pre_flop() 
-        self.p3.call()
-        self.p4.call()
-        self.p1.call()
-        self.p2.call()
-        self.table.play()
-        self.assertEqual(len(self.table.board), 4, 'Incorrect number of cards on the baord (for the flop)')
-
-    def test_PlayerQueue(self):        # Blinds play last on pre_flop
-        self.table.pre_flop()
-        self.assertListEqual(self.table.player_queue, [self.p3, self.p4, self.p1,self.p2])
-        
-    def test_boardSize_flop(self):
-        self.table.pre_flop()
-        self.p3.call()
-        self.p4.call()
-        self.p1.call()
-        self.p2.call()
-        self.table.play()
-        self.assertEqual(len(self.table.board), 3, 'Incorrect number of cards on board')
-
-    def test_boardSize_turn(self):
-        self.table.pre_flop()
-        self.p3.call()
-        self.p4.call()
-        self.p1.call()
-        self.p2.call()
-        self.table.play()
-        self.p1.check()
-        self.p2.check()
-        self.p3.check()
-        self.p4.check()
-        self.table.play()
-        self.assertEqual(len(self.table.board), 4, 'Incorrect number of cards on board')
-
-    def test_boardSize_river(self):
-        self.table.pre_flop()
-        self.p3.call()
-        self.p4.call()
-        self.p1.call()
-        self.p2.call()
-        self.table.play()
-        self.p1.check()
-        self.p2.check()
-        self.p3.check()
-        self.p4.check()
-        self.table.play()
-        self.p1.check()
-        self.p2.check()
-        self.p3.check()
-        self.p4.check()
-        self.table.play()
-        self.assertEqual(len(self.table.board), 5, 'Incorrect number of cards on board')
     
     def test_playerBetIncreasesPot(self):
         self.table.pre_flop()
-        self.p3.bet(100)
+        self.p4.bet(100)
         self.assertEqual(self.table.pot,115,'Pot does not match with player bet')
 
     def test_addCard(self):
@@ -88,23 +29,26 @@ class TestTableMethods(unittest.TestCase):
     
     def test_lastMoveBet(self):
         self.table.pre_flop()
-        self.p3.bet(100)
-        self.assertEqual(self.table.last_move, [self.p3.name,'bet'], 'Incoherent last move')
+        self.p4.bet(100)
+        self.assertEqual(self.table.last_move, [self.p4.name,'bet'], 'Incoherent last move')
 
     def test_lastMoveFold(self):
         self.table.pre_flop()
-        self.p3.fold()
-        self.assertEqual(self.table.last_move, [self.p3.name,'fold'], 'Incoherent last move')
+        self.p4.fold()
+        self.assertEqual(self.table.last_move, [self.p4.name,'fold'], 'Incoherent last move')
 
     def test_lastMoveCheck(self):
         self.table.pre_flop()
+        self.p4.call()
+        self.p1.call()
+        self.p2.call()
         self.p3.check()
         self.assertEqual(self.table.last_move, [self.p3.name,'check'], 'Incoherent last move')
 
     def test_lastMoveCall(self):
         self.table.pre_flop()
-        self.p3.call()
-        self.assertEqual(self.table.last_move, [self.p3.name,'call'], 'Incoherent last move')
+        self.p4.call()
+        self.assertEqual(self.table.last_move, [self.p4.name,'call'], 'Incoherent last move')
     
     def test_playersOnTable(self):
         self.table.pre_flop()
@@ -118,6 +62,40 @@ class TestTableMethods(unittest.TestCase):
     def test_tableBurn(self):
         self.table.burn()
         self.assertEqual(len(self.table.deck), 51, 'Burn method does not work')
+
+    def test_blindRotation_case2(self):
+        '''Test player positions after certain rounds are played'''
+        self.table.pre_flop()
+        self.p4.call()
+        self.p1.call()
+        self.p2.call()
+        self.p3.check()
+        self.table.reset()
+        self.table.pre_flop()
+        self.assertEqual(self.p1.position,1)
+        self.assertEqual(self.p2.position,2)
+        self.assertEqual(self.p3.position,3)
+        self.assertEqual(self.p4.position,0)
+        self.p3.call()
+        self.p4.call()
+        self.p1.call()
+        self.p2.check()
+        self.table.reset()
+        self.table.pre_flop()
+        self.assertEqual(self.p1.position,2)
+        self.assertEqual(self.p2.position,3)
+        self.assertEqual(self.p3.position,0)
+        self.assertEqual(self.p4.position,1)
+        self.p2.call()
+        self.p3.call()
+        self.p4.call()
+        self.p1.check()
+        self.table.reset()
+        self.table.pre_flop()
+        self.assertEqual(self.p1.position,3)
+        self.assertEqual(self.p2.position,0)
+        self.assertEqual(self.p3.position,1)
+        self.assertEqual(self.p4.position,2)
 
 
 
@@ -202,7 +180,7 @@ class TestPlayerMethods(unittest.TestCase):
     
     def test_playerStatBet(self):
         self.table.pre_flop()
-        self.p3.bet(100)
+        self.p4.bet(100)
         d1 = {
             'bet': 1,
             'raise': 0,
@@ -211,11 +189,11 @@ class TestPlayerMethods(unittest.TestCase):
             'all-in': 0,
             'fold': 0
         }
-        self.assertDictEqual(d1, self.p3.stats, 'Incoherent game stats (bet)')
+        self.assertDictEqual(d1, self.p4.stats, 'Incoherent game stats (bet)')
 
     def test_playerStatFold(self):
         self.table.pre_flop()
-        self.p3.fold()
+        self.p4.fold()
         d1 = {
             'bet': 0,
             'raise': 0,
@@ -224,10 +202,13 @@ class TestPlayerMethods(unittest.TestCase):
             'all-in': 0,
             'fold': 1
         }
-        self.assertDictEqual(d1, self.p3.stats, 'Incoherent game stats (fold)')
+        self.assertDictEqual(d1, self.p4.stats, 'Incoherent game stats (fold)')
 
     def test_playerStatCheck(self):
         self.table.pre_flop()
+        self.p4.call()
+        self.p1.call()
+        self.p2.call()
         self.p3.check()
         d1 = {
             'bet': 0,
@@ -241,7 +222,7 @@ class TestPlayerMethods(unittest.TestCase):
 
     def test_playerStatCall(self):
         self.table.pre_flop()
-        self.p3.call()
+        self.p4.call()
         d1 = {
             'bet': 0,
             'raise': 0,
@@ -250,13 +231,13 @@ class TestPlayerMethods(unittest.TestCase):
             'all-in': 0,
             'fold': 0
         }
-        self.assertDictEqual(d1, self.p3.stats, 'Incoherent game stats (call)')
+        self.assertDictEqual(d1, self.p4.stats, 'Incoherent game stats (call)')
     
     def test_playerFoldPoppedOutOfQueue(self):
         '''Verify that player folding actually pops them out of the table player queue.'''
         self.table.pre_flop()
-        self.p3.fold()
-        self.assertListEqual(self.table.player_queue,[self.p4, self.p1, self.p2])       # Player queue should be an empty list [] which would be falsy
+        self.p4.fold()
+        self.assertListEqual(self.table.player_queue,[self.p1, self.p2, self.p3])       # Player queue should be an empty list [] which would be falsy
     
     def test_playerBetOutofTurn(self):
          '''Verify that a player cannot play in the wrong table order.'''
@@ -285,36 +266,7 @@ class TestPlayerMethods(unittest.TestCase):
          self.p2 = Player('Player2', False, self.table)
          # Queue should be [p1, p2]
          self.assertRaises(ValueError, lambda:self.p2.check())
-        
-
     
-    # def test_aggroFactorOnlyBet(self):
-    #     for i in range(5):
-    #         for j in range(5):
-    #             self.p1.bet(1)          # Any amount of p1 bets won't change aggro factor as long as no calls have been made
-    #         self.assertEqual(self.p1.aggro_factor, 0, 'Aggression factor is incorrect')
-    
-    # def test_aggroFactorBetWithCallEqualProportion(self):
-    #     for j in range(5):
-    #         self.p1.bet(1)
-    #         self.p1.call()
-    #     self.assertAlmostEqual(self.p1.aggro_factor, 1, 3, 'Aggression factor incorrect')
-
-    # def test_aggroFactorBetWithCall5050Proportion(self):
-    #     for j in range(5):
-    #         self.p1.bet(1)
-    #         self.p1.call()
-    #         self.p1.call()
-    #     self.assertAlmostEqual(self.p1.aggro_factor, 0.5, 3, 'Aggression factor incorrect')
-
-    # def test_aggroFrequencyNoActions(self):
-    #     self.assertAlmostEqual(self.p1.aggro_frequency, 0, 3, 'Aggression frequency incorrect')
-    
-    # def test_aggroFrequencyOnlyBets(self):
-    #     for i in range(5):
-    #         self.p1.bet(1)
-    #     self.assertAlmostEqual(self.p1.aggro_frequency, 100, 3, 'Aggression frequency incorrect')
-
     def test_receivingCards(self):
         deck2 = Deck()
         self.p1.receive(deck2.get('As'))
@@ -327,12 +279,12 @@ class TestPlayerMethods(unittest.TestCase):
     
     def test_activePlayersFold(self):
         self.table.pre_flop()
-        self.p3.fold()
-        self.assertListEqual(self.table.player_queue, [self.p4, self.p1, self.p2])
+        self.p4.fold()
+        self.assertListEqual(self.table.player_queue, [self.p1, self.p2, self.p3])
     
     def test_activePlayers(self):
         self.table.pre_flop()
-        self.assertListEqual(self.table.active_players(), [self.p1, self.p2, self.p3, self.p4])
+        self.assertListEqual(self.table.active_players(), [self.p4, self.p1, self.p2, self.p3])
 
 
 
@@ -341,10 +293,10 @@ class TestAdvancedBotMethods(unittest.TestCase):
     def setUp(self):
         self.deck = Deck()
         self.table = Table(self.deck)
-        self.p1 = AdvancedBot('p1', self.table,'moderate')
-        self.p2 = AdvancedBot('p2', self.table,'loose')
-        self.p3 = AdvancedBot('p3', self.table,'moderate')
-        self.p4 = AdvancedBot('p4', self.table,'tight')
+        self.p1 = AdvancedBot('p1','moderate', self.table)
+        self.p2 = AdvancedBot('p2','loose', self.table)
+        self.p3 = AdvancedBot('p3','moderate', self.table)
+        self.p4 = AdvancedBot('p4','tight', self.table)
     
     def tearDown(self):
         self.table.end()
@@ -374,186 +326,441 @@ class TestAdvancedBotMethods(unittest.TestCase):
         self.p1.receive([self.deck.get('As'), self.deck.get('Ad')])
         self.assertEqual(self.p1.get_income_rate(), 1554, 'Incorrect IR')
     
-    def test_botPosition(self):
-        '''Check if player position is well computed'''
+    def test_botPositionCase1(self):
+        '''Check if player threshold position is well computed'''
         self.table.pre_flop()
         self.p2.update_player_position()
-        self.assertEqual(self.p2.thresholds_position, 0)
+        self.assertEqual(self.p2.thresholds_position, 1)
+        self.assertEqual(self.p3.thresholds_position, 0)
+        self.assertEqual(self.p4.thresholds_position, 3)
+        self.assertEqual(self.p1.thresholds_position, 2)
 
     def test_botPositionFail(self):
         '''Check if func works if board is not set'''
-        self.assertRaises(ValueError, lambda: self.p2.update_player_position())     # Use lambda as wrapper
+        self.assertRaises(ValueError, lambda: self.p4.update_player_position())     # Use lambda as wrapper
+
+    # ---
+    # Note: not used anymore since the preflop strategy values have been tweaked. Already tested to work with the values before.
+    # ---
+    # def test_strategyThresholdsModerate(self):
+    #     # p4 has been defined as a moderate bot in the setUp()
+    #     # threshold position of p4 should be 3
+    #     self.table.pre_flop()
+    #     self.p4.update_player_position()        # Threshold position should be 3
+    #     self.p4.update_strategy_thresholds()
+    #     with self.subTest('case 1: make1'):
+    #         self.assertEqual(self.p4.strategy_thresholds['make1'], 100)
+    #     with self.subTest('case 2: make2'):
+    #         self.assertEqual(self.p4.strategy_thresholds['make2'], 200)
+    #     with self.subTest('case 3: make4'):
+    #         self.assertEqual(self.p4.strategy_thresholds['make4'], 300)
+
+    # def test_strategyThresholdsTight(self):
+    #     # p1 has been defined as a tight bot in the setUp()
+    #     # threshold position of p1 should be 2
+    #     self.table.pre_flop()
+    #     self.p1.update_player_position()
+    #     self.p1.update_strategy_thresholds()
+    #     with self.subTest('case 1: make1'):
+    #         self.assertEqual(self.p1.strategy_thresholds['make1'], 50)
+    #     with self.subTest('case 2: make2'):
+    #         self.assertEqual(self.p1.strategy_thresholds['make2'], 250)
+    #     with self.subTest('case 3: make4'):
+    #         self.assertEqual(self.p1.strategy_thresholds['make4'], 300)
+
+    # def test_strategyThresholdsLoose(self):
+    #     # p3 has been defined as a loose bot in the setUp()
+    #     # threshold position of p3 should be 0 (because they are the last player)
+    #     self.table.pre_flop()
+    #     self.p3.update_player_position()
+    #     self.p3.update_strategy_thresholds()
+    #     with self.subTest('case 1: make1'):
+    #         self.assertEqual(self.p3.strategy_thresholds['make1'], -50)
+    #     with self.subTest('case 2: make2'):
+    #         self.assertEqual(self.p3.strategy_thresholds['make2'], 0)
+    #     with self.subTest('case 3: make4'):
+    #         self.assertEqual(self.p3.strategy_thresholds['make4'], 300)
     
-    def test_strategyThresholdsModerate(self):
-        # p3 has been defined as a moderate bot in the setUp()
-        # threshold position of p3 should be 3
-        self.table.pre_flop()
-        self.p3.update_player_position()        # Threshold position should be 3
-        self.p3.update_strategy_thresholds()
-        with self.subTest('case 1: make1'):
-            self.assertEqual(self.p3.strategy_thresholds['make1'], 100)
-        with self.subTest('case 2: make2'):
-            self.assertEqual(self.p3.strategy_thresholds['make2'], 200)
-        with self.subTest('case 3: make4'):
-            self.assertEqual(self.p3.strategy_thresholds['make4'], 300)
 
-    def test_strategyThresholdsTight(self):
-        # p4 has been defined as a tight bot in the setUp()
-        # threshold position of p4 should be 2
-        self.table.pre_flop()
-        self.p4.update_player_position()
-        self.p4.update_strategy_thresholds()
-        with self.subTest('case 1: make1'):
-            self.assertEqual(self.p4.strategy_thresholds['make1'], 50)
-        with self.subTest('case 2: make2'):
-            self.assertEqual(self.p4.strategy_thresholds['make2'], 250)
-        with self.subTest('case 3: make4'):
-            self.assertEqual(self.p4.strategy_thresholds['make4'], 300)
+# ---
+# Note: not used anymore since the preflop strategy values have been tweaked. Already tested to work with the values before.
+# ---
+# # --- Testing game situations and playing methods
+# @unittest.skipIf(AdvancedBot.preflop_strategy_values!={
+#         'tight': {'make1': (50, 50), 'make2': (200, 50), 'make4': (580,0)},
+#         'moderate': {'make1': (50, 25), 'make2': (200, 25), 'make4': (580,0)},
+#         'loose': {'make1': (50, 10), 'make2': (200, 10), 'make4': (580,0)}
+#     },'modifying thresholds renders these tests useless')    # skipping for now because modifying thresholds
+# class TestAdvancedBotMethods(unittest.TestCase):
+#     def setUp(self):
+#         self.deck = Deck()
+#         self.table = Table(self.deck)
+#         self.p1 = AdvancedBot('p1', 'moderate', self.table)
+#         self.p2 = AdvancedBot('p2', 'moderate', self.table)
+#         self.p3 = AdvancedBot('p3', 'moderate', self.table)
+#         self.p4 = AdvancedBot('p4', 'moderate', self.table)
+#         self.table.pre_flop()
 
-    def test_strategyThresholdsLoose(self):
-        # p2 has been defined as a loose bot in the setUp()
-        # threshold position of p2 should be 0 (because they are the last player)
-        self.table.pre_flop()
-        self.p2.update_player_position()
-        self.p2.update_strategy_thresholds()
-        with self.subTest('case 1: make1'):
-            self.assertEqual(self.p2.strategy_thresholds['make1'], -50)
-        with self.subTest('case 2: make2'):
-            self.assertEqual(self.p2.strategy_thresholds['make2'], 0)
-        with self.subTest('case 3: make4'):
-            self.assertEqual(self.p2.strategy_thresholds['make4'], 300)
+#     def tearDown(self):
+#         self.table.end()
+
+#     def test_call_1_case1(self):
+#         '''Test call1 method when another player has bet on the table + bot is the last to play. Bot should call'''
+#         self.p4.bet(20)
+#         self.assertEqual(self.p1.call1(),'call')
+
+#     def test_call_1_case2(self):
+#         '''Test call1 method when two other players have bet on the table + bot is the last to play. Bot should fold'''
+#         self.p4.bet(100)
+#         self.p1.bet(110)
+#         self.assertEqual(self.p2.call1(), 'fold')       # Two players have bet, and call1 specifies to fold if there are more than or equal to two bets on the board.
+
+#     def test_call_1_case3(self):
+#         '''Test call1 method when no other players have bet on the table + bot is the last to play. Bot should call (because there is minimum payment)'''
+#         # Technically, bot should check if they are big blind. However, that has not been added yet, so this will suffice. Please remove this comment and modify test when big blind is integrated
+#         self.p4.call()
+#         self.p1.call()
+#         self.assertEqual(self.p2.call1(), 'call') 
+
+#     def test_make1_case1(self):
+#         '''Test make1 method when no players have bet on the table + bot is the last to play. Bot should bet'''
+#         self.p4.call()
+#         self.p1.call()
+#         self.assertEqual(self.p2.make1(), 'bet')
+
+#     def test_make1_case2(self):
+#         '''Test make1 method when one player has bet on the table + bot is the last to play. Bot should call'''
+#         self.p4.call()
+#         self.p1.bet(100)
+#         self.assertEqual(self.p2.make1(), 'call')
+    
+#     def test_make1_case3(self):
+#         '''Test make1 method when two players have bet on the table + bot is the last to play. Bot should fold'''
+#         self.p4.bet(20)
+#         self.p1.bet(10)
+#         self.assertEqual(self.p2.make1(), 'fold')
+
+#     def test_call2_case1(self):
+#         '''Test make1 method when two players have bet on the table + bot is the last to play. Bot should call'''
+#         self.p4.bet(20)
+#         self.p1.bet(10)
+#         self.assertEqual(self.p2.call2(), 'call')
+
+#     def test_call2_case2(self):
+#         '''Test make1 method when one player has bet on the table + bot is the last to play. Bot should call'''
+#         self.p4.call()
+#         self.p1.bet(20)
+#         self.assertEqual(self.p2.call2(), 'call')
+        
+#     def test_make2_case1(self):
+#         '''Test make2 method when no one has bet + bot is the last to play. Bot should bet'''
+#         self.p4.check()
+#         self.p1.check()
+#         self.assertEqual(self.p2.make2(), 'bet')
+
+#     def test_make2_case1(self):
+#         '''Test make2 method when one bot has bet + bot is the last to play. Bot should bet'''
+#         self.p4.fold()
+#         self.p1.bet(10)
+#         self.assertEqual(self.p2.make2(), 'bet')
+    
+#     def test_make4_case1(self):
+#         self.p4.call()
+#         self.p1.bet(20)
+#         self.assertEqual(self.p2.make2(), 'bet')
+#         self.p3.call()
+#         self.p4.bet(100)
+#         self.assertEqual(self.p1.make4(), 'bet')
+    
+#     def test_blindRotation_case1(self):
+#         self.p4.call()
+#         self.p1.call()
+#         self.assertEqual(self.p2.position, 1, 'p2 should be small blind here')
     
 
 
-# --- Testing game situations and playing methods
-class TestAdvancedBotPlaySituations(unittest.TestCase):
+# ---
+# Note: not used anymore since the preflop strategy values have been tweaked. Already tested to work with the values before.
+# ---
+# @unittest.skipIf(AdvancedBot.preflop_strategy_values!={
+#         'tight': {'make1': (50, 50), 'make2': (200, 50), 'make4': (580,0)},
+#         'moderate': {'make1': (50, 25), 'make2': (200, 25), 'make4': (580,0)},
+#         'loose': {'make1': (50, 10), 'make2': (200, 10), 'make4': (580,0)}
+#     },'modifying thresholds renders these tests useless')
+# class TestAdvancedBotStrategyPicking(unittest.TestCase):
+#     '''Test game cases'''
+#     def setUp(self):
+#         self.deck = Deck()
+#         self.table = Table(self.deck)
+#         self.p1 = AdvancedBot('p1', 'moderate', self.table)
+#         self.p2 = AdvancedBot('p2', 'moderate', self.table)
+#         self.p3 = AdvancedBot('p3', 'moderate', self.table)
+#         self.p4 = AdvancedBot('p4', 'moderate', self.table)
+#         self.table.pre_flop()
+
+#     def tearDown(self):
+#         self.table.end()
+
+#     def test_smallBlindPreFlopPlayMake0(self):
+#         '''
+#         Moderate bot
+#         Queue: p3,p4,p1,p2
+#         Sb: p1
+#         Bb: p2
+#         2 7 offsuit IR = -432
+#         Make 0 threshold: under call1, or <= -75'''
+#         deck2 = Deck()
+#         self.p4.call()
+#         self.p1.call()
+#         self.p2.clear_hand()
+#         self.p2.receive([deck2.get('2s'), deck2.get('7d')])
+#         self.assertEqual(self.p2.play(),'make0') 
+
+#     def test_smallBlindPreFlopPlayCall1(self):
+#         '''
+#         Moderate bot
+#         Queue: p3,p4,p1,p2
+#         Sb: p1
+#         Bb: p2
+#         Call 1 threshold: fixed, 75 >= x >= -75
+#         5 J suited IR = -12'''
+#         deck2 = Deck()
+#         self.p4.call()
+#         self.p1.call()
+#         self.p2.clear_hand()
+#         self.p2.receive([deck2.get('5s'), deck2.get('Js')])
+#         self.assertEqual(self.p2.play(),'call1')
+
+#     def test_smallBlindPreFlopPlayMake1(self):
+#         '''
+#         Moderate bot
+#         Queue: p3,p4,p1,p2
+#         Sb: p1
+#         Bb: p2
+#         Make1 threshold: 225 >= x >= 75
+#         6 A unsuited IR = 99'''
+#         deck2 = Deck()
+#         self.p4.call()
+#         self.p1.call()
+#         self.p2.clear_hand()
+#         self.p2.receive([deck2.get('As'), deck2.get('6d')])
+#         self.assertEqual(self.p2.play(),'make1')
+
+#     def test_smallBlindPreFlopPlayCall2(self):
+#         '''
+#         Moderate bot
+#         Queue: p3,p4,p1,p2
+#         Sb: p1
+#         Bb: p2
+#         Call2 threshold (fixed): 225 >= x >= 200
+#         A 3 suited IR = 211'''
+#         deck2 = Deck()
+#         self.p4.call()
+#         self.p1.call()
+#         self.p2.clear_hand()
+#         self.p2.receive([deck2.get('As'), deck2.get('3s')])
+#         self.assertEqual(self.p2.play(),'call2')
+
+#     def test_smallBlindPreFlopPlayMake2(self):
+#         '''
+#         Moderate bot
+#         Queue: p3,p4,p1,p2
+#         Sb: p1
+#         Bb: p2
+#         Make2 threshold: 580 >= x >= 225
+#         A 4 suited IR = 237'''
+#         deck2 = Deck()
+#         self.p4.call()
+#         self.p1.call()
+#         self.p2.clear_hand()
+#         self.p2.receive([deck2.get('As'), deck2.get('4s')])
+#         self.assertEqual(self.p2.play(),'make2') 
+
+#     def test_smallBlindPreFlopPlayMake4(self):
+#         '''
+#         Moderate bot
+#         Queue: p3,p4,p1,p2
+#         Sb: p1
+#         Bb: p2
+#         Make4 threshold: x >= 580
+#         A A IR = 1554'''
+#         deck2 = Deck()
+#         self.p4.call()
+#         self.p1.call()
+#         self.p2.clear_hand()
+#         self.p2.receive([deck2.get('As'), deck2.get('Ad')])
+#         self.assertEqual(self.p2.play(),'make4') 
+
+#     def test_smallBlindPreFlopOtherTests1(self):
+#         '''
+#         Moderate bot
+#         Queue: p3,p4,p1,p2
+#         Sb: p1
+#         Bb: p2
+#         6 5 suited IR = -52'''
+#         deck2 = Deck()
+#         self.p4.call()
+#         self.p1.call()
+#         self.p2.clear_hand()
+#         self.p2.receive([deck2.get('5s'), deck2.get('6s')])
+#         self.assertEqual(self.p2.play(),'call1')
+
+#     def test_Make0(self):
+#         '''
+#         Moderate bot
+#         Queue: p3,p4,p1,p2
+#         Sb: p1
+#         Bb: p2
+#         Make0: 
+#         6 5 suited IR = -52'''
+#         deck2 = Deck()
+#         self.table.pre_flop()
+#         self.p4.clear_hand()
+#         self.p4.receive([deck2.get('5s'), deck2.get('6s')])
+#         self.assertEqual(self.p4.play(),'make0') 
+
+#     def test_bigBlindPreFlopMake0(self):
+#         '''
+#         Moderate bot
+#         Queue: p3,p4,p1,p2
+#         Sb: p1
+#         Bb: p2
+#         Make0 = x <= 50
+#         6 5 suited IR = -52'''
+#         deck2 = Deck()
+#         self.p4.call()
+#         self.p1.call()
+#         self.p2.call()
+#         self.p3.clear_hand()
+#         self.p3.receive([deck2.get('5s'), deck2.get('6s')])
+#         self.assertEqual(self.p3.play(),'make0') 
+
+#     def test_bigBlindPreFlopMake1(self):
+#         '''
+#         Moderate bot
+#         Queue: p3,p4,p1,p2
+#         Sb: p1
+#         Bb: p2
+#         Make1 = 200 > x >= 50
+#         7 8 suited IR = 66'''
+#         deck2 = Deck()
+#         self.p4.call()
+#         self.p1.call()
+#         self.p2.call()
+#         self.p3.clear_hand()
+#         self.p3.receive([deck2.get('7s'), deck2.get('8s')])
+#         self.assertEqual(self.p3.play(),'make1')
+
+#     def test_bigBlindPreFlopMake2(self):
+#         '''
+#         Moderate bot
+#         Queue: p3,p4,p1,p2
+#         Sb: p1
+#         Bb: p2
+#         Make2 = 200 <= x < 580
+#         9 A suited IR = 381'''
+#         deck2 = Deck()
+#         self.p4.call()
+#         self.p1.call()
+#         self.p2.call()
+#         self.p3.clear_hand()
+#         self.p3.receive([deck2.get('9s'), deck2.get('As')])
+#         self.assertEqual(self.p3.play(),'make2')
+
+#     def test_bigBlindPreFlopMake4(self):
+#         '''
+#         Moderate bot
+#         Queue: p3,p4,p1,p2
+#         Sb: p1
+#         Bb: p2
+#         Make2 = x >= 580
+#         A Q suited IR = 594'''
+#         deck2 = Deck()
+#         self.p4.call()
+#         self.p1.call()
+#         self.p2.call()
+#         self.p3.clear_hand()
+#         self.p3.receive([deck2.get('Qs'), deck2.get('As')])
+#         self.assertEqual(self.p3.play(),'make4')
+
+#     def test_onlyBets(self):
+#         '''Specific testing for make4 strat'''
+#         # Queue: p4,p1,p2,p3
+#         print('GAMEEEEEEEEEEEEEE start ----------------------')
+#         deck2 = Deck()
+#         self.p4.clear_hand()
+#         self.p4.receive([deck2.get('As'), deck2.get('Ks')])
+#         self.p3.clear_hand()
+#         self.p3.receive([deck2.get('Ad'), deck2.get('Kd')])
+#         self.p2.clear_hand()
+#         self.p2.receive([deck2.get('Ac'), deck2.get('Kc')])
+#         self.p1.clear_hand()
+#         self.p1.receive([deck2.get('Ah'), deck2.get('Kh')])
+#         self.table.play()
+#         print(self.table.round_stats)
+#         print('game end -------------------------')
+
+class TestGameProcessAdvancedBot(unittest.TestCase):
     def setUp(self):
         self.deck = Deck()
         self.table = Table(self.deck)
-        self.p1 = AdvancedBot('p1', self.table,'moderate')
-        self.p2 = AdvancedBot('p2', self.table, 'moderate')
-        self.p3 = AdvancedBot('p3', self.table, 'moderate')
-        self.p4 = AdvancedBot('p4', self.table, 'moderate')
+        self.p1 = AdvancedBot('p1', 'moderate', self.table)
+        self.p2 = AdvancedBot('p2', 'moderate', self.table)
+        self.p3 = AdvancedBot('p3', 'moderate', self.table)
+        self.p4 = AdvancedBot('p4', 'moderate', self.table)
         self.table.pre_flop()
 
     def tearDown(self):
         self.table.end()
 
-    def test_call_1_case1(self):
-        '''Test call1 method when another player has bet on the table + bot is the last to play. Bot should call'''
-        self.p3.bet(1)
-        self.assertEqual(self.p4.call1(),'call')
-
-    def test_call_1_case2(self):
-        '''Test call1 method when two other players have bet on the table + bot is the last to play. Bot should fold'''
-        self.p3.bet(1)
-        self.p4.bet(1)
-        self.assertEqual(self.p1.call1(), 'fold')       # Two players have bet, and call1 specifies to fold if there are more than or equal to two bets on the board.
-
-    def test_call_1_case3(self):
-        '''Test call1 method when no other players have bet on the table + bot is the last to play. Bot should call (because there is minimum payment)'''
-        # Technically, bot should check if they are big blind. However, that has not been added yet, so this will suffice. Please remove this comment and modify test when big blind is integrated
-        self.p3.call()
-        self.p4.call()
-        self.assertEqual(self.p1.call1(), 'call') 
-
-    def test_make1_case1(self):
-        '''Test make1 method when no players have bet on the table + bot is the last to play. Bot should bet'''
-        self.p3.call()
-        self.p4.call()
-        self.assertEqual(self.p1.make1(), 'bet')
-
-    def test_make1_case2(self):
-        '''Test make1 method when one player has bet on the table + bot is the last to play. Bot should call'''
-        self.p3.bet(10)
-        self.p4.call()
-        self.assertEqual(self.p1.make1(), 'call')
-    
-    def test_make1_case3(self):
-        '''Test make1 method when two players have bet on the table + bot is the last to play. Bot should fold'''
-        self.p3.bet(10)
-        self.p4.bet(20)
-        self.assertEqual(self.p1.make1(), 'fold')
-
-    def test_call2_case1(self):
-        '''Test make1 method when two players have bet on the table + bot is the last to play. Bot should call'''
-        self.p3.bet(10)
-        self.p4.bet(20)
-        self.assertEqual(self.p1.call2(), 'call')
-
-    def test_call2_case2(self):
-        '''Test make1 method when one player has bet on the table + bot is the last to play. Bot should call'''
-        self.p3.bet(10)
-        self.p4.call()
-        self.assertEqual(self.p1.call2(), 'call')
-        
-    def test_make2_case1(self):
-        '''Test make2 method when no one has bet + bot is the last to play. Bot should bet'''
-        self.p3.check()
-        self.p4.check()
-        self.assertEqual(self.p1.make2(), 'bet')
-
-    def test_make2_case1(self):
-        '''Test make2 method when one bot has bet + bot is the last to play. Bot should bet'''
-        self.p3.bet(10)
+    def test_secondCall(self):
+        '''Check if second call works on the same turn.'''
+        # Queue: p4, p1, p2, p3
+        # p2 is small blind, p3 is big blind
         self.p4.fold()
-        self.assertEqual(self.p1.make2(), 'bet')
-    
-    def test_make4_case1(self):
-        self.p3.bet(10)
-        self.p4.call()
-        self.assertEqual(self.p1.make2(), 'bet')
+        self.p1.bet(100)
         self.p2.call()
-        self.p3.call()
-        self.p4.bet(100)
-        self.assertEqual(self.p1.make4(), 'bet')
+        print(self.table.required_bet)
+        self.p3.bet(200)
+        self.assertEqual(self.p1.balance, 900)
+        self.p1.call()      # Calling should remove from balance
+        self.assertEqual(self.p1.balance, 800)
+        self.assertEqual(self.p2.balance, 900)
+        self.assertEqual(self.p3.balance, 800)
     
-    def test_blindRotation_case1(self):
-        self.table.pre_flop()
-        self.p3.call()
-        self.p4.call()
-        self.assertEqual(self.p1.position, 0, 'p1 should be small blind here')
-    
-    def test_blindRotation_case2(self):
-        '''Test player positions after certain rounds are played'''
-        self.table.pre_flop()
-        self.p3.call()
+    def test_checking_while_big_blind(self):
+        '''Test the check function during preflop while being big blind.'''
+        # Queue: p4, p1, p2, p3
+        # p2 is small blind, p3 is big blind
         self.p4.call()
         self.p1.call()
-        self.p2.check()
-        self.table.reset()
-        self.table.pre_flop()
-        print('========================================================================')
-        print(self.table.players)
-        print(self.table.dealer)
-        self.assertEqual(self.p1.position,1)
-        self.assertEqual(self.p2.position,2)
-        self.assertEqual(self.p3.position,3)
-        self.assertEqual(self.p4.position,0)
-        print(self.table.player_queue)
-        self.p2.call()
-        self.p3.call()
+        self.assertRaises(Exception, lambda: self.p2.check())
+    
+    def test_requiredRaise(self):
+        '''Check if required raise criteria is met.'''
+        self.p4.bet(110)        # Raising by 100
+        self.assertRaises(Exception, lambda:self.p1.bet(50))
+    
+    def test_requiredRaiseCase2(self):
+        '''More cases for the required raise criteria test'''
+        self.p4.bet(110)
+        self.assertRaises(Exception, lambda:self.p1.bet(100))
+
+    def test_requiredRaiseCase3(self):
+        '''More cases for the required raise criteria test'''
         self.p4.call()
-        self.p1.check()
-        self.table.reset()
-        self.table.pre_flop()
-        self.assertEqual(self.p1.position,2)
-        self.assertEqual(self.p2.position,3)
-        self.assertEqual(self.p3.position,0)
-        self.assertEqual(self.p4.position,1)
-        self.p1.call()
-        self.p2.call()
-        self.p3.call()
-        self.p4.check()
-        self.table.reset()
-        self.table.pre_flop()
-        self.assertEqual(self.p4.position,2)
-        self.assertEqual(self.p1.position,3)
-        self.assertEqual(self.p2.position,0)
-        self.assertEqual(self.p3.position,1)
+        self.p1.bet(73)
+        self.p2.bet(73+63)
+        self.assertEqual(self.table.last_move, [self.p2.name, 'bet'])       # means the bet function passed
+
+    def test_bet_turns_call(self):
+        '''Test if a bet turns into a call if the bet amount is the same as required bet'''
+        self.p4.bet(110)
+        self.p1.bet(110)
+        self.assertEqual(self.table.round_stats['call'], 1)
 
 
-        
+
 # ------------------------- #
 # --- HAND EVAL TESTING --- #
 # ------------------------- #

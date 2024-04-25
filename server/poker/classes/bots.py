@@ -1,4 +1,10 @@
-from poker.classes.game import *
+try:
+    from poker.classes.game import *
+    from poker.classes.eval import *
+except:
+    from game import *      # type: ignore
+    from eval import *      # type: ignore
+from random import random
 
 class AdvancedBot(Player):
     # --- Pre-Flop Betting Strategy --- #
@@ -27,12 +33,24 @@ class AdvancedBot(Player):
     # 'tightness': [(make1 values), (make2 values), (make3 values)] where values are a tuple (base, increment)
     # The values for 'call1' and 'make1' are the same, as well as the values for 'call2' and 'make2'
     preflop_strategy_values = {
-        'tight': {'make1': (-50, 50), 'make2': (150, 50), 'make4': (300,0)},
-        'moderate': {'make1': (-50, 50), 'make2': (50, 50), 'make4': (300,0)},
-        'loose': {'make1': (-50, 50), 'make2': (0, 0), 'make4': (300,0)}
+        'tight': {'make1': (75, 50), 'make2': (225, 50), 'make4': (600,0)},
+        'moderate': {'make1': (25, 25), 'make2': (200, 25), 'make4': (580,0)},
+        'loose': {'make1': (25, 10), 'make2': (175, 10), 'make4': (480,0)}
+    }
+    # The values for the thresholds of effective hand strength used to determine post-flop strategies. All vary by 0.05, depending on the tightness.
+    ehs = {
+        'tight': {'make2': 0.90, 'make1': 0.55},
+        'moderate': {'make2': 0.85, 'make1': 0.50},
+        'loose': {'make2': 0.80, 'make1': 0.45}
+    }
+    # The values for which the bots would bluff.
+    bluff_percentage = {
+        'tight': 0.04,
+        'moderate': 0.07,
+        'loose': 0.10
     }
 
-    def __init__(self, name, table, tightness):
+    def __init__(self, name, tightness, table=None):
         '''The general class for an advanced bot. Contains all the necessary information for advanced play. Children class will have specific methods that tweak information in this class in order to play.
         
         - Name (str)
@@ -40,21 +58,108 @@ class AdvancedBot(Player):
 
         There is no is_computer parameter since it is put as True by default in AdvancedBot class.'''
         Player.__init__(self, name, True, table)
+        self.tightness = tightness
         self.chosen_pre_flop_strategy = AdvancedBot.preflop_strategy_values[tightness]        # Chosen strategy is moderate by default. The variable is a dictionnary. See preflop_strategy_values
-        self.thresholds_position = 0       # Position: "the number of players to act before it is the small blind's turn again." (Papp, 1998)
+        self.thresholds_position = 0       # The number of players to play before it goes back to the player who started the round (small blind in most rounds except pre-flop)
         self.strategy_thresholds = {
             'make1': 0,
             'make2': 0,
             'make4': 0
         }
-    
+        self.ehs_thresholds = {
+            'make1': AdvancedBot.ehs[self.tightness]['make1'],
+            'make2': AdvancedBot.ehs[self.tightness]['make2'],
+        }
+        self.bluff_threshold = AdvancedBot.bluff_percentage[self.tightness]
+        self.IR = 0     # IR rate, used to calculate preflop strategy
+        self.fake_ehs = 0.90        # EHS used when bluffing
+        self.fake_IR = 700          # IR used when bluffing
+        self.number_of_play_actions = 0    # Helps for the are_we_bluffing() func. Makes it only triggers when the play function for the bot runs the first time    
+        self.bluffing = False
+
     def play(self):
         '''Playing function for the bot.'''
-    
+        # from time import sleep
+        # sleep(1)
+        from time import sleep
+        sleep(0.5)
+
+
+        if self.table.state == 0:       # We are in pre-flop
+            self.IR = self.get_income_rate()
+            #
+            #
+            # ----- Comment this function out if you don't want bluffing
+            if self.number_of_play_actions == 0:
+                if self.are_we_bluffing():
+                    print('(bluffing): ', end='')
+            # -----
+            #
+            #
+            if self.table.required_bet == 10 and self.IR <= -100:       # Prevents bots from folding too early (before someone even puts a bet in preflop), unless their hand is horrendous.
+                if self.position == 2:                                  # Big blind cannot call because they have already put the minimum amount in the pot. So we make big blind check here.
+                    print('(minimum play):', end=' ')
+                    self.check()
+                    return 'check'
+                print('(minimum play):', end=' ')
+                self.call()
+                return 'call'
+            elif self.IR >= self.strategy_thresholds['make4']:
+                self.make4()
+                return 'make4'
+            elif self.IR >= self.strategy_thresholds['make2']:
+                self.make2()
+                return 'make2'
+            elif self.IR >= 200 and self.position == 1:     # Hard-coded value for small-blind. Only works if player is small blind
+                self.call2()
+                return 'call2'
+            elif self.IR >= self.strategy_thresholds['make1']:
+                self.make1()
+                return 'make1'
+            elif self.IR >= -75 and self.position == 1:      # Hard-coded value for small-blind. Only works if player is small blind.
+                self.call1()
+                return 'call1'
+            else:
+                self.make0()        # Default strategy
+                return 'make0'
+            
+        elif 1 <= self.table.state <= 3:         # We are in flop and River
+            if self.bluffing:
+                self.ehs = self.fake_ehs
+            else:
+                if self.tightness == 'tight':
+                    self.compute_ehs_sad()           # For tight bot, use pessimistic version of EHS computation func.
+                else:
+                    self.compute_ehs_happy()         # For moderate and loose bot, use optimistic version of EHS computation func.
+            if self.ehs >= self.ehs_thresholds['make2']:
+                self.make2()
+                return 'make2'
+            elif self.ehs >= self.ehs_thresholds['make1']:
+                self.make1()
+                return 'make1'
+            elif self.table.required_bet == 0:      # Means that bot should check before proceeding to the last option
+                self.check()
+                return 'check'
+            elif self.ehs <= self.ehs_thresholds['make1']:
+                self.make0()        # Temporary, before adding semi-bluffing, pot odds and showdown odds
+                return 'make0'
+        
+    def are_we_bluffing(self):
+        '''Checks, according to randomness, if the bot should be bluffing.'''
+        rand = random()
+        if rand < self.bluff_threshold:
+            self.bluffing = True
+            self.IR = self.fake_IR
+            self.ehs = round(self.fake_ehs + random()/10, 4)
+            return True
+        else:
+            self.bluff_threshold += AdvancedBot.bluff_percentage[self.tightness]/10      # Increment the bluff percentage threshold so that the bot has more chances of doing a bluff later on. Increment depends on bot playstyle; if loose, increments fast, if tight, increments slowly
+            return False
+
     def update_player_position(self):
-        '''Compute the position number of the player.'''
-        # Calculated by number of active players - the index of the player in queue.
-        # e.g. If we are checking for the position of the small blind in a two player match, it would be: 2 - 0 = 2. (because there are two players in the match, and small-blind is at the start of the player queue)
+        '''Compute the threshold position number of the player.'''
+        # Calculated by number of active players - (the index of the player in queue + 1).
+        # e.g. [p1, p2, p3, p4] on Pre-Flop where p4 starts playing. Threshold pos of p4 = 3 because there are 3 turns to play before it is their turn again
         if self.table.active_players() and self.table.player_queue:
             self.thresholds_position = int(len(self.table.active_players())-(self.table.player_queue.index(self)+1))        # The threshold position of the first player in queue should be length of players - 1.
         else:
@@ -66,6 +171,34 @@ class AdvancedBot(Player):
         self.strategy_thresholds['make2'] = self.chosen_pre_flop_strategy['make2'][0] + self.chosen_pre_flop_strategy['make2'][1]*self.thresholds_position
         self.strategy_thresholds['make4'] = self.chosen_pre_flop_strategy['make4'][0] + self.chosen_pre_flop_strategy['make4'][1]*self.thresholds_position
     
+    def compute_ehs_happy(self):
+        '''Compute ehs using the happier version of the effective hand strength, i.e. the optimistic one that only accounts for PPOT (potential of winning) and ignoring NPOT (potential of losing). Modifies the ehs value of the class instance. Mostly used for aggressive playstyles'''
+        a = eval(self.hand(), self.table.board.cards())
+        # You're about to witness the worst piece of code ever coded
+        if self.table.state == 1:       # Flop
+            look_ahead = 2
+        elif self.table.state == 2:     # Turn
+            look_ahead = 1
+        else:
+            return
+        hsn = a.hand_strength()
+        self.ehs = round(hsn+(1-hsn)*a.potential_hand_strength(look_ahead, only_ppot=True)[0], 4)
+
+    def compute_ehs_sad(self):
+        '''Compute ehs using the sadder version of the effective hand strength, i.e. the pessimistic one that  accounts for PPOT (potential of winning) and NPOT (potential of losing). Modifies the ehs value of the class instance. Mostly used for passive playstyles'''
+        a = eval(self.hand(), self.table.board.cards())
+        # You're about to witness the worst piece of code ever coded, the Encore.
+        if self.table.state == 1:       # Flop
+            look_ahead = 2
+        elif self.table.state == 2:     # Turn
+            look_ahead = 1
+        else:
+            return
+        hsn = a.hand_strength()
+        pots = a.potential_hand_strength(look_ahead)
+        self.ehs = round(hsn+(1-hsn)*pots[0]-hsn*pots[1], 4)
+
+
     def get_income_rate(self):
         '''Return the IR rate of the bot's hand.'''
         temp = sorted(self.hand(), key=lambda x:x.value)
@@ -73,72 +206,106 @@ class AdvancedBot(Player):
             return AdvancedBot.income_rates[temp[1].value-2][temp[0].value-2]
         else:
             return AdvancedBot.income_rates[temp[0].value-2][temp[1].value-2]
+    
+    def find_bet_amount(self):
+        '''Compute an amount to bet based on different factors. Returns the bet amount'''
+        if self.table.state == 0:       # Preflop
+            amount = int((((self.IR + 432)/1986)/10)*self.balance) + self.current_bet
+            if amount-self.table.required_bet < self.table.required_raise:      # If the amount bet - table bet is smaller than the minimum raise, then we have to bet at least the table bet + the minimum raise 
+                return self.table.required_bet + self.table.required_raise
+            else:
+                return amount
+
+        else:       # Postflop
+            amount = int(((self.ehs*0.1)*self.table.pot)) + self.current_bet
+            if amount-self.table.required_bet < self.table.required_raise:
+                return self.table.required_bet + self.table.required_raise
+            else:
+                return amount
+
+    # Strategies
+    def make0(self):
+        '''Fold if it costs more than zero to play. i.e.: folds every round'''
+        print("(make0):", end=' ')
+        self.fold()
         
     def call1(self):
         '''Fold if it costs more than 1 bet to continue playing and the bot hasn't put money into the pot this round yet, otherwise check/call. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
-        print('Call1 strategy used')
-        # Not really used except for small blind
+        # Not really used except for small blind, who has different thresholds for it
         if self.table.round_stats['bet'] > 1:
+            print("(call1):", end=' ')
             self.fold()
-            print('Bot has folded (call1)')
             return 'fold'
         else:
             if self.current_bet == self.table.required_bet:     # Player is big blind. So, player would check.
+                print("(call1):", end=' ')
                 self.check()
-                print('Bot has checked (call1)')
                 return 'check'
             else:
+                print("(call1):", end=' ')
                 self.call()     # Player is not big blind, so player has to put in the minimum
-                print('Bot has called (call1)')
                 return 'call'
         
     def make1(self):
         '''If no bets have been made this round, then bet. Fold if two or more bets are required to continue. Otherwise check/call. THIS STRATEGY SHOULD NOT BE CALLED IF BOT IS THE BIG BLIND (it shouldn't happen). Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         if self.table.round_stats['bet'] > 1:
+            print("(make1):", end=' ')
             self.fold()
-            print('Bot has folded (make1)')
             return 'fold'
         elif self.table.round_stats['bet'] == 0:
-            self.bet(100)
-            print('Bot has bet (make1)')
+            print("(make1):", end=' ')
+            self.bet(self.find_bet_amount())
             return 'bet'
         else:       # Else is when bet stat is == 1
             if self.current_bet == self.table.required_bet:     # Player is big blind.
+                print("(make1):", end=' ')
                 self.check()
-                print('Bot has checked (make1)')
                 return 'check'
             else:       # Player is not big blind.
+                print("(make1):", end=' ')
                 self.call()
-                print('Bot has called (make1)')
                 return 'call'
 
     def call2(self):
         '''Always check/call, whatever bet is on the table. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         # Not really used except for small blind
         if self.current_bet == self.table.required_bet:
-            print('bot checks (call2)')
+            print("(call2):", end=' ')
             self.check()
             return 'check'
         else:
+            print("(call2):", end=' ')
             self.call()
-            print('bot calls (call2)')
             return 'call'
-
+  
     def make2(self):
         '''Bet/raise if less than two bets/raises have been made this round, otherwise call. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
         if self.table.round_stats['bet'] < 2:
-            self.bet(100)
-            print('Bot has bet (make2)')
+            print("(make2):", end=' ')
+            self.bet(self.find_bet_amount())
             return 'bet'
         else:
+            print("(make2):", end=' ')
             self.call()
-            print('Bot has called (make2)')
             return 'call'
 
     def make4(self):
         '''Bet/raise until betting is capped, or player goes all-in. Returns the computed action that will be played in the game, as a string. e.g."bet"'''
-        self.bet(100)
+        print("(make4):", end=' ')
+        self.bet(self.find_bet_amount())
         return 'bet'
+
+    def reset(self):
+        '''Resets the bot. Overrides parent class reset method.'''
+        self.current_bet = 0
+        self.active = True
+        self.clear_hand()
+        self.position = None
+        self.previous_step = []
+        self.bluffing = False
+        self.bluff_threshold = AdvancedBot.bluff_percentage[self.tightness]
+        self.number_of_play_actions = 0
+        self.ehs = 0
 
 # Meme bots
 class Better(Player):
@@ -152,19 +319,65 @@ class Better(Player):
             self.bet(self.balance)  # Otherwise, bet the remaining balance of the bot, as an all-in.
 
 class ScaryCat(Player):
-    '''A bot that always if a single opponent bets. Otherwise, checks.'''
+    '''A bot that always folds if a single opponent bets. Otherwise, checks.'''
     def play(self):
-        if self.current_bet == self.table.required_bet:
+        # Preflop
+        if self.table.required_bet == 10 and self.current_bet == 10:
             self.check()
+            return 'check'
+        # Postflop
+        else:
+            self.fold()
+            return 'fold'
+
+    def update_player_position(self):
+        pass
+    
+    def update_strategy_thresholds(self):
+        pass
+
+class RingRingItsTheCaller(Player):
+    '''A bot that always calls whatever bet is on the table.'''
+    def play(self):
+        # Preflop
+        if self.table.required_bet == self.current_bet:
+            self.check()
+            return 'check'
+        # Postflop
         else:
             self.call()
+            return 'call'
 
-class Joker(Player):
-    '''A bot that only does random actions. Can bet a random multiplier of the small blind'''
+    def update_player_position(self):
+        pass
+    
+    def update_strategy_thresholds(self):
+        pass
 
-# Real playstyles
-class TightPassive(AdvancedBot):
-    '''A bot that plays very few hands and is usually always checking, calling, or folding most of the time.'''
-    # Currently working on implementing always checking/calling unless required bet is more than half of its own balance.
+class CopyCat(Player):
+    '''A bot that copies whatever the last move was. If they are the first to play, they would check/call depending if they are BB or not.'''
     def play(self):
+        '''Play function for the bot.'''
+        if self.table.last_move:
+            if self.table.last_move[1] == 'call':
+                self.call()
+            elif self.table.last_move[1] == 'fold':
+                self.fold()
+            elif self.table.last_move[1] == 'bet':
+                self.bet(30)
+            elif self.table.last_move[1] == 'check':
+                self.check()
+        else:
+            if self.position == 2:              # If player is big blind, they must check
+                self.check()
+                return 'check'
+            self.call()
+            return 'call'
+
+    def update_player_position(self):
+        '''Not needed'''
+        pass
+    
+    def update_strategy_thresholds(self):
+        '''Not needed'''
         pass

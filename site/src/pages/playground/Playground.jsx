@@ -12,43 +12,96 @@ const Playground = () => {
   const [inGame, setInGame] = useState(false)
   const [table, setTable] = useState()
   const [displayBoard, setDisplayBoard] = useState(false)
+  let intervalId
 
   useEffect(() => {
     const reset = async () => {
-      await pokerService.clear()
       const username = prompt('Please enter your username.', 'Bob')
       setName(username)
     }
+    
+    const removeTableId = async () => {
+      const tableId = window.localStorage.getItem('tableId')
+      if (tableId) {
+        console.log('clearing')
+        await pokerService.clear({ tableId })
+        window.localStorage.clear()
+      }
+    }
+    
     reset()
+    window.addEventListener('beforeunload', removeTableId)
+
+    return () => {
+      window.removeEventListener('beforeunload', removeTableId)
+      clearInterval(intervalId)
+      intervalId = null
+    }
   }, [])
+
 
   useEffect(() => {
     const init = async () => {
       const tableData = await pokerService.init({ name })
       setTable(tableData)
+      window.localStorage.setItem('tableId', tableData.id)
     }
     init()
   }, [name])
 
+
+  const getTableId = () => {
+    return window.localStorage.getItem('tableId')
+  }
+
+
+  const toggleFetching = (fetching) => {
+    if (fetching) {
+      const fetchData = async () => {
+        console.log('fetching')
+        const tableData = await pokerService.getTable({ id: getTableId() })
+        setTable(tableData)
+        console.log(tableData)
+      }
+      const tempIntervalId = setInterval(fetchData, 250)
+      intervalId = tempIntervalId
+    } else {
+      clearInterval(intervalId)
+      intervalId = null
+    }
+  }
+
+
   const start = async () => {
-    const tableData = await pokerService.start()
+    toggleFetching(true)
+    const tableData = await pokerService.start({ id: getTableId() })
+    toggleFetching(false)
     setInGame(true)
     setTable(tableData)
     setDisplayBoard(true)
     console.log(tableData)
   }
 
+
   useEffect(() => {
     const checkWinner = async () => {
       if (table && table.winning_player) {
         alert(`${table.winning_player.name} has won ${table.pot}!`)
-        const tableData = await pokerService.next()
+        const tableData = await pokerService.next({ id: getTableId() })
         setTable(tableData)
         setDisplayBoard(false)
       }
     }
     checkWinner()
   }, [table])
+
+  
+  const updateTableQueue = () => {
+    const newPlayerQueue = table.player_queue.slice(1)
+    setTable({ player_queue: newPlayerQueue, ...table })
+    console.log(table)
+  }
+
 
   if (!inGame) {
     return (
@@ -81,14 +134,18 @@ const Playground = () => {
         {table.players.filter(player => player.name == name).map(player => {
             return <Player 
               key={name}
-              name={name}
               player={player}
+              numPlayers={table.players.length}
+              playerQueue={table.player_queue}
               requiredBet={table.required_bet}
               requiredRaise={table.required_raise}
+              getTableId={getTableId}
               setTable={setTable}
+              toggleFetching={toggleFetching}
+              updateTableQueue={updateTableQueue}
             />
         })}
-        <Opponents opponents={table.players.filter(player => player.name !== name)} />
+        <Opponents opponents={table.players.filter(player => player.name !== name)} playerQueue={table.player_queue} />
 
       </div>
     </>

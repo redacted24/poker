@@ -1,6 +1,6 @@
 __pycache__/
 server/poker/classes/__pycache__
-
+*.env
 # site gitignore
 logs
 *.log

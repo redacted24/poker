@@ -6,44 +6,49 @@ const test = async () => {
   return response.data
 }
 
-const init = async (player) => {
-  const response = await axios.post(`${baseUrl}/init`, player)
+const init = async (req) => {
+  const response = await axios.post(`${baseUrl}/init`, req)
   return response.data
 }
 
-const clear = async () => {
-  const response = await axios.post(`${baseUrl}/clear`)
+const clear = async (req) => {
+  const response = await axios.post(`${baseUrl}/clear`, req)
   return response.data
 }
 
-const start = async () => {
-  const response = await axios.post(`${baseUrl}/start`)
+const start = async (req) => {
+  const response = await axios.post(`${baseUrl}/start`, req)
   return response.data
 }
 
-const call = async (player) => {
-  const response = await axios.post(`${baseUrl}/call`, player)
+const getTable = async (req) => {
+  const response = await axios.post(`${baseUrl}/get-table`, req)
   return response.data
 }
 
-const check = async (player) => {
-  const response = await axios.post(`${baseUrl}/check`, player)
+const call = async (req) => {
+  const response = await axios.post(`${baseUrl}/call`, req)
   return response.data
 }
 
-const fold = async (player) => {
-  const response = await axios.post(`${baseUrl}/fold`, player)
+const check = async (req) => {
+  const response = await axios.post(`${baseUrl}/check`, req)
   return response.data
 }
 
-const bet = async (player, amount) => {
-  const response = await axios.post(`${baseUrl}/bet`, player)
+const fold = async (req) => {
+  const response = await axios.post(`${baseUrl}/fold`, req)
   return response.data
 }
 
-const next = async (player, amount) => {
-  const response = await axios.post(`${baseUrl}/go_next`, player)
+const bet = async (req) => {
+  const response = await axios.post(`${baseUrl}/bet`, req)
   return response.data
 }
 
-export default { test, init, clear, start, call, check, fold, bet, next }
+const next = async (req) => {
+  const response = await axios.post(`${baseUrl}/go_next`, req)
+  return response.data
+}
+
+export default { test, init, clear, start, getTable, call, check, fold, bet, next }

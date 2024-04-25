@@ -1,5 +1,5 @@
 from flask import ( Blueprint, session, request )
-import pickle
+import pickle, requests
 
 from poker.classes.cards import *
 from poker.classes.game import *
@@ -26,32 +26,54 @@ def init():
   deck = Deck()
   table = Table(deck)
 
-  table.add_player(ScaryCat('computer1', True))
   table.add_player(player)
-  table.add_player(ScaryCat('computer2', True))
+  table.add_player(AdvancedBot('moderate_bot', 'moderate'))
+  table.add_player(AdvancedBot('tight_bot', 'moderate'))
+  table.add_player(AdvancedBot('loose_bot', 'moderate'))
 
-  session['table'] = pickle.dumps(table)  
+  res = requests.post('http://localhost:3003/api/session', json={ 'table': pickle.dumps(table).decode('latin1') })
+
+  table = pickle.loads(res.json()['table'].encode('latin1'))
+
+  table.id = res.json()['id']
+
+  requests.put(f'http://localhost:3003/api/session/{table.id}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
   return table.toJSON()
 
 @bp.post('/start')
 def start():
   '''Beings the pre-flop phase of the game. Deals 3 cards on the table and a hand to each player.'''
-  table: Table = pickle.loads(session['table'])
+  req = request.get_json()
+  res = requests.get(f'http://localhost:3003/api/session/{req["id"]}')
+  table: Table = pickle.loads(res.json()['table'].encode('latin1'))
 
   table.pre_flop()
+
+  requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
+
   table.play()
 
-  session['table'] = pickle.dumps(table)
+  requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
+
+  return table.toJSON()
+
+@bp.post('/get-table')
+def get_table():
+  '''Get the current state of the table'''
+  req = request.get_json()
+  print(req)
+  res = requests.get(f'http://localhost:3003/api/session/{req["id"]}')
+  table: Table = pickle.loads(res.json()['table'].encode('latin1'))
 
   return table.toJSON()
 
 @bp.post('/call')
 def call():
   '''Player calls, matching the current bet.'''
-  table: Table = pickle.loads(session['table'])
-
   req = request.get_json()
+  res = requests.get(f'http://localhost:3003/api/session/{req["id"]}')
+  table: Table = pickle.loads(res.json()['table'].encode('latin1'))
 
   player = next(player for player in table.players if player.name == req['name'])
 
@@ -59,16 +81,16 @@ def call():
 
   table.play()
 
-  session['table'] = pickle.dumps(table)
+  requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
   return table.toJSON()
 
 @bp.post('/check')
 def check():
   'Player checks, passing the turn without betting.'
-  table: Table = pickle.loads(session['table'])
-
   req = request.get_json()
+  res = requests.get(f'http://localhost:3003/api/session/{req["id"]}')
+  table: Table = pickle.loads(res.json()['table'].encode('latin1'))
 
   player = next(player for player in table.players if player.name == req['name'])
 
@@ -76,16 +98,16 @@ def check():
 
   table.play()
 
-  session['table'] = pickle.dumps(table)
+  requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
   return table.toJSON()
 
 @bp.post('/fold')
 def fold():
   'Player folds, giving up their current hand.'
-  table: Table = pickle.loads(session['table'])
-
   req = request.get_json()
+  res = requests.get(f'http://localhost:3003/api/session/{req["id"]}')
+  table: Table = pickle.loads(res.json()['table'].encode('latin1'))
 
   player = next(player for player in table.players if player.name == req['name'])
 
@@ -93,16 +115,16 @@ def fold():
 
   if table.state != 4: table.play()
 
-  session['table'] = pickle.dumps(table)
+  requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
   return table.toJSON()
 
 @bp.post('/bet')
 def bet():
   'Player bets, raising the required bet to stay in for the entire table.'
-  table: Table = pickle.loads(session['table'])
-
   req = request.get_json()
+  res = requests.get(f'http://localhost:3003/api/session/{req["id"]}')
+  table: Table = pickle.loads(res.json()['table'].encode('latin1'))
 
   player = next(player for player in table.players if player.name == req['name'])
 
@@ -110,15 +132,19 @@ def bet():
 
   table.play()
 
-  session['table'] = pickle.dumps(table)
+  requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
   return table.toJSON()
 
 @bp.post('/go_next')
 def go_next():
-  table: Table = pickle.loads(session['table'])
+  req = request.get_json()
+  res = requests.get(f'http://localhost:3003/api/session/{req["id"]}')
+  table: Table = pickle.loads(res.json()['table'].encode('latin1'))
+
   table.play()
-  session['table'] = pickle.dumps(table)
+
+  requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
   return table.toJSON()
 
@@ -126,7 +152,9 @@ def go_next():
 def clear():
   '''Clears all session variables for the session.'''
   session.pop('count', None)
-  session.pop('table', None)
-  session.pop('player', None)
+  
+  req = request.get_json()
+
+  requests.delete(f'http://localhost:3003/api/session/{req["tableId"]}')
 
   return str(204)
