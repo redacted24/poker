@@ -623,7 +623,7 @@ class Player():
         def reset(self):
             self.current_bet = 0
             self.active = True
-            self.all_in = False
+            self.is_all_in = False
             self.clear_hand()
             self.position = None
             self.previous_step = []
