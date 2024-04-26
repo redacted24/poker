@@ -185,9 +185,9 @@ class AdvancedBot(Player):
         self.ehs = round(hsn+(1-hsn)*a.potential_hand_strength(look_ahead, only_ppot=True)[0], 4)
 
     def compute_ehs_sad(self):
-        '''Compute ehs using the sadder version of the effective hand strength, i.e. the pessimistic one that  accounts for PPOT (potential of winning) and NPOT (potential of losing). Modifies the ehs value of the class instance. Mostly used for passive playstyles'''
+        '''Compute ehs using the sadder version of the effective hand strength, i.e. the pessimistic one that accounts for PPOT (potential of winning) and NPOT (potential of losing). Modifies the ehs value of the class instance. Mostly used for passive playstyles'''
         a = eval(self.hand(), self.table.board.cards())
-        # You're about to witness the worst piece of code ever coded, the Encore.
+        # You're about to witness the worst piece of code ever coded
         if self.table.state == 1:       # Flop
             look_ahead = 2
         elif self.table.state == 2:     # Turn
@@ -209,19 +209,29 @@ class AdvancedBot(Player):
     
     def find_bet_amount(self):
         '''Compute an amount to bet based on different factors. Returns the bet amount'''
-        if self.table.state == 0:       # Preflop
-            amount = int((((self.IR + 432)/1986)/10)*self.balance) + self.current_bet
+
+        def _find_bet_amount():
+            '''Helper function'''
             if amount-self.table.required_bet < self.table.required_raise:      # If the amount bet - table bet is smaller than the minimum raise, then we have to bet at least the table bet + the minimum raise 
                 return self.table.required_bet + self.table.required_raise
             else:
                 return amount
+            
+        if self.table.state == 0:                                                   # Preflop
+            if self.tightness == 'loose':                                           # Unique interaction reserved for loose bots!
+                lowest = min(self.table.active_players(), key=lambda p:p.balance)
+                if lowest.balance * 2 < self.balance and self.IR >= 500:            # If the lowest balance player on the table has less than half of the current bot's balance, and the bot has a pretty good hand, it will try to force a fold or knockout the player by forcing them to all-in.
+                    return lowest.balance
+            amount = int((((self.IR + 432)/1986)/10)*self.balance) + self.current_bet
+            return _find_bet_amount()
 
-        else:       # Postflop
+        else:                                                                       # Postflop
+            if self.tightness == 'loose':                                           # Unique interaction reserved for loose bots!
+                lowest = min(self.table.active_players(), key=lambda p:p.balance)
+                if lowest.balance * 2 < self.balance and self.ehs >= 0.93:          # Same thing here, but with EHS instead of IR because it is after preflop
+                    return lowest.balance
             amount = int(((self.ehs*0.1)*self.table.pot)) + self.current_bet
-            if amount-self.table.required_bet < self.table.required_raise:
-                return self.table.required_bet + self.table.required_raise
-            else:
-                return amount
+            return _find_bet_amount()
 
     # Strategies
     def make0(self):
