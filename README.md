@@ -45,7 +45,7 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-The poker playground is a website designed to familiarize the user's understanding of poker and the some common poker AIs. Site link: 
+The poker playground is a website designed to familiarize the user's understanding of poker and the some common poker AIs. Website is currently hosted by a Google Cloud VM. Site link: [http://35.199.11.69:5173/](http://35.199.11.69:5173/)
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
@@ -57,6 +57,7 @@ The poker playground is a website designed to familiarize the user's understandi
 * [![MongoDB][MongoDB]][MongoDB-url]
 * [![Flask][Flask]][Flask-url]
 * [![Python][Python]][Python-url]
+* [![Google][Google Cloud]][Google-url]
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -208,3 +209,5 @@ Project Link: [https://github.com/redacted24/poker](https://github.com/redacted2
 [MongoDB-url]: https://www.mongodb.com/
 [Python]: https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=FFD343
 [Python-url]: https://www.python.org/
+[Google Cloud]: https://img.shields.io/badge/google_cloud-FFFFFF?style=for-the-badge&logo=googlecloud&logoColor=4285F4
+[Google-url]: https://cloud.google.com/?hl=en
