@@ -2,8 +2,8 @@ FROM python:3.12
 
 WORKDIR /server
 
-COPY . /server/
+COPY . .
 
 RUN pip install -e .
 
-CMD python -m flask --app poker run --debug
+ENTRYPOINT ["python", "-m", "flask", "--app", "poker", "run", "--debug"]

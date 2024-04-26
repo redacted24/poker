@@ -2,8 +2,8 @@ FROM node:20
 
 WORKDIR /site
 
-COPY . /site/
+COPY . .
 
 RUN npm ci
 
-CMD npm run dev
+ENTRYPOINT ["npm", "run", "dev"]
