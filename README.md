@@ -45,7 +45,7 @@
 
 [![Product Name Screen Shot][product-screenshot]](https://example.com)
 
-The poker playground is a website designed to familiarize the user's understanding of poker and the some common poker AIs.
+The poker playground is a website designed to familiarize the user's understanding of poker and the some common poker AIs. Site link: 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
@@ -70,51 +70,88 @@ To get a local copy up and running follow these simple example steps.
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
+To run the app locally, you can either use Docker (Linux only) or separate terminals. Note that in both cases, you must contact the owners of this repositary for the MongoDB URI key.
+
+#### Docker
+
+https://docs.docker.com/desktop/install/linux-install/
+
+#### Separate Terminals
+
 * npm
   ```sh
   npm install npm@latest -g
   ```
 
+* pip
+  ```sh
+  py -m ensurepip --upgrade
+  ```
+
 ### Installation
+
+#### Docker
 
 1. Clone the repo
    ```sh
    git clone https://github.com/github_username/repo_name.git
    ```
-2. Change into the server directory
+2. Run the docker-compose file
+    ```sh
+    sudo docker compose up
+    ```
+
+#### Separate Terminals
+
+1. Clone the repo
    ```sh
-   cd .\server\
+   git clone https://github.com/github_username/repo_name.git
    ```
-3. Install Python packages
+2. Change into the database directory
    ```sh
-   pip install -e .
+   cd .\db\
    ```
-4. Start server
+3. Install NPM packages
    ```sh
-   python -m flask --app poker run --debug
-   ```
-5. Open a new terminal, and change into the site directory
-   ```sh
-   cd .\site\
-   ```
-6. Install NPM packages
-   ```js
    npm i
    ```
-7. Start site
+4. Start site
    ```sh
    npm run dev
    ```
+5. Open a new terminal, and change into the server directory
+   ```sh
+   cd .\server\
+   ```
+6. Install Python packages
+   ```sh
+   pip install -e .
+   ```
+7. Start server
+   ```sh
+   python -m flask --app poker run --debug
+   ```
+8. Open a new terminal, and change into the site directory
+   ```sh
+   cd .\site\
+   ```
+9. Install NPM packages
+   ```sh
+   npm i
+   ```
+10. Start site
+    ```sh
+    npm run dev
+    ```
+
+Again, these steps will not work unless you have the MongoDB URIs.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
 
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-Open the website on [localhost:](http://localhost:5173/), and follow the instructions on screen to play! Some refresh might be necessary to start the game.
+Open the website on [http://localhost:5173/](http://localhost:5173/), and follow the instructions on screen to play! Some refresh might be necessary to start the game.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -123,14 +160,13 @@ Open the website on [localhost:](http://localhost:5173/), and follow the instruc
 <!-- ROADMAP -->
 ## Roadmap
 
+- [x] Deploy site
 - [ ] Improve CSS
-- [ ] Deploy site
 - [ ] Fix bugs
 
 See the [open issues](https://github.com/redacted24/poker/issues) for a full list of proposed features (and known issues).
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 <!-- LICENSE -->
@@ -141,14 +177,12 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
-
 <!-- CONTACT -->
 ## Contact
 
 Project Link: [https://github.com/redacted24/poker](https://github.com/redacted24/poker)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 <!-- ACKNOWLEDGMENTS -->
@@ -159,7 +193,6 @@ Project Link: [https://github.com/redacted24/poker](https://github.com/redacted2
 * []()
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 
 
 <!-- MARKDOWN LINKS & IMAGES -->
