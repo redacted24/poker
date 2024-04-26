@@ -141,8 +141,7 @@ class AdvancedBot(Player):
                 return 'make1'
             elif self.ehs <= self.ehs_thresholds['make1']:      # Semi-bluffing
                 betsize = self.are_we_semi_bluffing()
-                print('YAAAAAAAAAAB OI', betsize)
-                if betsize:         # Check for semi-bluff potential
+                if betsize:                                     # Check for semi-bluff potential
                     self.bet(betsize)
                     return 'semi-bluff'
                 else:

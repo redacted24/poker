@@ -356,8 +356,8 @@ class TestAdvancedBotMethods(unittest.TestCase):
         self.p1.receive([deck2.get('7d'), deck2.get('5d')])
         # This should make p1's PPOT very low
         # Now, for the pot odds, p1.balance = 990 so betsize is 5% of that which is 50 rounded up.
-        # Which means Implied Pot Odds are 100/(50+200)+100 = 0.2857
-        # Here PPOT is 0.33 for p1. Therefore p1 should be semi-bluffing
+        # Which means Implied Pot Odds are around 100/(50+200)+100 = 0.2857
+        # Here PPOT is 0.33 for p1. Therefore p1 should be semi-bluffing, as a last resort since p1's EHS is not strong enough to trigger make1 nor make2 strategies
         self.assertEqual(self.p1.play(), 'semi-bluff')
 
 
