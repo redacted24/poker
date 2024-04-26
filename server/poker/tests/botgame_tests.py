@@ -17,10 +17,10 @@ class TestAdvancedBots(unittest.TestCase):
     def setUp(self):
         self.deck = Deck()
         self.table = Table(self.deck)
-        self.p1 = AdvancedBot('p1', 'loose', self.table)
-        self.p2 = AdvancedBot('p2', 'tight', self.table)
-        self.p3 = AdvancedBot('p3', 'moderate', self.table)
-        self.p4 = AdvancedBot('p4', 'moderate', self.table)
+        self.p1 = AdvancedBot('LooseBot', 'loose', self.table)
+        self.p2 = AdvancedBot('TightBot', 'tight', self.table)
+        self.p3 = AdvancedBot('ModerateBot', 'moderate', self.table)
+        self.p4 = AdvancedBot('ModerateBot', 'moderate', self.table)
 
     def tearDown(self):
         self.table.end()

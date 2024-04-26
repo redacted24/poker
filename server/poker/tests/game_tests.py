@@ -342,6 +342,7 @@ class TestAdvancedBotMethods(unittest.TestCase):
     def test_semi_bluffing(self):
         '''Test semi_bluffing'''
         # QUeue is p4,p1,p2,p3
+        print('TESTING SEMI BLUFFING')
         deck2 = Deck()
         self.table.pre_flop()
         self.p4.call()

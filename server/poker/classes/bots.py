@@ -125,13 +125,13 @@ class AdvancedBot(Player):
                 self.make0()        # Default strategy
                 return 'make0'
             
-        elif 1 <= self.table.state <= 3:         # We are in flop and River
-            if self.bluffing:
+        elif 1 <= self.table.state <= 3:            # We are in flop and River
+            if self.bluffing:                       # If the bot is already in the bluffing state, then just skip the reevaluation of EHS  
                 pass
             elif self.tightness == 'tight':
-                self.compute_ehs_sad()           # For tight bot, use pessimistic version of EHS computation func.
+                self.compute_ehs_sad()              # For tight bot, use pessimistic version of EHS computation func.
             else:
-                self.compute_ehs_happy()         # For moderate and loose bot, use optimistic version of EHS computation func.
+                self.compute_ehs_happy()            # For moderate and loose bot, use optimistic version of EHS computation func.
 
             if self.ehs >= self.ehs_thresholds['make2']:
                 self.make2()
@@ -142,6 +142,7 @@ class AdvancedBot(Player):
             elif self.ehs <= self.ehs_thresholds['make1']:      # Semi-bluffing
                 betsize = self.are_we_semi_bluffing()
                 if betsize:                                     # Check for semi-bluff potential
+                    print('(semi-bluffing): ', end='')
                     self.bet(betsize)
                     return 'semi-bluff'
                 else:
