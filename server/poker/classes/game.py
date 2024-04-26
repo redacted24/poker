@@ -105,16 +105,12 @@ class Table():
     def active_players(self, pre_flop=False): 
         '''Returns a list of the active players in the round'''
         self.set_positions()
-        print([p.position for p in self.player_queue])
-        print('playerqu', self.player_queue)
         if self.player_queue:
             starting_position = self.player_queue[0].position
         elif pre_flop:
             starting_position = 3
         else:
             starting_position = 0
-        
-        print('startpos:' ,starting_position)
 
         sorted_players = sorted(self.players, key=lambda p:(p.position - starting_position) % len(self.players))
 
@@ -126,9 +122,7 @@ class Table():
 
     def start_queue(self, pre_flop=False):
         '''Adds a queue for the players' turn to play'''
-        print('setting queue')
         self.player_queue = self.active_players(pre_flop)
-        print(self.player_queue)
 
     def extend_queue(self, game_state):
         '''Extends the current queue for players to call/fold the bet'''
@@ -147,7 +141,6 @@ class Table():
 
     def set_positions(self):
         '''Set the positions of the players for the current round'''
-        print('looking at players', self.players)
         for i, player in enumerate(self.players):
             player.position = (i + self.dealer) % len(self.players)
 

@@ -163,7 +163,7 @@ class AdvancedBot(Player):
             return False
     
     def are_we_semi_bluffing(self):
-        '''Check, according to randomness, if the bot should be semi-bluffing.'''
+        '''Check, according to randomness, if the bot should be semi-bluffing. Returns a boolean'''
         rand = random()
         if rand < self.semi_bluff_threshold:
             self.semi_bluffing = True
@@ -174,7 +174,7 @@ class AdvancedBot(Player):
             return False
 
     def update_player_position(self):
-        '''Compute the threshold position number of the player.'''
+        '''Compute the threshold position number of the player and updates it. Does not return anything.'''
         # Calculated by number of active players - (the index of the player in queue + 1).
         # e.g. [p1, p2, p3, p4] on Pre-Flop where p4 starts playing. Threshold pos of p4 = 3 because there are 3 turns to play before it is their turn again
         if self.table.active_players() and self.table.player_queue:
