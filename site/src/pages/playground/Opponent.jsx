@@ -33,6 +33,8 @@ const Opponent = ({ player, isCurrentPlayer }) => {
     status =  'currently-playing'
   } else if (!player.active) {
     status = 'not-playing'
+  } else if (player.is_all_in) {
+    status = 'all-in'
   } else {
     status = 'waiting'
   }

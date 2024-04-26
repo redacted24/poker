@@ -10,7 +10,7 @@ const Player = ({
     requiredBet,
     requiredRaise,
     getTableId,
-    setTable,
+    updateTable,
     toggleFetching,
     updateTableQueue
   }) => {
@@ -38,7 +38,7 @@ const Player = ({
     const tableData = await request(content)
     toggleFetching(false)
     setBetAmount(minBetAmount)
-    setTable(tableData)
+    updateTable(tableData)
     console.log(tableData)
   }
 
