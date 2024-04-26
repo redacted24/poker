@@ -338,6 +338,21 @@ class TestAdvancedBotMethods(unittest.TestCase):
     def test_botPositionFail(self):
         '''Check if func works if board is not set'''
         self.assertRaises(ValueError, lambda: self.p4.update_player_position())     # Use lambda as wrapper
+    
+    def test_semi_bluffing(self):
+        '''Test semi_bluffing'''
+        # QUeue is p4,p1,p2,p3
+        self.table.pre_flop()
+        self.p4.call()
+        self.p1.call()
+        self.p2.call()
+        self.p3.check()
+        self.table.flop()
+        # Queue now should be p1,p2,p3,p4
+        self.p1.semi_bluff_threshold = 1            # Hardcoded so the are_we_bluffing function always returns True
+        self.p1.are_we_semi_bluffing()
+        self.assertEqual(self.p1.compute_ppot(), self.p1.ehs)
+        self.assertTrue(self.p1.semi_bluffing)
 
     # ---
     # Note: not used anymore since the preflop strategy values have been tweaked. Already tested to work with the values before.

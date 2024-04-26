@@ -71,11 +71,13 @@ class AdvancedBot(Player):
             'make2': AdvancedBot.ehs[self.tightness]['make2'],
         }
         self.bluff_threshold = AdvancedBot.bluff_percentage[self.tightness]
+        self.semi_bluff_threshold = self.bluff_threshold
         self.IR = 0     # IR rate, used to calculate preflop strategy
         self.fake_ehs = 0.90        # EHS used when bluffing
         self.fake_IR = 700          # IR used when bluffing
         self.number_of_play_actions = 0    # Helps for the are_we_bluffing() func. Makes it only triggers when the play function for the bot runs the first time    
         self.bluffing = False
+        self.semi_bluffing = False
 
     def play(self):
         '''Playing function for the bot.'''
@@ -93,6 +95,8 @@ class AdvancedBot(Player):
             if self.number_of_play_actions == 0:
                 if self.are_we_bluffing():
                     print('(bluffing): ', end='')
+                elif self.are_we_semi_bluffing():
+                    print('(semi-bluffing): ', end='')
             # -----
             #
             #
@@ -125,12 +129,14 @@ class AdvancedBot(Player):
             
         elif 1 <= self.table.state <= 3:         # We are in flop and River
             if self.bluffing:
-                self.ehs = self.fake_ehs
+                pass
+            elif self.semi_bluffing:
+                pass
+            elif self.tightness == 'tight':
+                self.compute_ehs_sad()           # For tight bot, use pessimistic version of EHS computation func.
             else:
-                if self.tightness == 'tight':
-                    self.compute_ehs_sad()           # For tight bot, use pessimistic version of EHS computation func.
-                else:
-                    self.compute_ehs_happy()         # For moderate and loose bot, use optimistic version of EHS computation func.
+                self.compute_ehs_happy()         # For moderate and loose bot, use optimistic version of EHS computation func.
+
             if self.ehs >= self.ehs_thresholds['make2']:
                 self.make2()
                 return 'make2'
@@ -155,6 +161,17 @@ class AdvancedBot(Player):
         else:
             self.bluff_threshold += AdvancedBot.bluff_percentage[self.tightness]/10      # Increment the bluff percentage threshold so that the bot has more chances of doing a bluff later on. Increment depends on bot playstyle; if loose, increments fast, if tight, increments slowly
             return False
+    
+    def are_we_semi_bluffing(self):
+        '''Check, according to randomness, if the bot should be semi-bluffing.'''
+        rand = random()
+        if rand < self.semi_bluff_threshold:
+            self.semi_bluffing = True
+            self.ehs = self.compute_ppot()
+            return True
+        else:
+            self.semi_bluff_threshold += AdvancedBot.bluff_percentage[self.tightness]/10      # Increment the bluff percentage threshold so that the bot has more chances of doing a bluff later on. Increment depends on bot playstyle; if loose, increments fast, if tight, increments slowly
+            return False
 
     def update_player_position(self):
         '''Compute the threshold position number of the player.'''
@@ -171,6 +188,11 @@ class AdvancedBot(Player):
         self.strategy_thresholds['make2'] = self.chosen_pre_flop_strategy['make2'][0] + self.chosen_pre_flop_strategy['make2'][1]*self.thresholds_position
         self.strategy_thresholds['make4'] = self.chosen_pre_flop_strategy['make4'][0] + self.chosen_pre_flop_strategy['make4'][1]*self.thresholds_position
     
+    def compute_ppot(self):
+        '''Compute the PPOT of the hand. Used for semi-bluffing''' 
+        a = eval(self.hand(), self.table.board.cards())
+        return a.potential_hand_strength(2, True)[0]
+
     def compute_ehs_happy(self):
         '''Compute ehs using the happier version of the effective hand strength, i.e. the optimistic one that only accounts for PPOT (potential of winning) and ignoring NPOT (potential of losing). Modifies the ehs value of the class instance. Mostly used for aggressive playstyles'''
         a = eval(self.hand(), self.table.board.cards())
@@ -230,7 +252,7 @@ class AdvancedBot(Player):
                 lowest = min(self.table.active_players(), key=lambda p:p.balance)
                 if lowest.balance * 2 < self.balance and self.ehs >= 0.93:          # Same thing here, but with EHS instead of IR because it is after preflop
                     return lowest.balance
-            amount = int(((self.ehs*0.1)*self.table.pot)) + self.current_bet
+            amount = int(((self.ehs*0.1)*self.balance)) + self.current_bet
             return _find_bet_amount()
 
     # Strategies
@@ -313,7 +335,9 @@ class AdvancedBot(Player):
         self.position = None
         self.previous_step = []
         self.bluffing = False
+        self.semi_bluffing = False
         self.bluff_threshold = AdvancedBot.bluff_percentage[self.tightness]
+        self.semi_bluff_threshold = self.bluff_threshold
         self.number_of_play_actions = 0
         self.ehs = 0
 
