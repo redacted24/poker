@@ -71,13 +71,13 @@ class AdvancedBot(Player):
             'make2': AdvancedBot.ehs[self.tightness]['make2'],
         }
         self.bluff_threshold = AdvancedBot.bluff_percentage[self.tightness]
-        self.semi_bluff_threshold = self.bluff_threshold
         self.IR = 0     # IR rate, used to calculate preflop strategy
         self.fake_ehs = 0.90        # EHS used when bluffing
         self.fake_IR = 700          # IR used when bluffing
         self.number_of_play_actions = 0    # Helps for the are_we_bluffing() func. Makes it only triggers when the play function for the bot runs the first time    
         self.bluffing = False
         self.semi_bluffing = False
+        self.ppot = 0               # PPOT used for semi-bluffing
 
     def play(self):
         '''Playing function for the bot.'''
@@ -95,8 +95,6 @@ class AdvancedBot(Player):
             if self.number_of_play_actions == 0:
                 if self.are_we_bluffing():
                     print('(bluffing): ', end='')
-                elif self.are_we_semi_bluffing():
-                    print('(semi-bluffing): ', end='')
             # -----
             #
             #
@@ -130,8 +128,6 @@ class AdvancedBot(Player):
         elif 1 <= self.table.state <= 3:         # We are in flop and River
             if self.bluffing:
                 pass
-            elif self.semi_bluffing:
-                pass
             elif self.tightness == 'tight':
                 self.compute_ehs_sad()           # For tight bot, use pessimistic version of EHS computation func.
             else:
@@ -143,12 +139,18 @@ class AdvancedBot(Player):
             elif self.ehs >= self.ehs_thresholds['make1']:
                 self.make1()
                 return 'make1'
-            elif self.table.required_bet == 0:      # Means that bot should check before proceeding to the last option
+            elif self.ehs <= self.ehs_thresholds['make1']:      # Semi-bluffing
+                betsize = self.are_we_semi_bluffing()
+                print('YAAAAAAAAAAB OI', betsize)
+                if betsize:         # Check for semi-bluff potential
+                    self.bet(betsize)
+                    return 'semi-bluff'
+                else:
+                    self.make0()
+                    return 'make0'
+            elif self.table.required_bet == 0:                  # If all else fails and there are no bots on the board, simply check.
                 self.check()
                 return 'check'
-            elif self.ehs <= self.ehs_thresholds['make1']:
-                self.make0()        # Temporary, before adding semi-bluffing, pot odds and showdown odds
-                return 'make0'
         
     def are_we_bluffing(self):
         '''Checks, according to randomness, if the bot should be bluffing.'''
@@ -163,16 +165,15 @@ class AdvancedBot(Player):
             return False
     
     def are_we_semi_bluffing(self):
-        '''Check, according to randomness, if the bot should be semi-bluffing. Returns a boolean'''
-        rand = random()
-        if rand < self.semi_bluff_threshold:
-            self.semi_bluffing = True
-            self.ehs = self.compute_ppot()
-            return True
-        else:
-            self.semi_bluff_threshold += AdvancedBot.bluff_percentage[self.tightness]/10      # Increment the bluff percentage threshold so that the bot has more chances of doing a bluff later on. Increment depends on bot playstyle; if loose, increments fast, if tight, increments slowly
-            return False
-
+        '''Check, according to pot odds, if the bot should be semi-bluffing. There should be no bets on the table yet. Returns a boolean'''
+        self.ppot = self.compute_ppot()
+        betsize = int(self.balance*0.05)
+        implied_pot_odds = (2*betsize)/((self.table.pot + 4*betsize)+2*betsize)
+        if self.ppot > implied_pot_odds and self.table.round_stats['bet'] == 0:
+            self.semi_bluffing == True
+            return betsize
+        return False
+    
     def update_player_position(self):
         '''Compute the threshold position number of the player and updates it. Does not return anything.'''
         # Calculated by number of active players - (the index of the player in queue + 1).
@@ -337,9 +338,9 @@ class AdvancedBot(Player):
         self.bluffing = False
         self.semi_bluffing = False
         self.bluff_threshold = AdvancedBot.bluff_percentage[self.tightness]
-        self.semi_bluff_threshold = self.bluff_threshold
         self.number_of_play_actions = 0
         self.ehs = 0
+        self.ppot = 0
 
 # Meme bots
 class Better(Player):

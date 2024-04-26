@@ -4,11 +4,11 @@ from poker.classes.cards import *
 from poker.classes.game import *
 
 # choose which test to run, and how many games you want them to play against.
-test_AdvancedBots = True           # 4 advancedbots
+test_AdvancedBots = True            # 4 advancedbots
 test_CopyCat = False                # 1 copycat vs 3 advancedbots
 test_RingRingItsTheCaller = False   # 1 caller vs 3 advancedbots
 
-iterations = 5
+iterations = 15
 
 # ---
 @unittest.skipUnless(test_AdvancedBots, 'separate tests')

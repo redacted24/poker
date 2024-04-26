@@ -41,6 +41,11 @@ class Board():
         else:
             return [False for _ in self._cards]
     
+    def force_put(self, cards):
+        '''Forcefully clear the board and put a list of the wanted cards on the table. Only used in testing.'''
+        self._cards = []
+        self._cards.extend(cards)
+    
     def clear(self):
         '''Clears and resets the board to its initial state'''
         self._cards = []

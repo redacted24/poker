@@ -342,17 +342,24 @@ class TestAdvancedBotMethods(unittest.TestCase):
     def test_semi_bluffing(self):
         '''Test semi_bluffing'''
         # QUeue is p4,p1,p2,p3
+        deck2 = Deck()
         self.table.pre_flop()
         self.p4.call()
         self.p1.call()
         self.p2.call()
         self.p3.check()
         self.table.flop()
-        # Queue now should be p1,p2,p3,p4
-        self.p1.semi_bluff_threshold = 1            # Hardcoded so the are_we_bluffing function always returns True
-        self.p1.are_we_semi_bluffing()
-        self.assertEqual(self.p1.compute_ppot(), self.p1.ehs)
-        self.assertTrue(self.p1.semi_bluffing)
+        self.table.state += 1
+        # Queue now should be p1,p2,p3,p4, pot is 50
+        self.table.board.force_put([deck2.get('6s'), deck2.get('2d'), deck2.get('4h')])
+        self.p1.clear_hand()
+        self.p1.receive([deck2.get('7d'), deck2.get('5d')])
+        # This should make p1's PPOT very low
+        # Now, for the pot odds, p1.balance = 990 so betsize is 5% of that which is 50 rounded up.
+        # Which means Implied Pot Odds are 100/(50+200)+100 = 0.2857
+        # Here PPOT is 0.33 for p1. Therefore p1 should be semi-bluffing
+        self.assertEqual(self.p1.play(), 'semi-bluff')
+
 
     # ---
     # Note: not used anymore since the preflop strategy values have been tweaked. Already tested to work with the values before.
