@@ -1,37 +1,20 @@
 services:
   site:
     build: ./site
-    image: site:latest
-    ports:
-      - "5173:5173"
-    networks:
-      - poker-network
+    network_mode: "host"
     depends_on:
       - server
 
-    
   server:
     build: ./server
-    image: server:latest
-    ports:
-      - "5000:5000"
-    networks:
-      - poker-network
+    network_mode: "host"
     depends_on:
       - db
   
   db:
     build: ./db
-    image: db:latest
-    networks:
-      - poker-network
-    ports:
-      - "3003:3003"
+    network_mode: "host"
     environment:
-      - MONGODB_URI=mongodb+srv://Peizhe:FullStackOpen@cluster0.xwjh17i.mongodb.net/poker?retryWrites=true&w=majority
-      - TEST_MONGODB_URI=mongodb+srv://Peizhe:FullStackOpen@cluster0.xwjh17i.mongodb.net/testPoker?retryWrites=true&w=majority
+      # - MONGODB_URI=
+      # - TEST_MONGODB_URI=
       - PORT=3003
-
-networks:
-  poker-network:
-    driver: bridge
