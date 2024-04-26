@@ -202,8 +202,9 @@ class AdvancedBot(Player):
             look_ahead = 2
         elif self.table.state == 2:     # Turn
             look_ahead = 1
-        else:
-            return
+        elif self.table.state == 3:     # River
+            self.ehs = round(a.hand_strength(),4)
+            return 
         hsn = a.hand_strength()
         self.ehs = round(hsn+(1-hsn)*a.potential_hand_strength(look_ahead, only_ppot=True)[0], 4)
 
@@ -215,8 +216,10 @@ class AdvancedBot(Player):
             look_ahead = 2
         elif self.table.state == 2:     # Turn
             look_ahead = 1
-        else:
-            return
+        elif self.table.state == 3:     # River
+            self.ehs = round(a.hand_strength(),4)
+            return self.ehs
+
         hsn = a.hand_strength()
         pots = a.potential_hand_strength(look_ahead)
         self.ehs = round(hsn+(1-hsn)*pots[0]-hsn*pots[1], 4)
