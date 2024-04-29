@@ -39,11 +39,15 @@ const Opponent = ({ player, isCurrentPlayer }) => {
     status = 'waiting'
   }
 
+  const generateKey = () => {
+    return Math.floor(Math.random() * 1000000)
+  }
+
   return (
     <div className={`opponent ${status}`}>
       <div className='left-elements'>
         <div className='opponent-hand'>
-          {player.hand.map(card => <Card key={`${card}`} card={card} />)}
+          {player.hand.map(card => <Card key={generateKey()} card={card} />)}
         </div>
         <p className={`opponent-worth`}>Balance: {player.balance}$</p>
       </div>

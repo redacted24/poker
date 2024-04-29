@@ -59,7 +59,7 @@ const Playground = () => {
     if (fetching) {
       const fetchData = async () => {
         console.log('fetching')
-        const tableData = await pokerService.getTable({ id: getTableId() })
+        const tableData = await pokerService.getTable({ name, id: getTableId(), })
         updateTable(tableData)
         console.log(tableData)
       }
@@ -74,7 +74,7 @@ const Playground = () => {
 
   const start = async () => {
     toggleFetching(true)
-    const tableData = await pokerService.start({ id: getTableId() })
+    const tableData = await pokerService.start({ name, id: getTableId() })
     toggleFetching(false)
     setInGame(true)
     updateTable(tableData)
@@ -86,10 +86,12 @@ const Playground = () => {
   useEffect(() => {
     const checkWinner = async () => {
       if (table && table.winning_player) {
-        alert(`${table.winning_player.name} has won ${table.pot}!`)
-        const tableData = await pokerService.next({ id: getTableId() })
-        updateTable(tableData)
-        setDisplayBoard(false)
+        setTimeout(async () => {
+          alert(`${table.winning_player.name} has won ${table.pot}!`)
+          const tableData = await pokerService.next({ name, id: getTableId() })
+          updateTable(tableData)
+          setDisplayBoard(false)
+        }, 800)
       }
     }
     checkWinner()

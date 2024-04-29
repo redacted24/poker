@@ -39,7 +39,7 @@ def init():
 
   requests.put(f'http://localhost:3003/api/session/{table.id}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
-  return table.toJSON()
+  return table.toJSON(req['name'])
 
 @bp.post('/start')
 def start():
@@ -56,7 +56,7 @@ def start():
 
   requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
-  return table.toJSON()
+  return table.toJSON(req['name'])
 
 @bp.post('/get-table')
 def get_table():
@@ -66,7 +66,7 @@ def get_table():
   res = requests.get(f'http://localhost:3003/api/session/{req["id"]}')
   table: Table = pickle.loads(res.json()['table'].encode('latin1'))
 
-  return table.toJSON()
+  return table.toJSON(req['name'])
 
 @bp.post('/call')
 def call():
@@ -83,7 +83,7 @@ def call():
 
   requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
-  return table.toJSON()
+  return table.toJSON(req['name'])
 
 @bp.post('/check')
 def check():
@@ -100,7 +100,7 @@ def check():
 
   requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
-  return table.toJSON()
+  return table.toJSON(req['name'])
 
 @bp.post('/fold')
 def fold():
@@ -117,7 +117,7 @@ def fold():
 
   requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
-  return table.toJSON()
+  return table.toJSON(req['name'])
 
 @bp.post('/bet')
 def bet():
@@ -134,7 +134,7 @@ def bet():
 
   requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
-  return table.toJSON()
+  return table.toJSON(req['name'])
 
 @bp.post('/go_next')
 def go_next():
@@ -146,7 +146,7 @@ def go_next():
 
   requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
-  return table.toJSON()
+  return table.toJSON(req['name'])
 
 @bp.post('/clear')
 def clear():

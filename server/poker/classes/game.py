@@ -399,17 +399,17 @@ class Table():
             self.players.append(player)
             player.join(self)
 
-    def toJSON(self):
+    def toJSON(self, player_name):
         return {
             'board': self.board.display(),
             'pot': self.pot,
-            'players': [p.toJSON() for p in self.players],
-            'player_queue': [p.toJSON() for p in self.player_queue],
+            'players': [p.toJSON(player_name) for p in self.players],
+            'player_queue': [p.toJSON(player_name) for p in self.player_queue],
             'required_bet': self.required_bet,
             'required_raise': self.required_raise,
             'state': self.state,
             'last_move': self.last_move,
-            'winning_player': self.winning_player and self.winning_player.toJSON(),
+            'winning_player': self.winning_player and self.winning_player.toJSON(player_name),
             'id': self.id
         }
 
@@ -634,8 +634,8 @@ class Player():
             self.bluffing = False
             self.ehs = 0
 
-        def toJSON(self):
-            return {
+        def toJSON(self, player_name):
+            response = {
                 'name': self.name,
                 'is_computer': self.is_computer,
                 'hand': [c.shortName for c in self.hand()],
@@ -646,6 +646,13 @@ class Player():
                 'previous_step': self.previous_step,
                 'position': self.position
             }
+
+            if self.name == player_name or self.table.state == 4:
+                response['hand'] = [c.shortName for c in self.hand()]
+            else:
+                response['hand'] = [False for _ in self.hand()]
+
+            return response
 
         def clear_all_stats(self):
             '''Clears all player stats.'''
