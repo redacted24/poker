@@ -52,6 +52,7 @@ const Opponent = ({ player, isCurrentPlayer }) => {
         <p className={`opponent-worth`}>Balance: {player.balance}$</p>
       </div>
       <div className='right-elements'>
+        <p>{player.name}</p>
         {previousStep()}
         {positionTag()}
       </div>
