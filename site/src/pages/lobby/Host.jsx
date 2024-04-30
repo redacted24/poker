@@ -4,15 +4,14 @@ import './host.css'
 
 import pokerService from '../../services/poker'
 
-const Host = () => {
-    const [name, setName] = useState()
+const Host = ({
+    name
+}) => {
+    console.log(name)
     const [table, setTable] = useState()
     let intervalId
 
     useEffect(() => {
-        const username = prompt('Please enter your username.', 'Bob')
-        setName(username)
-
         const removeTableId = async () => {
             const tableId = window.localStorage.getItem('tableId')
             if (tableId) {
@@ -20,9 +19,19 @@ const Host = () => {
               await pokerService.clear({ tableId })
               window.localStorage.clear()
             }
-          }
+        }
 
         window.addEventListener('beforeunload', removeTableId)
+
+        const init = async () => {
+            console.log(name)
+            const tableData = await pokerService.init({ name })
+            console.log(tableData)
+            setTable(tableData)
+            window.localStorage.setItem('tableId', tableData.id)
+            toggleFetching(true)
+          }
+        init()
 
         return () => {
             window.removeEventListener('beforeunload', removeTableId)
@@ -56,19 +65,6 @@ const Host = () => {
         }
       }
 
-    useEffect(() => {
-        const init = async () => {
-          const tableData = await pokerService.init({ name })
-          console.log(tableData)
-          setTable(tableData)
-          window.localStorage.setItem('tableId', tableData.id)
-        }
-        if (name) {
-            init()
-            toggleFetching(true)
-        }
-      }, [name])
-
     const getTableId = () => {
         return window.localStorage.getItem('tableId')
     }
@@ -76,6 +72,11 @@ const Host = () => {
     const copyLink = () => {
         const gameUrl = `${window.location.host}/lobby/${getTableId()}`
         navigator.clipboard.writeText(gameUrl)
+    }
+
+    const startGame = () => {
+        toggleFetching(false)
+        
     }
 
     return (
@@ -94,6 +95,7 @@ const Host = () => {
                 </div>
                 <div id='settings'>
                     <p className='subheader'>Settings</p>
+                    <button id='start-button' onClick={startGame}>Start</button>
                 </div>
             </div>
         </>

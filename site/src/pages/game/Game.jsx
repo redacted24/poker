@@ -7,17 +7,13 @@ import { useState } from 'react'
 import pokerService from '../../services/poker'
 
 
-const Playground = () => {
-  const [name, setName] = useState('Bob')
+const Game = () => {
   const [inGame, setInGame] = useState(false)
   const [table, setTable] = useState()
   const [displayBoard, setDisplayBoard] = useState(false)
   let intervalId
 
   useEffect(() => {
-    const username = prompt('Please enter your username.', 'Bob')
-    setName(username)
-    
     const removeTableId = async () => {
       const tableId = window.localStorage.getItem('tableId')
       if (tableId) {
@@ -27,6 +23,7 @@ const Playground = () => {
       }
     }
     
+    reset()
     window.addEventListener('beforeunload', removeTableId)
 
     return () => {
@@ -161,4 +158,4 @@ const Playground = () => {
   )
 }
 
-export default Playground
+export default Game
