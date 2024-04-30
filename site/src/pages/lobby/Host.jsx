@@ -70,6 +70,7 @@ const Host = () => {
     const copyLink = () => {
         const gameUrl = `${window.location.host}/lobby/${getTableId()}`
         navigator.clipboard.writeText(gameUrl)
+        console.log(gameUrl)
     }
 
     const startGame = () => {
