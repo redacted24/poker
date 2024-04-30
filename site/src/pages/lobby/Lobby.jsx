@@ -1,30 +1,32 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import ls from 'localstorage-slim'
+
 import Player from './Player'
 import './host.css'
 
 import pokerService from '../../services/poker'
 
 const Lobby = () => {
-    console.log('lobby')
-    const [name, setName] = useState()
     const [table, setTable] = useState()
-    const tableId = useParams().id
+    const params = useParams()
     let intervalId
 
     const navigate = useNavigate()
 
     useEffect(() => {
-        const username = prompt('Please enter your username.', 'Bob')
-        setName(username)
+        const join = async () => {
+            const tableData = await pokerService.join({ name: getName(), id: params.id })
+            setTable(tableData)
 
-        const removeTableId = async () => {
-            const tableId = window.localStorage.getItem('tableId')
-            if (tableId) {
-              window.localStorage.clear()
-            }
+            ls.set('tableId', tableData.id)
+            toggleFetching(true)
         }
-        window.addEventListener('beforeunload', removeTableId)
+        join()
+
+        const removeTableId = () => ls.set('tableId', undefined)
+
+        window.addEventListener('beforeunload', () => removeTableId)
 
         return () => {
             window.removeEventListener('beforeunload', removeTableId)
@@ -34,42 +36,40 @@ const Lobby = () => {
     }, [])
 
     const updateTable = (newTableData) => {
-        setTable(newTableData)
+        if (newTableData.players.some(p => p.name == getName())) {
+          setTable(newTableData)
+        } else {
+          alert("You have been kicked out of the lobby!")
+          navigate('../../')
+        }
     }
 
     const toggleFetching = (fetching) => {
         if (fetching) {
           const fetchData = async () => {
             console.log('fetching')
-            const tableData = await pokerService.getTable({ name, id: getTableId(), })
+            const tableData = await pokerService.getTable({ name: getName(), id: getTableId(), })
             updateTable(tableData)
             console.log(tableData)
           }
+          fetchData()
           const tempIntervalId = setInterval(fetchData, 2500)
           intervalId = tempIntervalId
         } else {
           clearInterval(intervalId)
           intervalId = null
         }
-      }
+    }
 
 
-    useEffect(() => {
-        const join = async () => {
-          const tableData = await pokerService.join({ name, id: tableId })
-          setTable(tableData)
-          window.localStorage.setItem('tableId', tableData.id)
-          toggleFetching(true)
-        }
-        
-        if (name) {
-            join()
-        }
-      }, [name])
+    const getName = () => {
+        return ls.get('username')
+    }
 
     const getTableId = () => {
-        return window.localStorage.getItem('tableId')
+        return ls.get('tableId')
     }
+
 
     const copyLink = () => {
         const gameUrl = `${window.location.host}/lobby/${getTableId()}`

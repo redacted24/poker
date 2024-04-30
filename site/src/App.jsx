@@ -2,7 +2,8 @@ import {
   BrowserRouter as Router,
   Routes, Route
 } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
+import ls from 'localstorage-slim'
 
 import Intro from './pages/intro/Intro'
 import Playground from './pages/playground/Playground'
@@ -12,20 +13,20 @@ import Game from './pages/game/Game'
 import './app.css'
 
 const App = () => {
-  const [name, setName] = useState()
-
   useEffect(() => {
+    `Getting a username from the user, then setting a time to live of 1h`
+
     const username = prompt('Please enter your username.', 'Bob')
-    setName(username)
+    ls.set('username', username, { ttl: 60 * 60 })
   }, [])
 
   return (
     <Router>
       <Routes>
-        <Route path="/playground" element={<Playground name={name} />} />
-        <Route path="/lobby/:id" element={<Lobby name={name} />} />
-        <Route path="/game/:id" element={<Game name={name} />}
-        <Route path="/host" element={<Host name={name} />} />
+        <Route path="/playground" element={<Playground />} />
+        <Route path="/lobby/:id" element={<Lobby />} />
+        <Route path="/game/:id" element={<Game />} />
+        <Route path="/host" element={<Host />} />
         <Route path="/" element={<Intro />} />
       </Routes>
     </Router>

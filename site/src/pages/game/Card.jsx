@@ -8,4 +8,4 @@ const Card = ({ card }) => {
   }
 }
 
-export default Card
+export default Card 

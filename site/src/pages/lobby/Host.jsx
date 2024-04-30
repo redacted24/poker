@@ -3,32 +3,30 @@ import Player from './Player'
 import './host.css'
 
 import pokerService from '../../services/poker'
+import { useNavigate } from 'react-router-dom'
+import ls from 'localstorage-slim'
 
-const Host = ({
-    name
-}) => {
-    console.log(name)
+const Host = () => {
     const [table, setTable] = useState()
+    const navigate = useNavigate()
     let intervalId
 
     useEffect(() => {
         const removeTableId = async () => {
-            const tableId = window.localStorage.getItem('tableId')
+            const tableId = ls.get('tableId')
             if (tableId) {
               console.log('clearing')
               await pokerService.clear({ tableId })
-              window.localStorage.clear()
+              ls.set('tableId', undefined)
             }
         }
 
         window.addEventListener('beforeunload', removeTableId)
 
         const init = async () => {
-            console.log(name)
-            const tableData = await pokerService.init({ name })
+            const tableData = await pokerService.init({ name: getName() })
             console.log(tableData)
-            setTable(tableData)
-            window.localStorage.setItem('tableId', tableData.id)
+            ls.set('tableId', tableData.id)
             toggleFetching(true)
           }
         init()
@@ -41,22 +39,18 @@ const Host = ({
     }, [])
 
     const updateTable = (newTableData) => {
-        if (newTableData.players.some(p => p.name == name)) {
-          setTable(newTableData)
-        } else {
-          navigate('/')
-          toggleFetching(false)
-        }
+        setTable(newTableData)
     }
 
     const toggleFetching = (fetching) => {
         if (fetching) {
           const fetchData = async () => {
             console.log('fetching')
-            const tableData = await pokerService.getTable({ name, id: getTableId(), })
+            const tableData = await pokerService.getTable({ name: getName(), id: getTableId(), })
             updateTable(tableData)
             console.log(tableData)
           }
+          fetchData()
           const tempIntervalId = setInterval(fetchData, 2500)
           intervalId = tempIntervalId
         } else {
@@ -65,8 +59,12 @@ const Host = ({
         }
       }
 
+    const getName = () => {
+        return ls.get('username')
+    }
+
     const getTableId = () => {
-        return window.localStorage.getItem('tableId')
+        return ls.get('tableId')
     }
 
     const copyLink = () => {
@@ -76,7 +74,7 @@ const Host = ({
 
     const startGame = () => {
         toggleFetching(false)
-        
+        navigate(`../game/${getTableId()}`)
     }
 
     return (

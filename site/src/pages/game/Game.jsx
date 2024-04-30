@@ -1,21 +1,33 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import { useParams } from 'react-router-dom'
+import ls from 'localstorage-slim'
+
 import Card from './Card'
 import Player from './Player'
 import Opponents from './Opponents'
-import './playground.css'
-import { useState } from 'react'
+
 import pokerService from '../../services/poker'
+import './game.css'
 
 
 const Game = () => {
-  const [inGame, setInGame] = useState(false)
   const [table, setTable] = useState()
+  const [inGame, setInGame] = useState(false)
   const [displayBoard, setDisplayBoard] = useState(false)
+  const params = useParams()
   let intervalId
 
   useEffect(() => {
+    const getTable = async () => {
+      const tableData = await pokerService.getTable({ name: getName(), id: params.id })
+      setTable(tableData)
+      console.log(tableData)
+      window.localStorage.setItem('tableId', tableData.id)
+    }
+    getTable()
+
     const removeTableId = async () => {
-      const tableId = window.localStorage.getItem('tableId')
+      const tableId = ls.get('tableId')
       if (tableId) {
         console.log('clearing')
         await pokerService.clear({ tableId })
@@ -23,7 +35,6 @@ const Game = () => {
       }
     }
     
-    reset()
     window.addEventListener('beforeunload', removeTableId)
 
     return () => {
@@ -33,31 +44,23 @@ const Game = () => {
     }
   }, [])
 
-
-  useEffect(() => {
-    const quickStart = async () => {
-      const tableData = await pokerService.quickStart({ name })
-      setTable(tableData)
-      window.localStorage.setItem('tableId', tableData.id)
-    }
-    quickStart()
-  }, [name])
-
-
-  const getTableId = () => {
-    return window.localStorage.getItem('tableId')
+  const getName = () => {
+    return ls.get('username')
   }
 
+  const getTableId = () => {
+    return ls.get('tableId')
+  }
 
   const toggleFetching = (fetching) => {
     if (fetching) {
       const fetchData = async () => {
         console.log('fetching')
-        const tableData = await pokerService.getTable({ name, id: getTableId(), })
+        const tableData = await pokerService.getTable({ name: getName(), id: getTableId(), })
         updateTable(tableData)
         console.log(tableData)
       }
-      const tempIntervalId = setInterval(fetchData, 250)
+      const tempIntervalId = setInterval(fetchData, 2500)
       intervalId = tempIntervalId
     } else {
       clearInterval(intervalId)
@@ -65,10 +68,9 @@ const Game = () => {
     }
   }
 
-
   const start = async () => {
     toggleFetching(true)
-    const tableData = await pokerService.start({ name, id: getTableId() })
+    const tableData = await pokerService.start({ name: getName(), id: getTableId() })
     toggleFetching(false)
     setInGame(true)
     updateTable(tableData)
@@ -76,13 +78,12 @@ const Game = () => {
     console.log(tableData)
   }
 
-
   useEffect(() => {
     const checkWinner = async () => {
       if (table && table.winning_player) {
         setTimeout(async () => {
           alert(`${table.winning_player.name} has won ${table.pot}!`)
-          const tableData = await pokerService.next({ name, id: getTableId() })
+          const tableData = await pokerService.next({ name: getName(), id: getTableId() })
           updateTable(tableData)
           setDisplayBoard(false)
         }, 800)
@@ -94,7 +95,7 @@ const Game = () => {
   
   const updateTable = (newTableData) => {
     console.log(newTableData.players)
-    if (newTableData.players.some(p => p.name == name)) {
+    if (newTableData.players.some(p => p.name == getName())) {
       setTable(newTableData)
     } else {
       alert("You lost all your money and you've been kicked out of the table! Better luck next time :(")
@@ -137,9 +138,9 @@ const Game = () => {
             <button id='start-button' onClick={start}>Start</button>
           }
         </div>
-        {table.players.filter(player => player.name == name).map(player => {
+        {table.players.filter(player => player.name == getName()).map(player => {
             return <Player 
-              key={name}
+              key={getName()}
               player={player}
               numPlayers={table.players.length}
               playerQueue={table.player_queue}
@@ -151,7 +152,7 @@ const Game = () => {
               updateTableQueue={updateTableQueue}
             />
         })}
-        <Opponents opponents={table.players.filter(player => player.name !== name)} playerQueue={table.player_queue} />
+        <Opponents opponents={table.players.filter(player => player.name !== getName())} playerQueue={table.player_queue} />
 
       </div>
     </>
