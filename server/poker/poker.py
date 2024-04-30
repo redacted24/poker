@@ -76,7 +76,6 @@ def join():
   res = requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
   table = pickle.loads(res.json()['table'].encode('latin1'))
-  print(table.players)
 
   return table.toJSON(req['name'])
 

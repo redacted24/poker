@@ -127,6 +127,7 @@ class Table():
 
     def start_queue(self, pre_flop=False):
         '''Adds a queue for the players' turn to play'''
+        print('starting queue')
         self.player_queue = self.active_players(pre_flop)
 
     def extend_queue(self, game_state):
@@ -187,7 +188,7 @@ class Table():
         - Adds a queue for players to start playing
         - Set blinds for the current round
         - Shuffle deck and add three cards to the board, and deal cards to players'''
-        # print('Pre-flop')
+        print('Pre-flop')
         self.prepare_round(pre_flop=True)
         self.set_blinds()
         self.deck.shuffle()
@@ -279,22 +280,23 @@ class Table():
                     break
             else:
                 break
-        
+        print(self.state)
         if len(self.player_queue) == 0:
-            self.state = (self.state + 1) % 6
-            rounds = [self.pre_flop, self.flop, self.turn, self.river, self.showdown, self.reset]
-            
-            rounds[self.state]()
-            if 0 < self.state < 4:
-                self.play()
+            if self.state != 5:
+                self.state = (self.state + 1) % 6
+                rounds = [self.pre_flop, self.flop, self.turn, self.river, self.showdown, self.reset]
+                
+                rounds[self.state]()
+                if 0 < self.state < 4:
+                    self.play()
 
     def reset(self):
         '''Clears current cards on the board, resets deck, and removes all player handheld cards.
         Clears current round stats. Game stats are left unchanged.
         Players are still on the table, but shifted by one seat'''
-        # print('Reset')
+        print('Reset')
         self.pot = 0
-        self.state = 0
+        self.state = 5
         self.board.clear()
         self.deck.reset()
         self.winning_player = None
@@ -307,7 +309,6 @@ class Table():
             player.reset()
         self.players = [p for p in self.players if p.balance > 0]       # kicks players who have no money left
         self.player_queue.clear()
-        self.start_queue(pre_flop=True)
 
 
     # Player actions Table Class

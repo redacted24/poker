@@ -30,7 +30,8 @@ sessionsRouter.put('/:id', async (request, response) => {
 
   const new_session = await Session.findByIdAndUpdate(
     request.params.id,
-    session_update
+    session_update,
+    { new: true }
   )
 
   response.json(new_session)

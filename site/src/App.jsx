@@ -15,9 +15,10 @@ import './app.css'
 const App = () => {
   useEffect(() => {
     `Getting a username from the user, then setting a time to live of 1h`
-
-    const username = prompt('Please enter your username.', 'Bob')
-    ls.set('username', username, { ttl: 60 * 60 })
+    if (!ls.get('username')) {
+      const username = prompt('Please enter your username.', 'Bob')
+      ls.set('username', username, { ttl: 60 * 60 })
+    }
   }, [])
 
   return (

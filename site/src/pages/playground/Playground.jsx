@@ -1,10 +1,12 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import ls from 'localstorage-slim'
+
 import Card from './Card'
 import Player from './Player'
 import Opponents from './Opponents'
-import './playground.css'
-import { useState } from 'react'
+
 import pokerService from '../../services/poker'
+import './playground.css'
 
 
 const Playground = () => {
@@ -15,15 +17,22 @@ const Playground = () => {
   let intervalId
 
   useEffect(() => {
-    const username = prompt('Please enter your username.', 'Bob')
-    setName(username)
+    const quickStart = async () => {
+      const username = ls.get('username')
+      setName(username)
+      const tableData = await pokerService.quickStart({ name: username })
+      window.localStorage.setItem('tableId', tableData.id)
+      console.log(tableData)
+    }
+    quickStart()
+
     
     const removeTableId = async () => {
-      const tableId = window.localStorage.getItem('tableId')
+      const tableId = ls.get('tableId')
       if (tableId) {
         console.log('clearing')
         await pokerService.clear({ tableId })
-        window.localStorage.clear()
+        ls.set('tableId', undefined)
       }
     }
     
@@ -37,18 +46,14 @@ const Playground = () => {
   }, [])
 
 
-  useEffect(() => {
-    const quickStart = async () => {
-      const tableData = await pokerService.quickStart({ name })
-      setTable(tableData)
-      window.localStorage.setItem('tableId', tableData.id)
-    }
-    quickStart()
-  }, [name])
-
-
   const getTableId = () => {
     return window.localStorage.getItem('tableId')
+  }
+
+  const getTable = async () => {
+    const tableData = await pokerService.getTable({ name, id: getTableId(), })
+    updateTable(tableData)
+    console.log(tableData)
   }
 
 
@@ -60,7 +65,7 @@ const Playground = () => {
         updateTable(tableData)
         console.log(tableData)
       }
-      const tempIntervalId = setInterval(fetchData, 250)
+      const tempIntervalId = setInterval(fetchData, 2500)
       intervalId = tempIntervalId
     } else {
       clearInterval(intervalId)

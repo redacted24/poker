@@ -36,11 +36,14 @@ const Lobby = () => {
     }, [])
 
     const updateTable = (newTableData) => {
-        if (newTableData.players.some(p => p.name == getName())) {
-          setTable(newTableData)
+        if (newTableData.player_queue.length !== 0) {
+            toggleFetching(false)
+            navigate(`../../game/${getTableId()}`)
+        } else if (newTableData.players.some(p => p.name == getName())) {
+            setTable(newTableData)
         } else {
-          alert("You have been kicked out of the lobby!")
-          navigate('../../')
+            alert("You have been kicked out of the lobby!")
+            navigate('../../')
         }
     }
 
@@ -63,6 +66,10 @@ const Lobby = () => {
 
 
     const getName = () => {
+        if (!ls.get('username')) {
+            const username = prompt('Please enter your username.', 'Bob')
+            ls.set('username', username, { ttl: 60 * 60 })
+        }
         return ls.get('username')
     }
 

@@ -21,8 +21,13 @@ const Game = () => {
     const getTable = async () => {
       const tableData = await pokerService.getTable({ name: getName(), id: params.id })
       setTable(tableData)
-      console.log(tableData)
       window.localStorage.setItem('tableId', tableData.id)
+      toggleFetching(true)
+      if (tableData.player_queue.length === 0) {
+        start()
+      } else {
+        setInGame(true)
+      }
     }
     getTable()
 
@@ -60,6 +65,7 @@ const Game = () => {
         updateTable(tableData)
         console.log(tableData)
       }
+      fetchData()
       const tempIntervalId = setInterval(fetchData, 2500)
       intervalId = tempIntervalId
     } else {
@@ -96,6 +102,10 @@ const Game = () => {
   const updateTable = (newTableData) => {
     console.log(newTableData.players)
     if (newTableData.players.some(p => p.name == getName())) {
+      if (newTableData.player_queue.length !== 0) {
+        console.log(inGame)
+        setDisplayBoard(true)
+      }
       setTable(newTableData)
     } else {
       alert("You lost all your money and you've been kicked out of the table! Better luck next time :(")
