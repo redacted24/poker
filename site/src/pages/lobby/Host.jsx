@@ -7,6 +7,7 @@ import pokerService from '../../services/poker'
 const Host = () => {
     const [name, setName] = useState()
     const [table, setTable] = useState()
+    let intervalId
 
     useEffect(() => {
         const username = prompt('Please enter your username.', 'Bob')
@@ -25,8 +26,35 @@ const Host = () => {
 
         return () => {
             window.removeEventListener('beforeunload', removeTableId)
+            clearInterval(intervalId)
+            intervalId = null
         }
     }, [])
+
+    const updateTable = (newTableData) => {
+        if (newTableData.players.some(p => p.name == name)) {
+          setTable(newTableData)
+        } else {
+          navigate('/')
+          toggleFetching(false)
+        }
+    }
+
+    const toggleFetching = (fetching) => {
+        if (fetching) {
+          const fetchData = async () => {
+            console.log('fetching')
+            const tableData = await pokerService.getTable({ name, id: getTableId(), })
+            updateTable(tableData)
+            console.log(tableData)
+          }
+          const tempIntervalId = setInterval(fetchData, 2500)
+          intervalId = tempIntervalId
+        } else {
+          clearInterval(intervalId)
+          intervalId = null
+        }
+      }
 
     useEffect(() => {
         const init = async () => {
@@ -35,7 +63,10 @@ const Host = () => {
           setTable(tableData)
           window.localStorage.setItem('tableId', tableData.id)
         }
-        if (name) init()
+        if (name) {
+            init()
+            toggleFetching(true)
+        }
       }, [name])
 
     const getTableId = () => {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import Player from './Player'
 import './host.css'
 
@@ -10,6 +10,9 @@ const Lobby = () => {
     const [name, setName] = useState()
     const [table, setTable] = useState()
     const tableId = useParams().id
+    let intervalId
+
+    const navigate = useNavigate()
 
     useEffect(() => {
         const username = prompt('Please enter your username.', 'Bob')
@@ -18,26 +21,50 @@ const Lobby = () => {
         const removeTableId = async () => {
             const tableId = window.localStorage.getItem('tableId')
             if (tableId) {
-              console.log('clearing')
-              await pokerService.clear({ tableId })
               window.localStorage.clear()
             }
-          }
-
+        }
         window.addEventListener('beforeunload', removeTableId)
 
         return () => {
             window.removeEventListener('beforeunload', removeTableId)
+            clearInterval(intervalId)
+            intervalId = null
         }
     }, [])
+
+    const updateTable = (newTableData) => {
+        setTable(newTableData)
+    }
+
+    const toggleFetching = (fetching) => {
+        if (fetching) {
+          const fetchData = async () => {
+            console.log('fetching')
+            const tableData = await pokerService.getTable({ name, id: getTableId(), })
+            updateTable(tableData)
+            console.log(tableData)
+          }
+          const tempIntervalId = setInterval(fetchData, 2500)
+          intervalId = tempIntervalId
+        } else {
+          clearInterval(intervalId)
+          intervalId = null
+        }
+      }
+
 
     useEffect(() => {
         const join = async () => {
           const tableData = await pokerService.join({ name, id: tableId })
           setTable(tableData)
           window.localStorage.setItem('tableId', tableData.id)
+          toggleFetching(true)
         }
-        if (name) join()
+        
+        if (name) {
+            join()
+        }
       }, [name])
 
     const getTableId = () => {

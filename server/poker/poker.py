@@ -57,7 +57,9 @@ def quick_start():
 
   table.id = res.json()['id']
 
-  requests.put(f'http://localhost:3003/api/session/{table.id}', json={ 'table': pickle.dumps(table).decode('latin1') })
+  res = requests.put(f'http://localhost:3003/api/session/{table.id}', json={ 'table': pickle.dumps(table).decode('latin1') })
+
+  table = pickle.loads(res.json()['table'].encode('latin1'))
 
   return table.toJSON(req['name'])
 
@@ -71,7 +73,10 @@ def join():
   player = Player(req['name'], False)
   table.add_player(player)
 
-  res = requests.post('http://localhost:3003/api/session', json={ 'table': pickle.dumps(table).decode('latin1') })
+  res = requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
+
+  table = pickle.loads(res.json()['table'].encode('latin1'))
+  print(table.players)
 
   return table.toJSON(req['name'])
 
@@ -97,7 +102,6 @@ def start():
 def get_table():
   '''Get the current state of the table'''
   req = request.get_json()
-  print(req)
   res = requests.get(f'http://localhost:3003/api/session/{req["id"]}')
   table: Table = pickle.loads(res.json()['table'].encode('latin1'))
 
