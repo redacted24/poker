@@ -1,0 +1,9 @@
+FROM python:3.12
+
+WORKDIR /server
+
+COPY . .
+
+RUN pip install -e .
+
+ENTRYPOINT ["python", "-m", "flask", "--app", "poker", "run", "--debug"]
