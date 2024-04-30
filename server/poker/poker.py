@@ -16,20 +16,15 @@ def count():
   session['count'] = session.get('count', 0) + 1          # increment session variable 'count' by 1
   return str(session['count'])
 
-
 @bp.post('/init')
 def init():
-  '''Initializes the poker table logic. Runs at the start of each session.'''
   req = request.get_json()
   player = Player(req['name'], False)
-
+  
   deck = Deck()
   table = Table(deck)
 
   table.add_player(player)
-  table.add_player(AdvancedBot('moderate_bot', 'moderate'))
-  table.add_player(AdvancedBot('tight_bot', 'moderate'))
-  table.add_player(AdvancedBot('loose_bot', 'moderate'))
 
   res = requests.post('http://localhost:3003/api/session', json={ 'table': pickle.dumps(table).decode('latin1') })
 
@@ -39,7 +34,51 @@ def init():
 
   requests.put(f'http://localhost:3003/api/session/{table.id}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
-  return table.toJSON()
+  return table.toJSON(req['name'])
+
+
+@bp.post('/quick_start')
+def quick_start():
+  '''Quickly initializes the poker table logic and start the game.'''
+  req = request.get_json()
+  player = Player(req['name'], False)
+
+  deck = Deck()
+  table = Table(deck)
+
+  table.add_player(player)
+  table.add_player(AdvancedBot('moderate_bot', 'moderate'))
+  table.add_player(AdvancedBot('tight_bot', 'moderate'))
+  table.add_player(RingRingItsTheCaller('caller', True))
+
+  res = requests.post('http://localhost:3003/api/session', json={ 'table': pickle.dumps(table).decode('latin1') })
+
+  table = pickle.loads(res.json()['table'].encode('latin1'))
+
+  table.id = res.json()['id']
+
+  res = requests.put(f'http://localhost:3003/api/session/{table.id}', json={ 'table': pickle.dumps(table).decode('latin1') })
+
+  table = pickle.loads(res.json()['table'].encode('latin1'))
+
+  return table.toJSON(req['name'])
+
+@bp.post('/join')
+def join():
+  '''Joins an existing game'''
+  req = request.get_json()
+  res = requests.get(f'http://localhost:3003/api/session/{req["id"]}')
+  table: Table = pickle.loads(res.json()['table'].encode('latin1'))
+
+  player = Player(req['name'], False)
+  table.add_player(player)
+
+  res = requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
+
+  table = pickle.loads(res.json()['table'].encode('latin1'))
+
+  return table.toJSON(req['name'])
+
 
 @bp.post('/start')
 def start():
@@ -56,17 +95,16 @@ def start():
 
   requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
-  return table.toJSON()
+  return table.toJSON(req['name'])
 
 @bp.post('/get-table')
 def get_table():
   '''Get the current state of the table'''
   req = request.get_json()
-  print(req)
   res = requests.get(f'http://localhost:3003/api/session/{req["id"]}')
   table: Table = pickle.loads(res.json()['table'].encode('latin1'))
 
-  return table.toJSON()
+  return table.toJSON(req['name'])
 
 @bp.post('/call')
 def call():
@@ -83,7 +121,7 @@ def call():
 
   requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
-  return table.toJSON()
+  return table.toJSON(req['name'])
 
 @bp.post('/check')
 def check():
@@ -100,7 +138,7 @@ def check():
 
   requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
-  return table.toJSON()
+  return table.toJSON(req['name'])
 
 @bp.post('/fold')
 def fold():
@@ -117,7 +155,7 @@ def fold():
 
   requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
-  return table.toJSON()
+  return table.toJSON(req['name'])
 
 @bp.post('/bet')
 def bet():
@@ -134,7 +172,7 @@ def bet():
 
   requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
-  return table.toJSON()
+  return table.toJSON(req['name'])
 
 @bp.post('/go_next')
 def go_next():
@@ -146,7 +184,7 @@ def go_next():
 
   requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
-  return table.toJSON()
+  return table.toJSON(req['name'])
 
 @bp.post('/clear')
 def clear():

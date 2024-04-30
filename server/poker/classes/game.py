@@ -41,6 +41,11 @@ class Board():
         else:
             return [False for _ in self._cards]
     
+    def force_put(self, cards):
+        '''Forcefully clear the board and put a list of the wanted cards on the table. Only used in testing.'''
+        self._cards = []
+        self._cards.extend(cards)
+    
     def clear(self):
         '''Clears and resets the board to its initial state'''
         self._cards = []
@@ -122,9 +127,8 @@ class Table():
 
     def start_queue(self, pre_flop=False):
         '''Adds a queue for the players' turn to play'''
-        print('setting queue')
+        print('starting queue')
         self.player_queue = self.active_players(pre_flop)
-        print(self.player_queue)
 
     def extend_queue(self, game_state):
         '''Extends the current queue for players to call/fold the bet'''
@@ -184,7 +188,7 @@ class Table():
         - Adds a queue for players to start playing
         - Set blinds for the current round
         - Shuffle deck and add three cards to the board, and deal cards to players'''
-        # print('Pre-flop')
+        print('Pre-flop')
         self.prepare_round(pre_flop=True)
         self.set_blinds()
         self.deck.shuffle()
@@ -276,22 +280,23 @@ class Table():
                     break
             else:
                 break
-        
+        print(self.state)
         if len(self.player_queue) == 0:
-            self.state = (self.state + 1) % 6
-            rounds = [self.pre_flop, self.flop, self.turn, self.river, self.showdown, self.reset]
-            
-            rounds[self.state]()
-            if 0 < self.state < 4:
-                self.play()
+            if self.state != 5:
+                self.state = (self.state + 1) % 6
+                rounds = [self.pre_flop, self.flop, self.turn, self.river, self.showdown, self.reset]
+                
+                rounds[self.state]()
+                if 0 < self.state < 4:
+                    self.play()
 
     def reset(self):
         '''Clears current cards on the board, resets deck, and removes all player handheld cards.
         Clears current round stats. Game stats are left unchanged.
         Players are still on the table, but shifted by one seat'''
-        # print('Reset')
+        print('Reset')
         self.pot = 0
-        self.state = 0
+        self.state = 5
         self.board.clear()
         self.deck.reset()
         self.winning_player = None
@@ -303,7 +308,7 @@ class Table():
         for player in self.players:
             player.reset()
         self.players = [p for p in self.players if p.balance > 0]       # kicks players who have no money left
-        self.start_queue(pre_flop=True)
+        self.player_queue.clear()
 
 
     # Player actions Table Class
@@ -395,17 +400,17 @@ class Table():
             self.players.append(player)
             player.join(self)
 
-    def toJSON(self):
+    def toJSON(self, player_name):
         return {
             'board': self.board.display(),
             'pot': self.pot,
-            'players': [p.toJSON() for p in self.players],
-            'player_queue': [p.toJSON() for p in self.player_queue],
+            'players': [p.toJSON(player_name) for p in self.players],
+            'player_queue': [p.toJSON(player_name) for p in self.player_queue],
             'required_bet': self.required_bet,
             'required_raise': self.required_raise,
             'state': self.state,
             'last_move': self.last_move,
-            'winning_player': self.winning_player and self.winning_player.toJSON(),
+            'winning_player': self.winning_player and self.winning_player.toJSON(player_name),
             'id': self.id
         }
 
@@ -630,8 +635,8 @@ class Player():
             self.bluffing = False
             self.ehs = 0
 
-        def toJSON(self):
-            return {
+        def toJSON(self, player_name):
+            response = {
                 'name': self.name,
                 'is_computer': self.is_computer,
                 'hand': [c.shortName for c in self.hand()],
@@ -642,6 +647,13 @@ class Player():
                 'previous_step': self.previous_step,
                 'position': self.position
             }
+
+            if self.name == player_name or self.table.state == 4:
+                response['hand'] = [c.shortName for c in self.hand()]
+            else:
+                response['hand'] = [False for _ in self.hand()]
+
+            return response
 
         def clear_all_stats(self):
             '''Clears all player stats.'''

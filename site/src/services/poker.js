@@ -11,6 +11,17 @@ const init = async (req) => {
   return response.data
 }
 
+const quickStart = async (req) => {
+  const response = await axios.post(`${baseUrl}/quick_start`, req)
+  return response.data
+}
+
+const join = async (req) => {
+  const response = await axios.post(`${baseUrl}/join`, req)
+  
+  return response.data
+}
+
 const clear = async (req) => {
   const response = await axios.post(`${baseUrl}/clear`, req)
   return response.data
@@ -51,4 +62,4 @@ const next = async (req) => {
   return response.data
 }
 
-export default { test, init, clear, start, getTable, call, check, fold, bet, next }
+export default { test, init, quickStart, join, clear, start, getTable, call, check, fold, bet, next }
