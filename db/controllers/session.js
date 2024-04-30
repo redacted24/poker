@@ -3,6 +3,7 @@ const Session = require('../models/session')
 
 sessionsRouter.get('/:id', async (request, response) => {
   const session = await Session.findById(request.params.id)
+  console.log(request.params.id)
   response.json(session)
 })
 

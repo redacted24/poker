@@ -8,7 +8,7 @@ const Intro = () => {
       <div id='link-buttons'>
         <Link to='/playground'><button className='link-button'>Campaign</button></Link>
         <Link to='/playground'><button className='link-button'>Quick Start</button></Link>
-        <Link to='/lobby'><button className='link-button'>Create a Table</button></Link>
+        <Link to='/host'><button className='link-button'>Create a Table</button></Link>
       </div>
     </>
   )

@@ -41,12 +41,12 @@ const Playground = () => {
 
 
   useEffect(() => {
-    const init = async () => {
-      const tableData = await pokerService.init({ name })
+    const quickStart = async () => {
+      const tableData = await pokerService.quickStart({ name })
       setTable(tableData)
       window.localStorage.setItem('tableId', tableData.id)
     }
-    init()
+    quickStart()
   }, [name])
 
 

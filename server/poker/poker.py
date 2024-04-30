@@ -16,10 +16,30 @@ def count():
   session['count'] = session.get('count', 0) + 1          # increment session variable 'count' by 1
   return str(session['count'])
 
-
 @bp.post('/init')
 def init():
-  '''Initializes the poker table logic. Runs at the start of each session.'''
+  req = request.get_json()
+  player = Player(req['name'], False)
+  
+  deck = Deck()
+  table = Table(deck)
+
+  table.add_player(player)
+
+  res = requests.post('http://localhost:3003/api/session', json={ 'table': pickle.dumps(table).decode('latin1') })
+
+  table = pickle.loads(res.json()['table'].encode('latin1'))
+
+  table.id = res.json()['id']
+
+  requests.put(f'http://localhost:3003/api/session/{table.id}', json={ 'table': pickle.dumps(table).decode('latin1') })
+
+  return table.toJSON(req['name'])
+
+
+@bp.post('/quick_start')
+def quick_start():
+  '''Quickly initializes the poker table logic and start the game.'''
   req = request.get_json()
   player = Player(req['name'], False)
 
@@ -40,6 +60,21 @@ def init():
   requests.put(f'http://localhost:3003/api/session/{table.id}', json={ 'table': pickle.dumps(table).decode('latin1') })
 
   return table.toJSON(req['name'])
+
+@bp.post('/join')
+def join():
+  '''Joins an existing game'''
+  req = request.get_json()
+  res = requests.get(f'http://localhost:3003/api/session/{req["id"]}')
+  table: Table = pickle.loads(res.json()['table'].encode('latin1'))
+
+  player = Player(req['name'], False)
+  table.add_player(player)
+
+  res = requests.post('http://localhost:3003/api/session', json={ 'table': pickle.dumps(table).decode('latin1') })
+
+  return table.toJSON(req['name'])
+
 
 @bp.post('/start')
 def start():

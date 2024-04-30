@@ -5,6 +5,7 @@ import {
 
 import Intro from './pages/intro/Intro'
 import Playground from './pages/playground/Playground'
+import Host from './pages/lobby/Host'
 import Lobby from './pages/lobby/Lobby'
 import './app.css'
 
@@ -13,7 +14,8 @@ const App = () => {
     <Router>
       <Routes>
         <Route path="/playground" element={<Playground />} />
-        <Route path="/lobby" element={<Lobby />} />
+        <Route path="/lobby/:id" element={<Lobby />} />
+        <Route path="/host" element={<Host />} />
         <Route path="/" element={<Intro />} />
       </Routes>
     </Router>

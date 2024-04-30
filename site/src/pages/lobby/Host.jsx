@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
 import Player from './Player'
 import './host.css'
 
 import pokerService from '../../services/poker'
 
-const Lobby = () => {
-    console.log('lobby')
+const Host = () => {
     const [name, setName] = useState()
     const [table, setTable] = useState()
-    const tableId = useParams().id
 
     useEffect(() => {
         const username = prompt('Please enter your username.', 'Bob')
@@ -32,12 +29,13 @@ const Lobby = () => {
     }, [])
 
     useEffect(() => {
-        const join = async () => {
-          const tableData = await pokerService.join({ name, id: tableId })
+        const init = async () => {
+          const tableData = await pokerService.init({ name })
+          console.log(tableData)
           setTable(tableData)
           window.localStorage.setItem('tableId', tableData.id)
         }
-        if (name) join()
+        if (name) init()
       }, [name])
 
     const getTableId = () => {
@@ -51,7 +49,7 @@ const Lobby = () => {
 
     return (
         <>
-            <h2 id='status'>Lobby...</h2>
+            <h2 id='status'>Waiting...</h2>
             <div id='lobby'>
                 <div id='player-list'>
                     <p className='subheader'>Player list</p>
@@ -71,4 +69,4 @@ const Lobby = () => {
     )
 }
 
-export default Lobby
+export default Host
