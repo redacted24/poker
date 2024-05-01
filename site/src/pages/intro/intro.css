@@ -10,6 +10,8 @@
     justify-content: center;
     font-size: 2rem;
     z-index: 2;
+    color: black;
+    border: 3px solid red;
 }
 
 #link-buttons {
@@ -18,7 +20,7 @@
     display: flex;
 }
 
-#campaign {
+.navigators {
     transition: all 0.25s;
     width: 100%;
     position: relative;
@@ -26,6 +28,32 @@
     justify-content: center;
     align-items: center;
     overflow: hidden;
+}
+
+@keyframes top-left-appear {
+    from {
+        top: -120px;
+        rotate: -25deg;
+    }
+    to {
+        top: 0px;
+        rotate: -10deg;
+    }
+}
+
+@keyframes top-left-appear-back {
+    from {
+        top: 0px;
+        rotate: -10deg;
+    }
+    to {
+        top: -120px;
+        rotate: -25deg;
+    }
+}
+
+.back-animation {
+    animation: top-left-appear-back 0.75s normal forwards;
 }
 
 #campaign:hover {
@@ -44,32 +72,17 @@
     transition: all 0.25s;
 }
 
-@keyframes top-left-appear {
-    from {
-        top: -100px;
-        rotate: -25deg;
-    }
-    to {
-        top: 0px;
-        rotate: -10deg;
-    }
-}
-
 #campaign-image-1 {
     position: absolute;
     width: 100px;
     aspect-ratio: 1;
-    top: -100px;
+    top: -120px;
     left: 0;
+    border: 3px solid red;
 }
-
 
 #campaign:hover + #campaign-image-1 {
-    animation: top-left-appear 1s normal forwards;
-}
-
-#quickstart {
-    transition: all 0.25s;
+    animation: top-left-appear 0.75s normal forwards;
 }
 
 #quickstart:hover {
@@ -86,11 +99,23 @@
     transition: all 0.25s;
 }
 
-#create-table {
+#quickstart-image-1 {
+    position: absolute;
+    width: 100px;
+    aspect-ratio: 1;
+    top: -120px;
+    left: 33%;
+}
+
+#quickstart:hover + #quickstart-image-1 {
+    animation: top-left-appear 0.75s normal forwards;
+}
+
+#multiplayer {
     transition: all 0.25s;
 }
 
-#create-table:hover {
+#multiplayer:hover {
     background-color: #f4433680;
     transform: scale(1.3);
     transition: background-color 0.25s;
@@ -98,11 +123,12 @@
     cursor: pointer;
 }
 
-#create-table:active {
+#multiplayer:active {
     background-color: #f44336bb;
     transform: scale(1);
     transition: all 0.25s;
 }
+
 
 .react-link-clickable {
     width: 100%;
@@ -116,4 +142,10 @@
     height: 100%;
     font-size: 1.5rem;
     padding: 10px;
+    transition: all 0.25s;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
