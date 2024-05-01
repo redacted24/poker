@@ -3,22 +3,23 @@ import { useEffect } from 'react'
 import './intro.css'
 
 const Intro = () => {
-  useEffect(() => {
-    // Used to disable animation load on page load
-    const DisableLoadAnimation = () => {
-      let campaign = document.getElementById('campaign')
-      let quickstart = document.getElementById('quickstart')
-      let multiplayer = document.getElementById('multiplayer')
+  // useEffect(() => {
+  //   // Used to disable animation load on page load
+  //   const DisableLoadAnimation = () => {
+  //     let campaign = document.getElementById('campaign')
+  //     let quickstart = document.getElementById('quickstart')
+  //     let multiplayer = document.getElementById('multiplayer')
       
-      const addAnimCampaign = () => {
-        console.log('campaign mouse over')
-        document.getElementById('campaign-image-1').classList.add('back-animation')
-        campaign.removeEventListener('mouseover', addAnimCampaign)
-      }
-      campaign.addEventListener('mouseover', addAnimCampaign)
-    }
-    DisableLoadAnimation()
-  })
+  //     const addAnimCampaign = () => {
+  //       console.log('campaign mouse over')
+  //       document.getElementById('campaign-image-1').classList.add('back-animation')
+  //       document.getElementById('campaign-image-2').classList.add('back-animation')
+  //       campaign.removeEventListener('mouseover', addAnimCampaign)
+  //     }
+  //     campaign.addEventListener('mouseover', addAnimCampaign)
+  //   }
+  //   // DisableLoadAnimation()
+  // })
 
   return (
     <div id="intro-container">
@@ -29,6 +30,7 @@ const Intro = () => {
             Campaign
           </button>
           <img src="../../src/assets/ui/campaign-castle.svg" alt="doesnt work" id="campaign-image-1"></img>
+          <img src="../../src/assets/ui/tree1.svg" alt="doesnt work" id="campaign-image-2"></img>
         </Link>
         <Link className="react-link-clickable" to='/playground'>
           <button id="quickstart" className='link-button'>

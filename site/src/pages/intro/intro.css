@@ -1,3 +1,36 @@
+@keyframes top-left-appear {
+    from {
+        top: -120px;
+        rotate: -25deg;
+    }
+    to {
+        top: 150px;
+        rotate: -10deg;
+    }
+}
+
+@keyframes top-left-appear-back {
+    from {
+        top: 150px;
+        rotate: -10deg;
+    }
+    to {
+        top: -120px;
+        rotate: -25deg;
+    }
+}
+
+@keyframes campaign-image-2 {
+    from {
+        top: -120px;
+        rotate: -25deg;
+    }
+    to {
+        top: 150px;
+        rotate: -10deg;
+    }
+}
+
 #intro-container {
     height: 100vh;
 }
@@ -11,7 +44,7 @@
     font-size: 2rem;
     z-index: 2;
     color: black;
-    border: 3px solid red;
+    pointer-events: none;
 }
 
 #link-buttons {
@@ -30,30 +63,9 @@
     overflow: hidden;
 }
 
-@keyframes top-left-appear {
-    from {
-        top: -120px;
-        rotate: -25deg;
-    }
-    to {
-        top: 0px;
-        rotate: -10deg;
-    }
-}
-
-@keyframes top-left-appear-back {
-    from {
-        top: 0px;
-        rotate: -10deg;
-    }
-    to {
-        top: -120px;
-        rotate: -25deg;
-    }
-}
 
 .back-animation {
-    animation: top-left-appear-back 0.75s normal forwards;
+    animation: top-left-appear-back 0.75s forwards;
 }
 
 #campaign:hover {
@@ -72,17 +84,40 @@
     transition: all 0.25s;
 }
 
+/* Castle */
 #campaign-image-1 {
     position: absolute;
     width: 100px;
     aspect-ratio: 1;
     top: -120px;
-    left: 0;
-    border: 3px solid red;
+    left: 100px;
+    rotate: -25deg;
+    pointer-events: none;
+    transition: all 1s;
 }
 
-#campaign:hover + #campaign-image-1 {
-    animation: top-left-appear 0.75s normal forwards;
+#campaign:hover ~ #campaign-image-1 {
+    /* animation: top-left-appear 0.75s normal forwards; */
+    top: 150px;
+    rotate: -10deg;
+    transition: all 1s;
+}
+
+/* Tree */
+#campaign-image-2 {
+    position: absolute;
+    width: 100px;
+    aspect-ratio: 1;
+    top: -120px;
+    left: 175px;
+    pointer-events: none;
+    transition: all 1s;
+}
+
+#campaign:hover ~ #campaign-image-2 {
+    top: 130px;
+    rotate: -10deg;
+    transition: all 1.25s;  
 }
 
 #quickstart:hover {
@@ -103,12 +138,12 @@
     position: absolute;
     width: 100px;
     aspect-ratio: 1;
-    top: -120px;
+    top: -120px;    
     left: 33%;
 }
 
 #quickstart:hover + #quickstart-image-1 {
-    animation: top-left-appear 0.75s normal forwards;
+    animation: top-left-appear 5s normal forwards;
 }
 
 #multiplayer {
