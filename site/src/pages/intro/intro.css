@@ -1,19 +1,57 @@
+#intro-container {
+    height: 100vh;
+}
+
 #title {
-    margin-top: 24vh;
-    margin-bottom: 10vh;
+    position: absolute;
+    width: 100%;
+    top: 20%;
+    display: flex;
+    justify-content: center;
     font-size: 3rem;
-    text-align: center;
 }
 
 #link-buttons {
-    width: 80%;
-    margin: 0 auto;
+    width: 100%;
+    height: 100%;
     display: flex;
-    justify-content: space-around;
+}
+
+#campaign {
+    transition: all 0.25s;
+}
+#campaign:hover {
+    background-color: #5965ac80;
+    transition: all 0.25s;
+    cursor: pointer;
+}
+
+#quickstart {
+    transition: all 0.25s;
+}
+
+#quickstart:hover {
+    background-color: #63ac5980;
+    cursor: pointer;
+}
+
+#create-table {
+    transition: all 0.25s;
+}
+
+#create-table:hover {
+    background-color: #f4433680;
+    cursor: pointer;
+}
+
+.react-link-clickable {
+    width: 100%;
 }
 
 .link-button {
-    font-size: 1.1rem;
-    width: 200px;
+    border: none;
+    width: 100%;
+    height: 100%;
+    font-size: 1.5rem;
     padding: 10px;
 }

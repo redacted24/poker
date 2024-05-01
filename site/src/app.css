@@ -1,5 +1,10 @@
 body {
-    background-color: #f3f6fc;
+    background-color: #fefbf6;
+}
+
+body, html {
+    margin: 0;
+    padding: 0;
 }
 
 * {
