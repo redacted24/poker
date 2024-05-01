@@ -231,7 +231,7 @@
     top: 40vh;
     left: -4vw;
     rotate: 0deg;
-    transition: all 2s;
+    transition: all 1.5s;
 }
 
 /* Bird 1*/
@@ -248,7 +248,7 @@
 #campaign:hover ~ #campaign-image-11 {
     top: 35vh;
     left: 23vw;
-    transition: all 1.5s;
+    transition: all 1s;
 }
 
 
@@ -261,6 +261,7 @@
     transition: background-color 0.25s;
     transition: transform 0.5s;
     cursor: pointer;
+    z-index: 1;
 }
 
 #quickstart:active {
@@ -274,27 +275,137 @@
     background-color: #fefbf6;
     border-radius: 3px;
     box-shadow: -3px 5px 0px #233d20;
-
+    z-index: 2;
     transition: all 0.25s;
 }
 
-/* Bird 1*/
+/* Card 1*/
 #quickstart-image-1 {
     position: absolute;
-    width: 2vw;
+    width: 10vw;
     aspect-ratio: 1;
+    left: 45vw;
     top: 100vh;
-    left: -10vw;
     pointer-events: none;
     transition: all var(--animation-retreat-time);
 }
 
 #quickstart:hover ~ #quickstart-image-1 {
-    top: 35vh;
-    left: 23vw;
+    top: 85vh;
+    rotate: -15deg;
+    left: 45vw;
+    transition: all 1s;
+}
+
+/* Card 2*/
+#quickstart-image-2 {
+    position: absolute;
+    width: 10vw;
+    aspect-ratio: 1;
+    rotate: 180deg;
+    left: 45vw;
+    top: -30vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#quickstart:hover ~ #quickstart-image-2 {
+    top: -10vh;
+    left: 45vw;
+    transition: all 1s;
+}
+
+/* Poker Chip3*/
+#quickstart-image-3 {
+    position: absolute;
+    width: 3vw;
+    aspect-ratio: 1;
+    rotate: 15deg;
+    left: 48.6vw;
+    top: -10vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#quickstart:hover ~ #quickstart-image-3 {
+    left: 48.6vw;
+    top: 30vh;
     transition: all 1.5s;
 }
 
+/* Poker Chip4*/
+#quickstart-image-4 {
+    position: absolute;
+    width: 3vw;
+    aspect-ratio: 1;
+    rotate: 15deg;
+    left: 48.6vw;
+    top: 100vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#quickstart:hover ~ #quickstart-image-4 {
+    left: 48.6vw;
+    top: 66vh;
+    transition: all 1.5s;
+}
+
+/* Community Card 1*/
+#quickstart-image-5 {
+    position: absolute;
+    width: 8vw;
+    aspect-ratio: 1;
+    left: 30vw;
+    rotate: -20deg;
+    top: -30vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#quickstart:hover ~ #quickstart-image-5 {
+    left: 38.5vw;
+    rotate: 0deg;
+    top: 42vh;
+    transition: all 1s;
+}
+
+/* Community Card 2*/
+#quickstart-image-6 {
+    position: absolute;
+    width: 8vw;
+    aspect-ratio: 1;
+    left: 46vw;
+    top: -30vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#quickstart:hover ~ #quickstart-image-6 {
+    left: 46vw;
+    rotate: 0deg;
+    top: 42vh;
+    transition: all 1.25s;
+}
+
+/* Community Card 3*/
+#quickstart-image-7 {
+    position: absolute;
+    width: 8vw;
+    aspect-ratio: 1;
+    left: 60vw;
+    rotate: 20deg;
+    top: -30vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#quickstart:hover ~ #quickstart-image-7 {
+    left: 53.5vw;
+    rotate: 0deg;
+    top: 42vh;
+    transition: all 1.5s;
+}
 
 /* MULTIPLAYER ------------------ */
 

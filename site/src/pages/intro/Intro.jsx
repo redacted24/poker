@@ -22,12 +22,21 @@ const Intro = () => {
           <img src="../../src/assets/ui/line.svg" alt="doesnt work" id="campaign-image-10"></img>        
           <img src="../../src/assets/ui/bird.svg" alt="doesnt work" id="campaign-image-11"></img>        
         </Link>
+
         <Link className="react-link-clickable" to='/playground'>
           <button id="quickstart" className='link-button'>
             <div id="quickstart-text">Quick Start</div>
           </button>
-          <img src="" alt="placeholder" id="quickstart-image-1"></img>
+          <img src="../../src/assets/ui/cards1.svg" alt="cards1" id="quickstart-image-1"></img>
+          <img src="../../src/assets/ui/cards2_halfhidden.svg" alt="cards2_halfhidden" id="quickstart-image-2"></img>
+          <img src="../../src/assets/ui/pokerchip.svg" alt="pokerchip" id="quickstart-image-3"></img>
+          <img src="../../src/assets/ui/pokerchip.svg" alt="pokerchip" id="quickstart-image-4"></img>
+          <img src="../../src/assets/ui/card_hidden.svg" alt="card_hidden" id="quickstart-image-5"></img>
+          <img src="../../src/assets/ui/card_hidden.svg" alt="card_hidden" id="quickstart-image-6"></img>
+          <img src="../../src/assets/ui/card_hidden.svg" alt="card_hidden" id="quickstart-image-7"></img>
+
         </Link>
+
         <Link className="react-link-clickable" to='/host'>
           <button id="multiplayer" className='link-button'>
             <div id="multiplayer-text">Create a Table</div>
