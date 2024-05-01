@@ -9,7 +9,6 @@ import ls from 'localstorage-slim'
 const Host = () => {
     const [table, setTable] = useState()
     const navigate = useNavigate()
-    let intervalId
 
     useEffect(() => {
         const removeTableId = async () => {
@@ -52,7 +51,7 @@ const Host = () => {
           }
           fetchData()
           const tempIntervalId = setInterval(fetchData, 2500)
-          intervalId = tempIntervalId
+          addInterval(tempIntervalId)
         } else {
           clearInterval(intervalId)
           intervalId = null
@@ -73,8 +72,12 @@ const Host = () => {
     }
 
     const startGame = () => {
-        toggleFetching(false)
-        navigate(`../game/${getTableId()}`)
+        if (table.players.length >= 2) {
+            toggleFetching(false)
+            navigate(`../game/${getTableId()}`)
+        } else {
+            alert('You cannot start a game with less than 2 players!')
+        }
     }
 
     return (

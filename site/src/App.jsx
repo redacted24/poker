@@ -2,7 +2,7 @@ import {
   BrowserRouter as Router,
   Routes, Route
 } from 'react-router-dom'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import ls from 'localstorage-slim'
 
 import Intro from './pages/intro/Intro'
@@ -13,6 +13,8 @@ import Game from './pages/game/Game'
 import './app.css'
 
 const App = () => {
+  const [intervalIds, setIntervalIds] = useState([])
+
   useEffect(() => {
     `Getting a username from the user, then setting a time to live of 1h`
     if (!ls.get('username')) {
@@ -21,13 +23,17 @@ const App = () => {
     }
   }, [])
 
+  const addIntervalId = (newIntervalId) => {
+    setIntervalIds(intervalIds.concat(newIntervalId))
+  }
+
   return (
     <Router>
       <Routes>
-        <Route path="/playground" element={<Playground />} />
-        <Route path="/lobby/:id" element={<Lobby />} />
-        <Route path="/game/:id" element={<Game />} />
-        <Route path="/host" element={<Host />} />
+        <Route path="/playground" element={<Playground addIntervalId={addIntervalId}/>} />
+        <Route path="/lobby/:id" element={<Lobby addIntervalId={addIntervalId}/>} />
+        <Route path="/game/:id" element={<Game addIntervalId={addIntervalId}/>} />
+        <Route path="/host" element={<Host addIntervalId={addIntervalId}/>} />
         <Route path="/" element={<Intro />} />
       </Routes>
     </Router>
