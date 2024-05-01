@@ -1,34 +1,5 @@
-@keyframes top-left-appear {
-    from {
-        top: -120px;
-        rotate: -25deg;
-    }
-    to {
-        top: 150px;
-        rotate: -10deg;
-    }
-}
-
-@keyframes top-left-appear-back {
-    from {
-        top: 150px;
-        rotate: -10deg;
-    }
-    to {
-        top: -120px;
-        rotate: -25deg;
-    }
-}
-
-@keyframes campaign-image-2 {
-    from {
-        top: -120px;
-        rotate: -25deg;
-    }
-    to {
-        top: 150px;
-        rotate: -10deg;
-    }
+:root {
+    --animation-retreat-time: 0.5s;
 }
 
 #intro-container {
@@ -53,17 +24,6 @@
     display: flex;
 }
 
-.navigators {
-    transition: all 0.25s;
-    width: 100%;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-}
-
-
 .back-animation {
     animation: top-left-appear-back 0.75s forwards;
 }
@@ -72,11 +32,19 @@
     position: relative;
     background-color: #5965ac80;
     transform: scale(1.3);
-    transition: background-color 0.25s;
-    transition: transform 0.5s;
+    transition: all 0.75s;
     cursor: pointer;
+    z-index: 1;
 }
 
+#campaign:hover #campaign-text {
+    padding: 2vh;
+    background-color: #fefbf6;
+    border-radius: 3px;
+    box-shadow: -3px 5px 0px #212641;
+
+    transition: all 0.25s;
+}
 
 #campaign:active {
     background-color: #5965acbb;
@@ -87,38 +55,205 @@
 /* Castle */
 #campaign-image-1 {
     position: absolute;
-    width: 100px;
+    width: 6vw;
     aspect-ratio: 1;
-    top: -120px;
-    left: 100px;
-    rotate: -25deg;
+    top: 55vh;
+    left: -10vw;
+    rotate: 25deg;
     pointer-events: none;
-    transition: all 1s;
+    transition: all var(--animation-retreat-time);
 }
 
 #campaign:hover ~ #campaign-image-1 {
-    /* animation: top-left-appear 0.75s normal forwards; */
-    top: 150px;
-    rotate: -10deg;
+    top: 60vh;
+    rotate: 0deg;
+    left: 5vw;
     transition: all 1s;
 }
 
-/* Tree */
+/* Shield */
 #campaign-image-2 {
     position: absolute;
-    width: 100px;
+    width: 3vw;
     aspect-ratio: 1;
-    top: -120px;
-    left: 175px;
+    top: 110vh;
+    left: 20vw;
+    rotate: -60deg;
     pointer-events: none;
-    transition: all 1s;
+    transition: all var(--animation-retreat-time);
 }
 
 #campaign:hover ~ #campaign-image-2 {
-    top: 130px;
-    rotate: -10deg;
-    transition: all 1.25s;  
+    top: 82vh;
+    left: 28vw;
+    rotate: 0deg;
+    transition: all 1s;
 }
+
+/* Swords */
+#campaign-image-3 {
+    position: absolute;
+    width: 3vw;
+    aspect-ratio: 1;
+    top: 120vh;
+    left: 20vw;
+    rotate: -60deg;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-3 {
+    top: 90vh;
+    left: 28vw;
+    rotate: 0deg;
+    transition: all 1.2s;
+}
+
+/* Heart 1 (unfilled) */
+#campaign-image-4 {
+    position: absolute;
+    width: 3vw;
+    aspect-ratio: 1;
+    top: 105vh;
+    left: 5vw;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-4 {
+    top: 90vh;
+    left: 5vw;
+    transition: all 1.5s;
+}
+
+/* Heart 2 (unfilled) */
+#campaign-image-5 {
+    position: absolute;
+    width: 3vw;
+    aspect-ratio: 1;
+    top: 105vh;
+    left: 9vw;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-5 {
+    top: 90vh;
+    left: 9vw;
+    transition: all 2s;
+}
+
+/* Heart 3 (filled) */
+#campaign-image-6 {
+    position: absolute;
+    width: 3vw;
+    aspect-ratio: 1;
+    top: 105vh;
+    left: 1vw;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-6 {
+    top: 90vh;
+    left: 1vw;
+    transition: all 1s;
+}
+
+/* Sun */
+#campaign-image-7 {
+    position: absolute;
+    width: 20vw;
+    aspect-ratio: 1;
+    top: -50vh;
+    left: 15vw;
+    rotate: 60deg;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-7 {
+    top: -18vh;
+    left: 22vw;
+    rotate: 0deg;
+    transition: all 1s;
+}
+
+/* Cloud */
+#campaign-image-8 {
+    position: absolute;
+    width: 5vw;
+    aspect-ratio: 1;
+    top: -20vh;
+    left: 0vw;
+    rotate: 60deg;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-8 {
+    top: 15vh;
+    left: 5vw;
+    rotate: 0deg;
+    transition: all 1s;
+}
+
+/* Cloud 2*/
+#campaign-image-9 {
+    position: absolute;
+    width: 5vw;
+    aspect-ratio: 1;
+    top: -20vh;
+    left: 0vw;
+    rotate: 60deg;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-9 {
+    top: 10vh;
+    left: 10vw;
+    rotate: 0deg;
+    transition: all 1.5s;
+}
+
+/* Line */
+#campaign-image-10 {
+    position: absolute;
+    width: 30vw;
+    aspect-ratio: 1;
+    left: -35vw;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-10 {
+    top: 40vh;
+    left: -4vw;
+    rotate: 0deg;
+    transition: all 2s;
+}
+
+/* Bird 1*/
+#campaign-image-11 {
+    position: absolute;
+    width: 2vw;
+    aspect-ratio: 1;
+    top: 100vh;
+    left: -10vw;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-11 {
+    top: 35vh;
+    left: 23vw;
+    transition: all 1.5s;
+}
+
+
+/* QUICKSTART ---------------*/
+
 
 #quickstart:hover {
     background-color: #63ac5980;
@@ -134,17 +269,35 @@
     transition: all 0.25s;
 }
 
-#quickstart-image-1 {
-    position: absolute;
-    width: 100px;
-    aspect-ratio: 1;
-    top: -120px;    
-    left: 33%;
+#quickstart:hover #quickstart-text {
+    padding: 2vh;
+    background-color: #fefbf6;
+    border-radius: 3px;
+    box-shadow: -3px 5px 0px #233d20;
+
+    transition: all 0.25s;
 }
 
-#quickstart:hover + #quickstart-image-1 {
-    animation: top-left-appear 5s normal forwards;
+/* Bird 1*/
+#quickstart-image-1 {
+    position: absolute;
+    width: 2vw;
+    aspect-ratio: 1;
+    top: 100vh;
+    left: -10vw;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
 }
+
+#quickstart:hover ~ #quickstart-image-1 {
+    top: 35vh;
+    left: 23vw;
+    transition: all 1.5s;
+}
+
+
+/* MULTIPLAYER ------------------ */
+
 
 #multiplayer {
     transition: all 0.25s;
@@ -156,6 +309,15 @@
     transition: background-color 0.25s;
     transition: transform 0.5s;
     cursor: pointer;
+}
+
+#multiplayer:hover #multiplayer-text {
+    padding: 2vh;
+    background-color: #fefbf6;
+    border-radius: 3px;
+    box-shadow: -3px 5px 0px #501612;
+
+    transition: all 0.25s;
 }
 
 #multiplayer:active {

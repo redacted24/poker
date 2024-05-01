@@ -1,5 +1,6 @@
 body {
     background-color: #fefbf6;
+    overflow: hidden;
 }
 
 a:link, a:visited, a:hover, a:active {
