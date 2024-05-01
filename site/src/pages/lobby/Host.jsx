@@ -6,7 +6,7 @@ import pokerService from '../../services/poker'
 import { useNavigate } from 'react-router-dom'
 import ls from 'localstorage-slim'
 
-const Host = () => {
+const Host = ({ clearIntervals }) => {
     const [table, setTable] = useState()
     const navigate = useNavigate()
     let intervalId
@@ -33,8 +33,7 @@ const Host = () => {
 
         return () => {
             window.removeEventListener('beforeunload', removeTableId)
-            clearInterval(intervalId)
-            intervalId = null
+            clearIntervals()
         }
     }, [])
 
@@ -73,8 +72,12 @@ const Host = () => {
     }
 
     const startGame = () => {
-        toggleFetching(false)
-        navigate(`../game/${getTableId()}`)
+        if (table.players.length >= 2) {
+            toggleFetching(false)
+            navigate(`../game/${getTableId()}`)
+        } else {
+            alert('You cannot start a game with less than 2 players!')
+        }
     }
 
     return (

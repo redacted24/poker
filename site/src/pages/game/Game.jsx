@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import ls from 'localstorage-slim'
 
 import Card from './Card'
@@ -10,11 +10,12 @@ import pokerService from '../../services/poker'
 import './game.css'
 
 
-const Game = () => {
+const Game = ({ clearIntervals }) => {
   const [table, setTable] = useState()
   const [inGame, setInGame] = useState(false)
   const [displayBoard, setDisplayBoard] = useState(false)
   const params = useParams()
+  const navigate = useNavigate()
   let intervalId
 
   useEffect(() => {
@@ -44,8 +45,8 @@ const Game = () => {
 
     return () => {
       window.removeEventListener('beforeunload', removeTableId)
-      clearInterval(intervalId)
-      intervalId = null
+      clearIntervals()
+      navigate('../../')
     }
   }, [])
 
@@ -86,7 +87,7 @@ const Game = () => {
 
   useEffect(() => {
     const checkWinner = async () => {
-      if (table && table.winning_player) {
+      if (table && table.winning_player && inGame) {
         setTimeout(async () => {
           alert(`${table.winning_player.name} has won ${table.pot}!`)
           const tableData = await pokerService.next({ name: getName(), id: getTableId() })
