@@ -6,9 +6,10 @@ import pokerService from '../../services/poker'
 import { useNavigate } from 'react-router-dom'
 import ls from 'localstorage-slim'
 
-const Host = () => {
+const Host = ({ clearIntervals }) => {
     const [table, setTable] = useState()
     const navigate = useNavigate()
+    let intervalId
 
     useEffect(() => {
         const removeTableId = async () => {
@@ -32,8 +33,7 @@ const Host = () => {
 
         return () => {
             window.removeEventListener('beforeunload', removeTableId)
-            clearInterval(intervalId)
-            intervalId = null
+            clearIntervals()
         }
     }, [])
 
@@ -51,7 +51,7 @@ const Host = () => {
           }
           fetchData()
           const tempIntervalId = setInterval(fetchData, 2500)
-          addInterval(tempIntervalId)
+          intervalId = tempIntervalId
         } else {
           clearInterval(intervalId)
           intervalId = null

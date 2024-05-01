@@ -10,7 +10,7 @@ import pokerService from '../../services/poker'
 import './game.css'
 
 
-const Game = () => {
+const Game = ({ clearIntervals }) => {
   const [table, setTable] = useState()
   const [inGame, setInGame] = useState(false)
   const [displayBoard, setDisplayBoard] = useState(false)
@@ -45,8 +45,7 @@ const Game = () => {
 
     return () => {
       window.removeEventListener('beforeunload', removeTableId)
-      clearInterval(intervalId)
-      intervalId = null
+      clearIntervals()
       navigate('../../')
     }
   }, [])

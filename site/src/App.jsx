@@ -13,7 +13,6 @@ import Game from './pages/game/Game'
 import './app.css'
 
 const App = () => {
-  const [intervalIds, setIntervalIds] = useState([])
 
   useEffect(() => {
     `Getting a username from the user, then setting a time to live of 1h`
@@ -23,17 +22,20 @@ const App = () => {
     }
   }, [])
 
-  const addIntervalId = (newIntervalId) => {
-    setIntervalIds(intervalIds.concat(newIntervalId))
+  const clearIntervals = () => {
+    let currentId = window.setInterval(function() {}, 0);
+    while (currentId--) {
+      window.clearInterval(currentId)
+    }
   }
 
   return (
     <Router>
       <Routes>
-        <Route path="/playground" element={<Playground addIntervalId={addIntervalId}/>} />
-        <Route path="/lobby/:id" element={<Lobby addIntervalId={addIntervalId}/>} />
-        <Route path="/game/:id" element={<Game addIntervalId={addIntervalId}/>} />
-        <Route path="/host" element={<Host addIntervalId={addIntervalId}/>} />
+        <Route path="/playground" element={<Playground clearIntervals={clearIntervals}/>} />
+        <Route path="/lobby/:id" element={<Lobby clearIntervals={clearIntervals}/>} />
+        <Route path="/game/:id" element={<Game clearIntervals={clearIntervals}/>} />
+        <Route path="/host" element={<Host clearIntervals={clearIntervals}/>} />
         <Route path="/" element={<Intro />} />
       </Routes>
     </Router>
