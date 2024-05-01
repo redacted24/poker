@@ -44,14 +44,6 @@
     transition: all 0.25s;
 }
 
-#campaign-image-1 {
-    position: absolute;
-    width: 100px;
-    aspect-ratio: 1;
-    top: -100px;
-    left: 0;
-}
-
 @keyframes top-left-appear {
     from {
         top: -100px;
@@ -63,9 +55,17 @@
     }
 }
 
+#campaign-image-1 {
+    position: absolute;
+    width: 100px;
+    aspect-ratio: 1;
+    top: -100px;
+    left: 0;
+}
+
+
 #campaign:hover + #campaign-image-1 {
-    animation: top-left-appear 1s both;
-    animation-direction: alternate;
+    animation: top-left-appear 1s normal forwards;
 }
 
 #quickstart {
