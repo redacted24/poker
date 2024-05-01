@@ -420,6 +420,7 @@
     transition: background-color 0.25s;
     transition: transform 0.5s;
     cursor: pointer;
+    z-index: 1;
 }
 
 #multiplayer:hover #multiplayer-text {
@@ -435,6 +436,91 @@
     background-color: #f44336bb;
     transform: scale(1);
     transition: all 0.25s;
+}
+
+/* Gears */
+#multiplayer-image-1 {
+    position: absolute;
+    width: 8vw;
+    aspect-ratio: 1;
+    left: 105vw;
+    rotate: -20deg;
+    top: -15vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#multiplayer:hover ~ #multiplayer-image-1 {
+    left: 91vw;
+    top: 2vh;
+    rotate: 0deg;
+    transition: all 1s;
+}
+
+/* Plus Icon */
+#multiplayer-image-2 {
+    position: absolute;
+    width: 3vw;
+    aspect-ratio: 1;
+    left: 68vw;
+    top: 100vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#multiplayer:hover ~ #multiplayer-image-2 {
+    left: 68vw;
+    top: 89vh;
+    transition: all 1.3s;
+}
+
+/* People Icon */
+#multiplayer-image-3 {
+    position: absolute;
+    width: 5vw;
+    aspect-ratio: 1;
+    left: 71.5vw;
+    top: 100vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#multiplayer:hover ~ #multiplayer-image-3 {
+    top: 87vh;
+    transition: all 1.3s;
+}
+
+/* Plus Icon */
+#multiplayer-image-4 {
+    position: absolute;
+    width: 3vw;
+    aspect-ratio: 1;
+    left: 68vw;
+    top: 100vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#multiplayer:hover ~ #multiplayer-image-4 {
+    left: 68vw;
+    top: 76vh;
+    transition: all 1.3s;
+}
+
+/* Robot Icon */
+#multiplayer-image-5 {
+    position: absolute;
+    width: 4vw;
+    aspect-ratio: 1;
+    left: 72vw;
+    top: 100vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#multiplayer:hover ~ #multiplayer-image-5 {
+    top: 74vh;
+    transition: all 1.3s;
 }
 
 
