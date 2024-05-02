@@ -7,6 +7,21 @@ import { useNavigate } from 'react-router-dom'
 import ls from 'localstorage-slim'
 
 const Host = ({ clearIntervals }) => {
+    const increments = {
+        startingIncome: 200,
+        smallBlindAmount: 5,
+        blindInterval: 5,
+    }
+
+    const [options, setOptions] = useState({
+        startingIncome: 1000,
+        smallBlindAmount: 5,
+        blindInterval: 0,
+        autoRebuy: false,
+        gameStats: false,
+        showAllCardsBots: false,
+        showAllCards: false
+    })
     const [table, setTable] = useState()
     const navigate = useNavigate()
     let intervalId
@@ -80,6 +95,31 @@ const Host = ({ clearIntervals }) => {
         }
     }
 
+    const handleChange = (e) => {
+        if (e.target.id == 'bigBlindAmount') {
+            const newOptions = { ...options }
+            newOptions['smallBlindAmount'] = e.target.value * increments['smallBlindAmount']
+            setOptions({ ...newOptions })
+        } else {
+            const newOptions = { ...options }
+            newOptions[e.target.id] = e.target.value * increments[e.target.id]
+            setOptions({ ...newOptions })
+        }
+    }
+
+    const handleCheckChange = (e) => {
+        if (e.target.id == 'showAllCards') {
+            const newOptions = { ...options }
+            newOptions[e.target.id] = !options[e.target.id]
+            newOptions['showAllCardsBots'] = !options[e.target.id]
+            setOptions({ ...newOptions })
+        } else {
+            const newOptions = { ...options }
+            newOptions[e.target.id] = !options[e.target.id]
+            setOptions({ ...newOptions })
+        }
+    }
+
     return (
         <>
             <h2 id='status'>Waiting...</h2>
@@ -97,11 +137,68 @@ const Host = ({ clearIntervals }) => {
                 <div id='settings'>
                     <h3 className='subheader'>Settings</h3>
                     <div id='options'>
-                        <h4 className='subtitle'>Money</h4>
-                        <p className='setting'>Staring income: </p>
-                        <p className='setting'>Small blind amount: </p>
+                        <div className='section'>
+                            <h4 className='first subtitle'>Table Options</h4>
+                            <div className='option'>
+                                <label className='option-label' htmlFor='startingIncome'>Staring income: {options.startingIncome}$</label>
+                                <input type="range" min="1" max="25" value={options.startingIncome / 200} onChange={handleChange} class="option-slider" id='startingIncome' />
+                            </div>
+                            <div className='option'>
+                                <label className='option-label' htmlFor='smallBlindAmount'>Small blind amount: {options.smallBlindAmount}$</label>
+                                <input type="range" min="1" max="20" value={options.smallBlindAmount / 5} onChange={handleChange} class="option-slider" id='smallBlindAmount' />
+                            </div>
+                            <div className='option'>
+                                <label className='option-label' htmlFor='bigBlindAmount'>Big blind amount: {options.smallBlindAmount * 2}$</label>
+                                <input type="range" min="1" max="20" value={options.smallBlindAmount / 5} onChange={handleChange} class="option-slider" id='bigBlindAmount' />
+                            </div>
+                            <div className='option'>
+                                <label className='option-label' htmlFor='blindInterval'>Blind interval: +{options.blindInterval}$ per round</label>
+                                <input type="range" min="0" max="5" value={options.blindInterval / 5} onChange={handleChange} class="option-slider" id='blindInterval' />
+                            </div>
+                        </div>
+
+                        
+                        <div className='section'>
+                            <h4 className='subtitle'>Game Features</h4>
+                            <div className='option checkbox'>
+                                <label className='option-label inline' htmlFor='autoRebuy'>Auto Rebuy</label>
+                                <input type='checkbox' checked={options.autoRebuy} onChange={handleCheckChange} class="option-checkbox" id='autoRebuy' />
+                            </div>
+                            <div className='option checkbox'>
+                                <label className='option-label inline' htmlFor='gameStats'>Game Stats</label>
+                                <input type='checkbox' checked={options.gameStats} onChange={handleCheckChange} class="option-checkbox" id='gameStats' />
+                            </div>
+                        </div>
+                        
+                        <div className='section'>
+                            <h4 className='subtitle'>Cheats</h4>
+                            <div className='option checkbox'>
+                                <label className='option-label inline' htmlFor='showAllCardsBots'>Show cards for bots</label>
+                                <input type='checkbox' checked={options.showAllCardsBots} onChange={handleCheckChange} class="option-checkbox" id='showAllCardsBots' />
+                            </div>
+                            <div className='option checkbox'>
+                                <label className='option-label inline' htmlFor='showAllCards'>Show cards for everyone</label>
+                                <input type='checkbox' checked={options.showAllCards} onChange={handleCheckChange} class="option-checkbox" id='showAllCards' />
+                            </div>
+                            <p id='warning'>Warning: every player in the game will receive these cheats!</p>
+                        </div>
+
+                        <div className='section'>
+                            <h4 className='first subtitle'>Add Bots</h4>
+                            <div id='bot-buttons'>
+                                <div className='bot-button'>Better</div>
+                                <div className='bot-button'>Scary Cat</div>
+                                <div className='bot-button'>Caller</div>
+                                <div className='bot-button'>Copy Cat</div>
+                                <div className='bot-button'>Tight bot</div>
+
+                                <div className='bot-button'>Moderate bot</div>
+                                <div className='bot-button'>Loose bot</div>
+                                <div className='bot-button'>Random</div>
+                            </div>
+                        </div>
+                        <button id='host-start' onClick={startGame}>Start</button>
                     </div>
-                    <button id='start-button' onClick={startGame}>Start</button>
                 </div>
             </div>
         </>

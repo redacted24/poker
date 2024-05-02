@@ -1,18 +1,19 @@
 .list-player {
     height: 36px;
-    padding: 10px;
+    padding: 8px 10px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 .player-name {
+    font-size: 1.2rem;
     padding: 0;
 }
 
 .kick-img {
     border-radius: 6px;
-    height: 24px;
+    height: 28px;
 }
 
 .kick-img:hover {
