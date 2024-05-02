@@ -162,6 +162,36 @@ def get_table():
 
   return table.toJSON(req['name'])
 
+@bp.post('/set-settings')
+def set_settings():
+  req = request.get_json()
+  res = requests.get(f'http://localhost:3003/api/session/{req["id"]}')
+  table: Table = pickle.loads(res.json()['table'].encode('latin1'))
+
+  table.initial_balance = req['startingBalance']
+
+  for player in table.players:
+    player.balance = req['startingBalance']
+
+  table.small_blind_amount = req['smallBlindAmount']
+  table.big_blind_amount = req['smallBlindAmount'] * 2
+
+  table.blind_interval = req['blindInterval']
+  
+  table.auto_rebuy = req['autoRebuy']
+  print(f'Auto Rebuy: {table.auto_rebuy}')
+  table.display_game_stats = req['gameStats']
+  table.dynamic_table = req['dynamicTable']
+
+  table.show_all_bot_cards = req['showAllBotCards']
+  table.show_all_cards = req['showAllCards']
+
+  res = requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
+
+  table = pickle.loads(res.json()['table'].encode('latin1'))
+
+  return table.toJSON(None)
+
 @bp.post('/call')
 def call():
   '''Player calls, matching the current bet.'''

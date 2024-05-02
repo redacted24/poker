@@ -46,6 +46,11 @@ const getTable = async (req) => {
   return response.data
 }
 
+const setSettings = async (req) => {
+  const response = await axios.post(`${baseUrl}/set-settings`, req)
+  return response.data
+}
+
 const call = async (req) => {
   const response = await axios.post(`${baseUrl}/call`, req)
   return response.data
@@ -71,4 +76,4 @@ const next = async (req) => {
   return response.data
 }
 
-export default { test, init, quickStart, join, addBot, leave, clear, start, getTable, call, check, fold, bet, next }
+export default { test, init, quickStart, join, addBot, leave, clear, start, getTable, setSettings, call, check, fold, bet, next }

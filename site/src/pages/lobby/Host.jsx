@@ -8,18 +8,19 @@ import ls from 'localstorage-slim'
 
 const Host = ({ clearIntervals }) => {
     const increments = {
-        startingIncome: 200,
+        startingBalance: 200,
         smallBlindAmount: 5,
         blindInterval: 5,
     }
     
     const [options, setOptions] = useState({
-        startingIncome: 1000,
+        startingBalance: 1000,
         smallBlindAmount: 5,
         blindInterval: 0,
         autoRebuy: false,
         gameStats: false,
-        showAllCardsBots: false,
+        dynamicTable: true,
+        showAllBotCards: false,
         showAllCards: false
     })
 
@@ -91,6 +92,7 @@ const Host = ({ clearIntervals }) => {
 
     const startGame = () => {
         if (table.players.length >= 2) {
+            pokerService.setSettings({ id: getTableId(), ...options })
             toggleFetching(false)
             navigate(`../game/${getTableId()}`)
         } else {
@@ -114,7 +116,7 @@ const Host = ({ clearIntervals }) => {
         if (e.target.id == 'showAllCards') {
             const newOptions = { ...options }
             newOptions[e.target.id] = !options[e.target.id]
-            newOptions['showAllCardsBots'] = !options[e.target.id]
+            newOptions['showAllBotCards'] = !options[e.target.id]
             setOptions({ ...newOptions })
         } else {
             const newOptions = { ...options }
@@ -157,8 +159,8 @@ const Host = ({ clearIntervals }) => {
                         <div className='section'>
                             <h4 className='first subtitle'>Table Options</h4>
                             <div className='option'>
-                                <label className='option-label' htmlFor='startingIncome'>Staring income: {options.startingIncome}$</label>
-                                <input type="range" min="1" max="25" value={options.startingIncome / 200} onChange={handleChange} class="option-slider" id='startingIncome' />
+                                <label className='option-label' htmlFor='startingBalance'>Staring balance: {options.startingBalance}$</label>
+                                <input type="range" min="1" max="25" value={options.startingBalance / 200} onChange={handleChange} class="option-slider" id='startingBalance' />
                             </div>
                             <div className='option'>
                                 <label className='option-label' htmlFor='smallBlindAmount'>Small blind amount: {options.smallBlindAmount}$</label>
@@ -182,7 +184,7 @@ const Host = ({ clearIntervals }) => {
                                 <input type='checkbox' checked={options.autoRebuy} onChange={handleCheckChange} class="option-checkbox" id='autoRebuy' />
                             </div>
                             <div className='option checkbox'>
-                                <label className='option-label inline' htmlFor='gameStats'>Game Stats</label>
+                                <label className='option-label inline' htmlFor='gameStats'>Display Game Stats</label>
                                 <input type='checkbox' checked={options.gameStats} onChange={handleCheckChange} class="option-checkbox" id='gameStats' />
                             </div>
                         </div>
@@ -190,8 +192,8 @@ const Host = ({ clearIntervals }) => {
                         <div className='section'>
                             <h4 className='first subtitle'>Cheats</h4>
                             <div className='option checkbox'>
-                                <label className='option-label inline' htmlFor='showAllCardsBots'>Show cards for bots</label>
-                                <input type='checkbox' checked={options.showAllCardsBots} onChange={handleCheckChange} class="option-checkbox" id='showAllCardsBots' />
+                                <label className='option-label inline' htmlFor='showAllBotCards'>Show cards for bots</label>
+                                <input type='checkbox' checked={options.showAllBotCards} onChange={handleCheckChange} class="option-checkbox" id='showAllBotCards' />
                             </div>
                             <div className='option checkbox'>
                                 <label className='option-label inline' htmlFor='showAllCards'>Show cards for everyone</label>

@@ -63,6 +63,15 @@ class Table():
         self.winning_player: Player | None = None   # The player who won the round. It is None while the game is in progress.
         self.required_bet: int = 0                  # How much money is required to stay in the game. Very useful to program the call function
         self.required_raise: int = 10               # Minimum amount of money a player needs to raise the bet
+        self.initial_balance: int = 0               # Starting balance of all players
+        self.small_blind_amount: int = 5            # Amount of money that the small blind puts into the game
+        self.big_blind_amount: int = 10             # Amount of money that the big blind puts into the game
+        self.blind_interval: int = 0                # Amount that the blind amounts increase with each game
+        self.auto_rebuy: bool = False               # Auto rebuys for the player when their balance reaches 0
+        self.display_game_stats: bool = False       # Display game stats
+        self.dynamic_table: bool = True             # Adds the cool CSS table
+        self.show_all_bot_cards: bool = False       # Determines whether players can see bot cards
+        self.show_all_cards: bool = False           # Determines whether to show all cards
         self.last_move: list[str, str] = []         # [Player.name, 'nameOfMove'] A list of two elements containing the player name, and the name of their last move (e.g. bet)
         self.id: str | None = None
         self.betting_cap = 0                        # Cap to the amount of bets that can be made
@@ -138,8 +147,8 @@ class Table():
         '''Prepares the table for the current round'''
         for key in self.round_stats.keys():     # Reset round stats
             self.round_stats[key] = 0
-        self.required_bet = 10 if pre_flop else 0
-        self.required_raise = 10
+        self.required_bet = self.big_blind_amount if pre_flop else 0
+        self.required_raise = self.big_blind_amount
         self.betting_cap = 0
         self.clear_bets()
         self.last_move.clear()
@@ -155,10 +164,10 @@ class Table():
         sorted_players = sorted(self.players, key=lambda p: p.position)
         small_blind, big_blind = (sorted_players * 2)[1:3]                          # Allows the list to loop back if there are only 2 players
         
-        if small_blind.balance >= 5:
-            small_blind.balance -= 5
-            small_blind.current_bet = 5
-            self.pot += 5
+        if small_blind.balance >= self.small_blind_amount:
+            small_blind.balance -= self.small_blind_amount
+            small_blind.current_bet = self.small_blind_amount
+            self.pot += self.small_blind_amount
         else:
             self.pot += small_blind.balance
             small_blind.current_bet = small_blind.balance
@@ -167,10 +176,10 @@ class Table():
             self.update_table_stats(small_blind, 'all-in')
             print(f"{small_blind} has gone all-in with {small_blind.balance}$ (balance: {small_blind.balance}) (the pot is now {self.pot}$). They had {small_blind.hand()}", "EHS:", small_blind.ehs)
         
-        if big_blind.balance >= 10:
-            big_blind.balance -= 10
-            big_blind.current_bet = 10
-            self.pot += 10
+        if big_blind.balance >= self.big_blind_amount:
+            big_blind.balance -= self.big_blind_amount
+            big_blind.current_bet = self.big_blind_amount
+            self.pot += self.big_blind_amount
         else:
             self.pot += big_blind.balance
             big_blind.current_bet = big_blind.balance
@@ -303,11 +312,19 @@ class Table():
         self.dealer = (self.dealer + 1) % len(self.players)     # Shift players
         self.betting_cap = 0                                    # Reset betting cap
         self.last_move: list[str, str] = []                     # Reset self.last_move
+        self.small_blind_amount += self.blind_interval
+        self.big_blind_amount += self.blind_interval * 2
         for stat in self.game_stats.keys():
             self.round_stats[stat] = 0
         for player in self.players:
             player.reset()
-        self.players = [p for p in self.players if p.balance > 0]       # kicks players who have no money left
+        if not self.auto_rebuy:
+            self.players = [p for p in self.players if p.balance > 0]       # kicks players who have no money left
+        else:
+            for p in self.players:
+                if p.balance == 0:
+                    p.balance = self.initial_balance
+
         self.player_queue.clear()
 
 
@@ -415,13 +432,13 @@ class Table():
         return {
             'board': self.board.display(),
             'pot': self.pot,
-            'players': [p.toJSON(player_name) for p in self.players],
-            'player_queue': [p.toJSON(player_name) for p in self.player_queue],
+            'players': [p.toJSON(player_name, self.show_all_bot_cards, self.show_all_cards) for p in self.players],
+            'player_queue': [p.toJSON(player_name, self.show_all_bot_cards, self.show_all_cards) for p in self.player_queue],
             'required_bet': self.required_bet,
             'required_raise': self.required_raise,
             'state': self.state,
             'last_move': self.last_move,
-            'winning_player': self.winning_player and self.winning_player.toJSON(player_name),
+            'winning_player': self.winning_player and self.winning_player.toJSON(player_name, self.show_all_bot_cards, self.show_all_cards),
             'id': self.id
         }
 
@@ -649,7 +666,7 @@ class Player():
             self.bluffing = False
             self.ehs = 0
 
-        def toJSON(self, player_name):
+        def toJSON(self, player_name, show_all_bot_card, show_all_cards):
             response = {
                 'name': self.name,
                 'is_computer': self.is_computer,
@@ -662,7 +679,7 @@ class Player():
                 'position': self.position
             }
 
-            if self.name == player_name or self.table.state == 4:
+            if self.name == player_name or self.table.state == 4 or (show_all_bot_card and self.is_computer) or show_all_cards:
                 response['hand'] = [c.shortName for c in self.hand()]
             else:
                 response['hand'] = [False for _ in self.hand()]
@@ -676,7 +693,7 @@ class Player():
 
         def update_player_position(self):
             pass
-        
+
         def update_strategy_thresholds(self):
             pass
 
