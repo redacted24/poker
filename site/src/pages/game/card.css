@@ -10,6 +10,7 @@
 .card {
   height: calc(8vh + 80px);
   cursor: pointer;
+  z-index: 3;
 }
 
 .card:hover {
