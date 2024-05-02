@@ -85,7 +85,7 @@ const Host = ({ clearIntervals }) => {
             <h2 id='status'>Waiting...</h2>
             <div id='lobby'>
                 <div id='player-list'>
-                    <p className='subheader'>Player list</p>
+                    <h3 className='subheader'>Player list</h3>
                     <div id='players'>
                         {table && table.players.map(p => <Player player={p} key={p.name}/>)}
                     </div>
@@ -95,7 +95,12 @@ const Host = ({ clearIntervals }) => {
                     </div>
                 </div>
                 <div id='settings'>
-                    <p className='subheader'>Settings</p>
+                    <h3 className='subheader'>Settings</h3>
+                    <div id='options'>
+                        <h4 className='subtitle'>Money</h4>
+                        <p className='setting'>Staring income: </p>
+                        <p className='setting'>Small blind amount: </p>
+                    </div>
                     <button id='start-button' onClick={startGame}>Start</button>
                 </div>
             </div>
