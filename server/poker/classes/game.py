@@ -674,6 +674,13 @@ class Player():
             for stat in self.stats.keys():
                 self.stats[stat] = 0
 
+        def update_player_position(self):
+            pass
+        
+        def update_strategy_thresholds(self):
+            pass
+
+
 
 if __name__ == "__main__":
     deck = Deck()

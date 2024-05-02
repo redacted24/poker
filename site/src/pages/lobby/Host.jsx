@@ -12,7 +12,7 @@ const Host = ({ clearIntervals }) => {
         smallBlindAmount: 5,
         blindInterval: 5,
     }
-
+    
     const [options, setOptions] = useState({
         startingIncome: 1000,
         smallBlindAmount: 5,
@@ -22,6 +22,8 @@ const Host = ({ clearIntervals }) => {
         showAllCardsBots: false,
         showAllCards: false
     })
+
+    const [playerList, setPlayerList] = useState([])
     const [table, setTable] = useState()
     const navigate = useNavigate()
     let intervalId
@@ -54,6 +56,7 @@ const Host = ({ clearIntervals }) => {
 
     const updateTable = (newTableData) => {
         setTable(newTableData)
+        setPlayerList(newTableData.players.map(p => p.name))
     }
 
     const toggleFetching = (fetching) => {
@@ -120,6 +123,20 @@ const Host = ({ clearIntervals }) => {
         }
     }
 
+    const removePlayer = async (player_name_to_remove) => {
+        setPlayerList(playerList.filter(p => p !== player_name_to_remove))
+        await pokerService.leave({ name: player_name_to_remove, id: getTableId() })
+        alert(`${player_name_to_remove} has been removed`)
+    }
+
+    const addBot = async (e) => {
+        const bot_type = e.target.id
+        setPlayerList(playerList.concat(bot_type))
+        const tableData = await pokerService.addBot({ id: getTableId(), bot_type })
+        updateTable(tableData)
+        console.log(tableData)
+    }
+
     return (
         <>
             <h2 id='status'>Waiting...</h2>
@@ -127,7 +144,7 @@ const Host = ({ clearIntervals }) => {
                 <div id='player-list'>
                     <h3 className='subheader'>Player list</h3>
                     <div id='players'>
-                        {table && table.players.map(p => <Player player={p} key={p.name} kickable={p.name != getName()}/>)}
+                        {playerList.map(p => <Player player_name={p} key={p} removePlayer={removePlayer} kickable={p != getName()}/>)}
                     </div>
                     <div id='link-section'>
                         <p className='share-link'>Share this link to invite others!</p>
@@ -171,7 +188,7 @@ const Host = ({ clearIntervals }) => {
                         </div>
                         
                         <div className='section'>
-                            <h4 className='subtitle'>Cheats</h4>
+                            <h4 className='first subtitle'>Cheats</h4>
                             <div className='option checkbox'>
                                 <label className='option-label inline' htmlFor='showAllCardsBots'>Show cards for bots</label>
                                 <input type='checkbox' checked={options.showAllCardsBots} onChange={handleCheckChange} class="option-checkbox" id='showAllCardsBots' />
@@ -184,17 +201,16 @@ const Host = ({ clearIntervals }) => {
                         </div>
 
                         <div className='section'>
-                            <h4 className='first subtitle'>Add Bots</h4>
+                            <h4 className='subtitle'>Add Bots</h4>
                             <div id='bot-buttons'>
-                                <div className='bot-button'>Better</div>
-                                <div className='bot-button'>Scary Cat</div>
-                                <div className='bot-button'>Caller</div>
-                                <div className='bot-button'>Copy Cat</div>
-                                <div className='bot-button'>Tight bot</div>
-
-                                <div className='bot-button'>Moderate bot</div>
-                                <div className='bot-button'>Loose bot</div>
-                                <div className='bot-button'>Random</div>
+                                <div className='bot-button' onClick={addBot} id='better'>Better</div>
+                                <div className='bot-button' onClick={addBot} id='scary_cat'>Scary Cat</div>
+                                <div className='bot-button' onClick={addBot} id='caller'>Caller</div>
+                                <div className='bot-button' onClick={addBot} id='copy_cat'>Copy Cat</div>
+                                <div className='bot-button' onClick={addBot} id='tight_bot'>Tight bot</div>
+                                <div className='bot-button' onClick={addBot} id='moderate_bot'>Moderate bot</div>
+                                <div className='bot-button' onClick={addBot} id='loose_bot'>Loose bot</div>
+                                <div className='bot-button' onClick={addBot} id='random'>Random</div>
                             </div>
                         </div>
                         <button id='host-start' onClick={startGame}>Start</button>

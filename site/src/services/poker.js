@@ -21,6 +21,11 @@ const join = async (req) => {
   return response.data
 }
 
+const addBot = async (req) => {
+  const response = await axios.post(`${baseUrl}/add_bot`, req)
+  return response.data
+}
+
 const leave = async (req) => {
   const response = await axios.post(`${baseUrl}/leave`, req)
   return response.data
@@ -66,4 +71,4 @@ const next = async (req) => {
   return response.data
 }
 
-export default { test, init, quickStart, join, leave, clear, start, getTable, call, check, fold, bet, next }
+export default { test, init, quickStart, join, addBot, leave, clear, start, getTable, call, check, fold, bet, next }
