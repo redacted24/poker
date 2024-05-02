@@ -146,15 +146,20 @@ const Playground = () => {
     } else {
       table_css.style.backgroundColor = "#ac5959fb"
       table_css.style.border = "10px solid #700505"
+      table_css.firstElementChild.style.display = "inline"
     }
   }
-
-
   updateTableHeat()
+
   return (
     <>
       <div id='room'>
         <div id='table'>
+          <div id = "firegif">
+            <img src="../../src/assets/ui/fire.gif" alt="firegif"></img>
+            <img src="../../src/assets/ui/fire.gif" alt="firegif"></img>
+            <img src="../../src/assets/ui/fire.gif" alt="firegif"></img>
+          </div>
           <p id='pot'>Pot: {table.pot}$</p>
           {
             displayBoard && 

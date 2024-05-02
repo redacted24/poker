@@ -22,6 +22,15 @@
   background-color: #63ac59fb;
 }
 
+#firegif {
+  position: absolute;
+  display: none;
+  width: fit-content;
+  left: 7%;
+  top: -35%;
+  z-index: -1;
+}
+
 #start-button {
   position: absolute;
   width: 16%;
