@@ -129,10 +129,38 @@ const Playground = () => {
     )
   }
 
+  const updateTableHeat = () => {
+    const table_css = document.getElementById('table')
+    if (table.pot< 200) {
+      table_css.style.backgroundColor = "#63ac59fb"
+      table_css.style.border = "10px solid #057005"
+      table_css.firstElementChild.style.display = "none"
+    } else if (table.pot< 500) {
+      table_css.style.backgroundColor = "#77ac59fb"
+      table_css.style.border = "10px solid #2c7005"
+    } else if (table.pot< 700) {
+      table_css.style.backgroundColor = "#9dac59fb"
+      table_css.style.border = "10px solid #597005"
+    } else if (table.pot< 1300) {
+      table_css.style.backgroundColor = "#ac7159fb"
+      table_css.style.border = "10px solid #704e05"
+    } else {
+      table_css.style.backgroundColor = "#ac5959fb"
+      table_css.style.border = "10px solid #700505"
+      table_css.firstElementChild.style.display = "inline"
+    }
+  }
+  updateTableHeat()
+
   return (
     <>
       <div id='room'>
         <div id='table'>
+          <div id = "firegif">
+            <img src="../../src/assets/ui/fire.gif" alt="firegif"></img>
+            <img src="../../src/assets/ui/fire.gif" alt="firegif"></img>
+            <img src="../../src/assets/ui/fire.gif" alt="firegif"></img>
+          </div>
           <p id='pot'>Pot: {table.pot}$</p>
           {
             displayBoard && 

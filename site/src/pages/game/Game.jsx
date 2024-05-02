@@ -135,7 +135,6 @@ const Game = ({ clearIntervals }) => {
       </>
     )
   }
-
   return (
     <>
       <div id='room'>
