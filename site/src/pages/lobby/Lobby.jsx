@@ -7,7 +7,7 @@ import './host.css'
 
 import pokerService from '../../services/poker'
 
-const Lobby = () => {
+const Lobby = ({ clearIntervals }) => {
     const [table, setTable] = useState()
     const params = useParams()
     let intervalId
@@ -24,14 +24,16 @@ const Lobby = () => {
         }
         join()
 
-        const removeTableId = () => ls.set('tableId', undefined)
+        const removeTableId = () => {
+            pokerService.leave({ name: getName(), id: getTableId() })
+            ls.set('tableId', undefined)
+        }
 
-        window.addEventListener('beforeunload', () => removeTableId)
+        window.addEventListener('beforeunload', removeTableId)
 
         return () => {
             window.removeEventListener('beforeunload', removeTableId)
-            clearInterval(intervalId)
-            intervalId = null
+            clearIntervals()
         }
     }, [])
 
@@ -51,9 +53,15 @@ const Lobby = () => {
         if (fetching) {
           const fetchData = async () => {
             console.log('fetching')
-            const tableData = await pokerService.getTable({ name: getName(), id: getTableId(), })
-            updateTable(tableData)
-            console.log(tableData)
+            try {
+                const tableData = await pokerService.getTable({ name: getName(), id: getTableId(), })
+                updateTable(tableData)
+                console.log(tableData)
+            } catch {
+                alert('The host has closed the lobby.')
+                navigate('../../')
+            }
+
           }
           fetchData()
           const tempIntervalId = setInterval(fetchData, 2500)

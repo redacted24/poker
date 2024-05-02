@@ -134,6 +134,7 @@ const Playground = () => {
     if (table.pot< 200) {
       table_css.style.backgroundColor = "#63ac59fb"
       table_css.style.border = "10px solid #057005"
+      table_css.firstElementChild.style.display = "none"
     } else if (table.pot< 500) {
       table_css.style.backgroundColor = "#77ac59fb"
       table_css.style.border = "10px solid #2c7005"
