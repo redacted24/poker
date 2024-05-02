@@ -58,6 +58,7 @@
 .action:active {
   transform: translate(0px, 0px);
   box-shadow: none;
+  filter: brightness(0.9);
   transition: all 0.25s;
 }
 
@@ -95,3 +96,13 @@
   top: calc((100% - 18px) / 2);
   left: 27%;
 } 
+
+.card {
+  -webkit-user-drag: none;
+}
+
+.card:hover {
+  transform: translate(2px, -2px);
+  box-shadow: -1px 2px 5px black;
+  transition: all 0.1s;
+}
