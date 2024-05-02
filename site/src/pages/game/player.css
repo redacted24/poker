@@ -36,19 +36,22 @@
   top: 80%;
   display: flex;
   width: 100%;
-  justify-content: center;
-  gap: 16px;
+  justify-content: space-around;
 }
 
 .action {
-  box-sizing: border-box;
-  width: 80px;
-  height: 24px;
+  width: 20vw;
+  height: 4vh;
   line-height: 20px;
+}
+
+.green-button {
+  border: none;
+  
 }
 
 #dollar-sign {
   position: absolute;
   top: calc((100% - 18px) / 2);
-  left: calc(50% - 80px)
+  left: 27%;
 } 
