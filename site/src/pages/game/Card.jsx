@@ -1,10 +1,27 @@
 import './card.css'
+import Draggable from 'react-draggable'
 
 const Card = ({ card }) => {
+  const handleStart = (e, ui) => {
+    ui.node.style.transition = "none"
+    ui.node.style.animation = "none"
+  }
+
+  const handleStop = (e,ui) => {
+    ui.node.style.transition = "transform 0.55s"
+    ui.node.style.animation = ""
+  }
+
   if (card) {
-    return <img className='card' src={`../../src/assets/cards/${card}.svg`} />
-  } else {
-    return <img className='card' src='../../src/assets/cards/back.png' />
+    return (
+      <Draggable onStart={handleStart} onStop={handleStop} position = {{x:0,y:0}}>
+        <img className='card noSelect' src={`../../src/assets/cards/${card}.svg`} />
+      </Draggable>
+  )} else {
+    return (
+      <Draggable onStart={handleStart} onStop={handleStop} position = {{x:0,y:0}}>
+        <img className='card noSelect' src='../../src/assets/cards/back.png'/>
+      </Draggable>)
   }
 }
 
