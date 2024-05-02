@@ -79,6 +79,20 @@ def join():
 
   return table.toJSON(req['name'])
 
+@bp.post('/leave')
+def leave():
+  '''Leave an existing game'''
+  req = request.get_json()
+  res = requests.get(f'http://localhost:3003/api/session/{req["id"]}')
+  table: Table = pickle.loads(res.json()['table'].encode('latin1'))
+
+  table.remove_player(req['name'])
+
+  res = requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
+
+  table = pickle.loads(res.json()['table'].encode('latin1'))
+
+  return table.toJSON(req['name'])
 
 @bp.post('/start')
 def start():
@@ -193,6 +207,6 @@ def clear():
   
   req = request.get_json()
 
-  requests.delete(f'http://localhost:3003/api/session/{req["tableId"]}')
+  requests.delete(f'http://localhost:3003/api/session/{req["id"]}')
 
   return str(204)

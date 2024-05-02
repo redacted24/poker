@@ -400,6 +400,17 @@ class Table():
             self.players.append(player)
             player.join(self)
 
+    def remove_player(self, player_name_to_remove):
+        updated_players = []
+        for player in self.players:
+            if player.name == player_name_to_remove:
+                player.leave()
+            else:
+                updated_players.append(player)
+        
+        self.players = updated_players
+        self.player_queue = [p for p in self.player_queue if p.name != player_name_to_remove]
+
     def toJSON(self, player_name):
         return {
             'board': self.board.display(),
@@ -463,6 +474,9 @@ class Player():
         
         def join(self, table: Table):
             self.table = table
+
+        def leave(self):
+            self.table = None
 
         def handEval(self, river):
             '''Compute strength of a certain hand of a certain size.

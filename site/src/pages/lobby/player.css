@@ -1,3 +1,23 @@
 .list-player {
+    height: 36px;
     padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.player-name {
+    padding: 0;
+}
+
+.kick-img {
+    border-radius: 6px;
+    height: 24px;
+}
+
+.kick-img:hover {
+    background-color: #FF000040;
+}
+.kick-img:active {
+    background-color: #FF202080;
 }

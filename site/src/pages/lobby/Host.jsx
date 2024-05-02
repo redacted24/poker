@@ -87,7 +87,7 @@ const Host = ({ clearIntervals }) => {
                 <div id='player-list'>
                     <p className='subheader'>Player list</p>
                     <div id='players'>
-                        {table && table.players.map(p => <Player player={p} key={p.name}/>)}
+                        {table && table.players.map(p => <Player player={p} key={p.name} kickable={p.name != getName()}/>)}
                     </div>
                     <div id='link-section'>
                         <p className='share-link'>Share this link to invite others!</p>

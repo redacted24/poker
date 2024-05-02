@@ -33,10 +33,9 @@ const Game = ({ clearIntervals }) => {
     getTable()
 
     const removeTableId = async () => {
-      const tableId = ls.get('tableId')
-      if (tableId) {
+      if (getTableId()) {
         console.log('clearing')
-        await pokerService.clear({ tableId })
+        pokerService.leave({ name: getName(), id: getTableId()})
         window.localStorage.clear()
       }
     }
@@ -102,7 +101,11 @@ const Game = ({ clearIntervals }) => {
   
   const updateTable = (newTableData) => {
     console.log(newTableData.players)
-    if (newTableData.players.some(p => p.name == getName())) {
+    if (newTableData.players.length == 1) {
+      alert('All players have left the game. You won!')
+      pokerService.clear({ id: getTableId() })
+      navigate('../../')
+    } else if (newTableData.players.some(p => p.name == getName())) {
       if (newTableData.player_queue.length !== 0) {
         console.log(inGame)
         setDisplayBoard(true)
@@ -110,7 +113,7 @@ const Game = ({ clearIntervals }) => {
       setTable(newTableData)
     } else {
       alert("You lost all your money and you've been kicked out of the table! Better luck next time :(")
-      window.location.reload()
+      navigate('../../')
     }
   }
 
