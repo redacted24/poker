@@ -116,6 +116,13 @@
 .bot-button:hover {
     transition-duration: 250ms;
     background-color: rgb(175, 175, 175);
+    cursor: pointer;
+}
+
+.bot-button:active {
+    transition-duration: 250ms;
+    background-color: rgb(255, 255, 255);
+    cursor: pointer;
 }
 
 #warning {
@@ -143,6 +150,7 @@
     box-shadow: -3px 6px 0px black;
     color: white;
     background-color: #6c7bd18a;
+    cursor: pointer;
 }
 
 #host-start:active {
