@@ -26,10 +26,11 @@ const Game = ({ clearIntervals }) => {
       window.localStorage.setItem('tableId', tableData.id)
       toggleFetching(true)
       if (tableData.player_queue.length === 0) {
-        start()
+        await start()
       } else {
         setInGame(true)
       }
+      displayStart = true
     }
     getTable()
 
@@ -130,7 +131,9 @@ const Game = ({ clearIntervals }) => {
       <>
         <div id='room'>
           <div id='table'>
-            <button id='start-button' onClick={start}>Start</button>
+            <div className='vertical-align'>
+              <h1 id='loading'>Loading...</h1>
+            </div>
           </div>
         </div>
       </>
@@ -140,10 +143,13 @@ const Game = ({ clearIntervals }) => {
   const updateTableHeat = () => {
     if (heatFeature) {
       const table_css = document.getElementById('table')
+      console.log(table)
+      console.log(table_css)
+      if (!table || !table_css) return null
       if (table.pot< 200) {
         table_css.style.backgroundColor = "#63ac59fb"
         table_css.style.border = "10px solid #057005"
-        table_css.firstElementChild.style.display = "none"
+        if (table_css.firstElementChild) table_css.firstElementChild.style.display = "none"
       } else if (table.pot< 500) {
         table_css.style.backgroundColor = "#77ac59fb"
         table_css.style.border = "10px solid #2c7005"
