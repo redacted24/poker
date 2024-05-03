@@ -8,7 +8,7 @@ const Intro = () => {
       <div id='link-buttons'>
         <Link className="react-link-clickable" to='/playground'>
           <button id="campaign" className='link-button'>
-            <div id="campaign-text">Campaign</div>
+            <div id="campaign-text">Campaign (in development)</div>
           </button>
           <img src="../../src/assets/ui/campaign-castle.svg" alt="doesnt work" id="campaign-image-1"></img>
           <img src="../../src/assets/ui/shield.svg" alt="doesnt work" id="campaign-image-2"></img>
