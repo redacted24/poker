@@ -12,7 +12,8 @@ const Player = ({
     getTableId,
     updateTable,
     toggleFetching,
-    updateTableQueue
+    updateTableQueue,
+    startCooldown
   }) => {
 
   const [isBetting, setIsBetting] = useState(false)
@@ -33,7 +34,10 @@ const Player = ({
   }, [minBetAmount])
 
   const sendRequest = async (request, content) => {
+    startCooldown()
+
     updateTableQueue()
+    console.log(playerQueue)
     toggleFetching(true)
     const tableData = await request(content)
     toggleFetching(false)

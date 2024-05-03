@@ -25,6 +25,7 @@ const Host = ({ clearIntervals }) => {
     })
 
     const [playerList, setPlayerList] = useState([])
+    const [cooldown, setCooldown] = useState(false)
     const [table, setTable] = useState()
     const navigate = useNavigate()
     let intervalId
@@ -61,7 +62,7 @@ const Host = ({ clearIntervals }) => {
     }
 
     const toggleFetching = (fetching) => {
-        if (fetching) {
+        if (fetching && !cooldown) {
           const fetchData = async () => {
             console.log('fetching')
             const tableData = await pokerService.getTable({ name: getName(), id: getTableId(), })
@@ -85,9 +86,40 @@ const Host = ({ clearIntervals }) => {
         return ls.get('tableId')
     }
 
+    const unsecureCopy = (text) => {
+        `Workaround for copying due to browser preventing copying from non secure wesbites`
+
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+        } catch (err) {
+            alert('Unable to copy to clipboard', err);
+        }
+        document.body.removeChild(textArea);
+    }
+
+
     const copyLink = () => {
         const gameUrl = `${window.location.host}/lobby/${getTableId()}`
-        navigator.clipboard.writeText(gameUrl)
+        try {
+            navigator.clipboard.writeText(gameUrl)
+        } catch {
+            unsecureCopy(gameUrl)
+        }
+        const link_button = document.getElementById('link-button')
+        link_button.textContent = 'Link Copied!'
+        setTimeout(() => {
+            link_button.textContent = 'Copy Text'
+        }, 2000)
+    }
+
+    const startCooldown = (time=1000) => {
+        setCooldown(true)
+        setTimeout(() => setCooldown(false), time)
     }
 
     const startGame = () => {
@@ -98,6 +130,22 @@ const Host = ({ clearIntervals }) => {
         } else {
             alert('You cannot start a game with less than 2 players!')
         }
+    }
+
+    const removePlayer = async (player_name_to_remove) => {
+        setPlayerList(playerList.filter(p => p !== player_name_to_remove))
+        startCooldown()
+        await pokerService.leave({ name: player_name_to_remove, id: getTableId() })
+        alert(`${player_name_to_remove} has been removed`)
+    }
+
+    const addBot = async (e) => {
+        const bot_type = e.target.id
+        setPlayerList(playerList.concat(bot_type))
+        startCooldown()
+        const tableData = await pokerService.addBot({ id: getTableId(), bot_type })
+        updateTable(tableData)
+        console.log(tableData)
     }
 
     const handleChange = (e) => {
@@ -123,20 +171,6 @@ const Host = ({ clearIntervals }) => {
             newOptions[e.target.id] = !options[e.target.id]
             setOptions({ ...newOptions })
         }
-    }
-
-    const removePlayer = async (player_name_to_remove) => {
-        setPlayerList(playerList.filter(p => p !== player_name_to_remove))
-        await pokerService.leave({ name: player_name_to_remove, id: getTableId() })
-        alert(`${player_name_to_remove} has been removed`)
-    }
-
-    const addBot = async (e) => {
-        const bot_type = e.target.id
-        setPlayerList(playerList.concat(bot_type))
-        const tableData = await pokerService.addBot({ id: getTableId(), bot_type })
-        updateTable(tableData)
-        console.log(tableData)
     }
 
     return (
