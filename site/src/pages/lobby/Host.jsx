@@ -28,6 +28,7 @@ const Host = ({ clearIntervals }) => {
     const [cooldown, setCooldown] = useState(false)
     const [table, setTable] = useState()
     const navigate = useNavigate()
+
     let intervalId
 
     useEffect(() => {
@@ -51,7 +52,7 @@ const Host = ({ clearIntervals }) => {
         init()
 
         return () => {
-            removeTableId()
+            if (window.location.href == window.location.host) removeTableId()
             window.removeEventListener('beforeunload', removeTableId)
             clearIntervals()
         }
@@ -127,7 +128,7 @@ const Host = ({ clearIntervals }) => {
         if (table.players.length >= 2) {
             pokerService.setSettings({ id: getTableId(), ...options })
             toggleFetching(false)
-            navigate(`../game/${getTableId()}`)
+            navigate(`../game/${getTableId()}`, { replace: true })
         } else {
             alert('You cannot start a game with less than 2 players!')
         }

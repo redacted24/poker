@@ -33,20 +33,23 @@ const Game = ({ clearIntervals }) => {
     }
     getTable()
 
-    const removeTableId = async () => {
-      if (getTableId()) {
+    const resetUser = async () => {
+      console.log('reset')
+      const tableId = ls.get('tableId')
+      if (tableId) {
         console.log('clearing')
-        pokerService.leave({ name: getName(), id: getTableId()})
-        window.localStorage.clear()
+        await pokerService.clear({ id: tableId })
+        ls.set('tableId', undefined)
       }
+      clearIntervals()
+      navigate('/')
     }
     
-    window.addEventListener('beforeunload', removeTableId)
+    window.addEventListener('beforeunload', resetUser)
 
     return () => {
-      window.removeEventListener('beforeunload', removeTableId)
-      clearIntervals()
-      navigate('../../')
+      resetUser()
+      window.removeEventListener('beforeunload', resetUser)
     }
   }, [])
 
@@ -72,7 +75,7 @@ const Game = ({ clearIntervals }) => {
           updateTable(tableData)
         } catch {
           alert('You have lost connection to the game!')
-          navigate('../../')
+          navigate('/')
         }
 
       }
@@ -112,7 +115,7 @@ const Game = ({ clearIntervals }) => {
     if (newTableData.players.length == 1) {
       alert('All players have left the game. You won!')
       pokerService.clear({ id: getTableId() })
-      navigate('../../')
+      navigate('/')
     } else if (newTableData.players.some(p => p.name == getName())) {
       if (newTableData.player_queue.length !== 0) {
         setDisplayBoard(true)
@@ -121,7 +124,7 @@ const Game = ({ clearIntervals }) => {
       console.log(newTableData)
     } else {
       alert("You lost all your money and you've been kicked out of the table! Better luck next time :(")
-      navigate('../../')
+      navigate('/')
     }
   }
 
@@ -129,8 +132,6 @@ const Game = ({ clearIntervals }) => {
     const newPlayerQueue = table.player_queue.slice(1)
     setTable({ ...table, player_queue: newPlayerQueue })
   }
-
-  console.log(table && table.player_queue)
 
   if (!inGame) {
     return (
