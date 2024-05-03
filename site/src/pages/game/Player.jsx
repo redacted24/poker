@@ -20,6 +20,7 @@ const Player = ({
   const callAmount = requiredBet - player.current_bet
   const minBetAmount = requiredBet + requiredRaise
   const [betAmount, setBetAmount] = useState(minBetAmount)
+  const [displayButtons, setDisplayButtons] = useState(true)
 
   const handleChange = (e) => {
     setBetAmount(e.target.value)
@@ -33,11 +34,17 @@ const Player = ({
     setBetAmount(minBetAmount)
   }, [minBetAmount])
 
+  const hideButtons = () => {
+    setDisplayButtons(false)
+    setTimeout(() => setDisplayButtons(true), 4000)
+    const buttons = document.getElementById('buttons')
+    buttons.style.display = 'none'
+  }
+
   const sendRequest = async (request, content) => {
     startCooldown()
-
     updateTableQueue()
-    console.log(playerQueue)
+    hideButtons()
     toggleFetching(true)
     const tableData = await request(content)
     toggleFetching(false)
@@ -86,7 +93,7 @@ const Player = ({
     if (playerQueue[0] && playerQueue[0].name == player.name) {
       if (!isBetting) {
         return (
-          <div id='buttons'>
+          <div id='buttons' style={ {} }>
             {!!callAmount && <button className='action' id="calling-button" onClick={call}>Call ({callAmount}$)</button>}
             {!callAmount && <button className='action' onClick={check}>Check</button>}
             <button className='action' id="folding-button" onClick={fold}>Fold</button>
@@ -95,7 +102,7 @@ const Player = ({
         )
       } else {
         return (
-          <form onSubmit={bet} id='buttons'>
+          <form onSubmit={bet} id='buttons' style={ {} }>
             <button className='action' type='button' onClick={toggleIsBetting}>Go back</button>
             <button className='action' id="confirm-button" type='submit'>Confirm</button>
             <input className='input-field' type='number' value={betAmount} onChange={handleChange} min={minBetAmount} /> <span id='dollar-sign'>$</span>
@@ -103,9 +110,26 @@ const Player = ({
         )
       }
     } else {
-      return null
+      return (
+        <div id='buttons' display='none'>
+          {!!callAmount && <button className='action' id="calling-button" onClick={call}>Call ({callAmount}$)</button>}
+          {!callAmount && <button className='action' onClick={check}>Check</button>}
+          <button className='action' id="folding-button" onClick={fold}>Fold</button>
+          <button className='action' id="betting-button" onClick={toggleIsBetting}>Bet</button>
+        </div>
+      )
     }
   }
+
+  if (displayButtons && playerQueue[0] && playerQueue[0].name == player.name) {
+    console.log('eeeee', displayButtons, playerQueue[0].name == player.name)
+    const tempButtons = document.getElementById('buttons')
+    console.log(tempButtons)
+    if (tempButtons) {
+      tempButtons.style = ''
+    }
+  }
+
 
   return (
     <div id='player'>

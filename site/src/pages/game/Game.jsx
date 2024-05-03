@@ -202,7 +202,7 @@ const Game = ({ clearIntervals }) => {
               startCooldown={startCooldown}
             />
         })}
-        <Opponents opponents={table.players.filter(player => player.name !== getName())} playerQueue={table.player_queue} />
+        <Opponents opponents={table.players.filter(player => player.name !== getName())} playerQueue={table.player_queue} userName={getName()} />
 
       </div>
     </>
