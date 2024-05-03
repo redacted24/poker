@@ -128,6 +128,11 @@ const Lobby = ({ clearIntervals }) => {
         } catch {
             unsecureCopy(gameUrl)
         }
+        const link_button = document.getElementById('link-button')
+        link_button.textContent = 'Link Copied!'
+        setTimeout(() => {
+            link_button.textContent = 'Copy Text'
+        }, 2000)
     }
 
     return (
