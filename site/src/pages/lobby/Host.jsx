@@ -85,9 +85,30 @@ const Host = ({ clearIntervals }) => {
         return ls.get('tableId')
     }
 
+    const unsecureCopy = (text) => {
+        `Workaround for copying due to browser preventing copying from non secure wesbites`
+
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+            document.execCommand('copy');
+        } catch (err) {
+            alert('Unable to copy to clipboard', err);
+        }
+        document.body.removeChild(textArea);
+    }
+
+
     const copyLink = () => {
         const gameUrl = `${window.location.host}/lobby/${getTableId()}`
-        navigator.clipboard.writeText(gameUrl)
+        try {
+            navigator.clipboard.writeText(gameUrl)
+        } catch {
+            unsecureCopy(gameUrl)
+        }
     }
 
     const startGame = () => {
