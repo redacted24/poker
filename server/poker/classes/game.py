@@ -441,6 +441,7 @@ class Table():
             'state': self.state,
             'last_move': self.last_move,
             'winning_player': self.winning_player and self.winning_player.toJSON(player_name, self.show_all_bot_cards, self.show_all_cards),
+            'dynamic_table': self.dynamic_table,
             'id': self.id
         }
 
