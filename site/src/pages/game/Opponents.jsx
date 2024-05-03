@@ -1,7 +1,7 @@
 import Opponent from './Opponent'
 import './opponents.css'
 
-const Opponents = ({ opponents, playerQueue, userName }) => {
+const Opponents = ({ opponents, playerQueue }) => {
   return (
     <div id='opponents'>
         {opponents.map(player => {
@@ -9,8 +9,6 @@ const Opponents = ({ opponents, playerQueue, userName }) => {
               key={player.name}
               player={player}
               isCurrentPlayer={playerQueue[0] && playerQueue[0].name == player.name}
-              isNextPlayer={playerQueue[1] && playerQueue[1].name == player.name}
-              userAtStart={playerQueue[0] && playerQueue[0].name == userName}
             />
         })}
     </div>

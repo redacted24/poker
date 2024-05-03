@@ -1,7 +1,7 @@
 import Card from './Card'
 import './opponent.css'
 
-const Opponent = ({ player, isCurrentPlayer, isNextPlayer, userAtStart }) => {
+const Opponent = ({ player, isCurrentPlayer}) => {
   const positionTag = () => {
     switch (player.position) {
       case 0:
@@ -29,15 +29,7 @@ const Opponent = ({ player, isCurrentPlayer, isNextPlayer, userAtStart }) => {
   
   let status
 
-  const buttons = document.getElementById('buttons')
-  let userHasMoved = false
-  if (buttons) {
-    userHasMoved = buttons.style.display == 'none'    // To check if the the user has completed their turn
-  }
-
-  console.log(player.name, userAtStart, userHasMoved, isNextPlayer)
-
-  if (isCurrentPlayer || userAtStart && userHasMoved && isNextPlayer) {
+  if (isCurrentPlayer) {
     status =  'currently-playing'
     setTimeout(2000)
   } else if (!player.active) {

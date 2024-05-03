@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import ls from 'localstorage-slim'
+import _ from 'lodash'
 
 import Card from './Card'
 import Player from './Player'
@@ -14,7 +15,6 @@ const Game = ({ clearIntervals }) => {
   const [table, setTable] = useState()
   const [inGame, setInGame] = useState(false)
   const [displayBoard, setDisplayBoard] = useState(false)
-  const [cooldown, setCooldown] = useState(false)
   const params = useParams()
   const navigate = useNavigate()
   let intervalId
@@ -58,35 +58,39 @@ const Game = ({ clearIntervals }) => {
     return ls.get('tableId')
   }
 
-  const startCooldown = (time=1000) => {
-    setCooldown(true)
-    setTimeout(() => setCooldown(false), time)
+  const startCooldown = (time=500) => {
+    toggleFetching(false)
+    setTimeout(() => toggleFetching(true), time)
   }
 
   const toggleFetching = (fetching) => {
-    if (fetching && !cooldown) {
+    if (fetching) {
       const fetchData = async () => {
         console.log('fetching')
-        const tableData = await pokerService.getTable({ name: getName(), id: getTableId(), })
-        updateTable(tableData)
-        console.log(tableData)
+        try {
+          const tableData = await pokerService.getTable({ name: getName(), id: getTableId(), })
+          updateTable(tableData)
+        } catch {
+          alert('You have lost connection to the game!')
+          navigate('../../')
+        }
+
       }
       fetchData()
       const tempIntervalId = setInterval(fetchData, 2500)
       intervalId = tempIntervalId
     } else {
-      clearInterval(intervalId)
-      intervalId = null
+      clearIntervals()
     }
   }
 
   const start = async () => {
     toggleFetching(true)
+    setDisplayBoard(true)
     const tableData = await pokerService.start({ name: getName(), id: getTableId() })
     toggleFetching(false)
     setInGame(true)
     updateTable(tableData)
-    setDisplayBoard(true)
     console.log(tableData)
   }
 
@@ -114,6 +118,7 @@ const Game = ({ clearIntervals }) => {
         setDisplayBoard(true)
       }
       setTable(newTableData)
+      console.log(newTableData)
     } else {
       alert("You lost all your money and you've been kicked out of the table! Better luck next time :(")
       navigate('../../')
@@ -122,9 +127,10 @@ const Game = ({ clearIntervals }) => {
 
   const updateTableQueue = () => {
     const newPlayerQueue = table.player_queue.slice(1)
-    updateTable({ player_queue: newPlayerQueue, ...table })
+    setTable({ ...table, player_queue: newPlayerQueue })
   }
 
+  console.log(table && table.player_queue)
 
   if (!inGame) {
     return (
@@ -177,10 +183,10 @@ const Game = ({ clearIntervals }) => {
           </div>
           <p id='pot'>Pot: {table.pot}$</p>
           {
-            displayBoard && 
-            <div id='board'>
-              {table.board.map((card, i) => <Card key={i} card={card} />)}
-            </div>
+            displayBoard && (table.board.length === 0) && <div className='vertical-align'><h1 id='loading'>Cleaning up the table...</h1></div>
+          }
+          {
+            displayBoard && (table.board.length !== 0) && <div id='board'>{table.board.map((card, i) => <Card key={i} card={card} />)}</div>
           }
           {
             !displayBoard &&
@@ -202,7 +208,7 @@ const Game = ({ clearIntervals }) => {
               startCooldown={startCooldown}
             />
         })}
-        <Opponents opponents={table.players.filter(player => player.name !== getName())} playerQueue={table.player_queue} userName={getName()} />
+        <Opponents opponents={table.players.filter(player => player.name !== getName())} playerQueue={table.player_queue} />
 
       </div>
     </>

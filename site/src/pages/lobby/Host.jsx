@@ -35,7 +35,7 @@ const Host = ({ clearIntervals }) => {
             const tableId = ls.get('tableId')
             if (tableId) {
               console.log('clearing')
-              await pokerService.clear({ tableId })
+              await pokerService.clear({ id: tableId })
               ls.set('tableId', undefined)
             }
         }
@@ -51,6 +51,7 @@ const Host = ({ clearIntervals }) => {
         init()
 
         return () => {
+            removeTableId()
             window.removeEventListener('beforeunload', removeTableId)
             clearIntervals()
         }
