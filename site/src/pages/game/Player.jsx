@@ -93,7 +93,7 @@ const Player = ({
         return (
           <form onSubmit={bet} id='buttons'>
             <button className='action' type='button' onClick={toggleIsBetting}>Go back</button>
-            <button className='action' type='submit'>Confirm</button>
+            <button className='action' id="confirm-button" type='submit'>Confirm</button>
             <input className='input-field' type='number' value={betAmount} onChange={handleChange} min={minBetAmount} /> <span id='dollar-sign'>$</span>
           </form>
         )

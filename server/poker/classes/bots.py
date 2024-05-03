@@ -84,7 +84,7 @@ class AdvancedBot(Player):
         # from time import sleep
         # sleep(1)
         from time import sleep
-        sleep(0.2)
+        sleep(1)
 
 
         if self.table.state == 0:       # We are in pre-flop
