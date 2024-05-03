@@ -281,7 +281,7 @@ class Table():
             if (current_player.is_computer):
                 current_player.previous_step = None
                 requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
-                sleep(1)
+                sleep(1.5)
                 current_player.play()
                 requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
                 n_turns += 1
