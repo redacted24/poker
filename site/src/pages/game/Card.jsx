@@ -8,7 +8,7 @@ const Card = ({ card }) => {
   }
 
   const handleStop = (e,ui) => {
-    ui.node.style.transition = "transform 0.55s"
+    ui.node.style.transition = "transform cubic-bezier(.2,.75,.25,.96) 0.55s"
     ui.node.style.animation = ""
   }
 
