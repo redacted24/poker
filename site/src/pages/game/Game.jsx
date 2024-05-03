@@ -14,7 +14,7 @@ const Game = ({ clearIntervals }) => {
   const [table, setTable] = useState()
   const [inGame, setInGame] = useState(false)
   const [displayBoard, setDisplayBoard] = useState(false)
-  const [heatFeature, setHeatFeature] = useState(true)
+  const [cooldown, setCooldown] = useState(false)
   const params = useParams()
   const navigate = useNavigate()
   let intervalId
@@ -30,7 +30,6 @@ const Game = ({ clearIntervals }) => {
       } else {
         setInGame(true)
       }
-      displayStart = true
     }
     getTable()
 
@@ -59,8 +58,13 @@ const Game = ({ clearIntervals }) => {
     return ls.get('tableId')
   }
 
+  const startCooldown = (time=1000) => {
+    setCooldown(true)
+    setTimeout(() => setCooldown(false), time)
+  }
+
   const toggleFetching = (fetching) => {
-    if (fetching) {
+    if (fetching && !cooldown) {
       const fetchData = async () => {
         console.log('fetching')
         const tableData = await pokerService.getTable({ name: getName(), id: getTableId(), })
@@ -99,17 +103,14 @@ const Game = ({ clearIntervals }) => {
     }
     checkWinner()
   }, [table])
-
   
   const updateTable = (newTableData) => {
-    console.log(newTableData.players)
     if (newTableData.players.length == 1) {
       alert('All players have left the game. You won!')
       pokerService.clear({ id: getTableId() })
       navigate('../../')
     } else if (newTableData.players.some(p => p.name == getName())) {
       if (newTableData.player_queue.length !== 0) {
-        console.log(inGame)
         setDisplayBoard(true)
       }
       setTable(newTableData)
@@ -122,7 +123,6 @@ const Game = ({ clearIntervals }) => {
   const updateTableQueue = () => {
     const newPlayerQueue = table.player_queue.slice(1)
     updateTable({ player_queue: newPlayerQueue, ...table })
-    // console.log(table)
   }
 
 
@@ -141,10 +141,8 @@ const Game = ({ clearIntervals }) => {
   }
 
   const updateTableHeat = () => {
-    if (heatFeature) {
+    if (table.dynamic_table) {
       const table_css = document.getElementById('table')
-      console.log(table)
-      console.log(table_css)
       if (!table || !table_css) return null
       if (table.pot< 200) {
         table_css.style.backgroundColor = "#63ac59fb"
@@ -201,6 +199,7 @@ const Game = ({ clearIntervals }) => {
               updateTable={updateTable}
               toggleFetching={toggleFetching}
               updateTableQueue={updateTableQueue}
+              startCooldown={startCooldown}
             />
         })}
         <Opponents opponents={table.players.filter(player => player.name !== getName())} playerQueue={table.player_queue} />
