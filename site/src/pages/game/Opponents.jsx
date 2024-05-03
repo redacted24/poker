@@ -2,7 +2,6 @@ import Opponent from './Opponent'
 import './opponents.css'
 
 const Opponents = ({ opponents, playerQueue }) => {
-
   return (
     <div id='opponents'>
         {opponents.map(player => {

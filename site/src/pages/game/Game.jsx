@@ -122,7 +122,7 @@ const Game = ({ clearIntervals }) => {
   const updateTableQueue = () => {
     const newPlayerQueue = table.player_queue.slice(1)
     updateTable({ player_queue: newPlayerQueue, ...table })
-    console.log(table)
+    // console.log(table)
   }
 
 

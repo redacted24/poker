@@ -83,7 +83,7 @@ const Player = ({
       if (!isBetting) {
         return (
           <div id='buttons'>
-            {!!callAmount && <button className='action' onClick={call}>Call ({callAmount}$)</button>}
+            {!!callAmount && <button className='action' id="calling-button" onClick={call}>Call ({callAmount}$)</button>}
             {!callAmount && <button className='action' onClick={check}>Check</button>}
             <button className='action' id="folding-button" onClick={fold}>Fold</button>
             <button className='action' id="betting-button" onClick={toggleIsBetting}>Bet</button>

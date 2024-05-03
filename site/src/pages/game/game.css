@@ -20,6 +20,8 @@
   border: 10px solid #057005;
   border-radius: 32px;
   background-color: #63ac59fb;
+
+  transition: all 0.5s;
 }
 
 #firegif {
