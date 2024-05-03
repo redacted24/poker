@@ -9,6 +9,7 @@ import pokerService from '../../services/poker'
 
 const Lobby = ({ clearIntervals }) => {
     const [table, setTable] = useState()
+    const [playerList, setPlayerList] = useState([])
     const params = useParams()
     let intervalId
 
@@ -16,10 +17,26 @@ const Lobby = ({ clearIntervals }) => {
 
     useEffect(() => {
         const join = async () => {
-            const tableData = await pokerService.join({ name: getName(), id: params.id })
-            setTable(tableData)
+            const tableData = await pokerService.getTable({ name: null, id: params.id })
+            const originalUsername = getName()
+            let username = getName()
 
-            ls.set('tableId', tableData.id)
+            const tempPlayerList = tableData.players.map(p => p.name)
+
+            if (tempPlayerList.includes(originalUsername)) {
+                let i = 1
+                while (tempPlayerList.includes(username)) {
+                    username = `${originalUsername} (${i})`
+                    i += 1
+                }
+            }
+
+            console.log(username)
+
+            const newTableData = await pokerService.join({ name: username, id: params.id })
+            setTable(newTableData)
+
+            ls.set('tableId', newTableData.id)
             toggleFetching(true)
         }
         join()
@@ -43,6 +60,7 @@ const Lobby = ({ clearIntervals }) => {
             navigate(`../../game/${getTableId()}`)
         } else if (newTableData.players.some(p => p.name == getName())) {
             setTable(newTableData)
+            setPlayerList(newTableData.players.map(p => p.name))
         } else {
             alert("You have been kicked out of the lobby!")
             navigate('../../')
@@ -91,6 +109,8 @@ const Lobby = ({ clearIntervals }) => {
         navigator.clipboard.writeText(gameUrl)
     }
 
+    console.log(playerList)
+
     return (
         <>
             <h2 id='status'>Lobby...</h2>
@@ -98,7 +118,7 @@ const Lobby = ({ clearIntervals }) => {
                 <div id='player-list'>
                     <p className='subheader'>Player list</p>
                     <div id='players'>
-                        {table && table.players.map(p => <Player player={p} key={p.name}/>)}
+                        {table && playerList.map(p => <Player player_name={p} key={p}/>)}
                     </div>
                     <div id='link-section'>
                         <p className='share-link'>Share this link to invite others!</p>

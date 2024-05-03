@@ -14,6 +14,7 @@ const Game = ({ clearIntervals }) => {
   const [table, setTable] = useState()
   const [inGame, setInGame] = useState(false)
   const [displayBoard, setDisplayBoard] = useState(false)
+  const [displayStart, setDisplayStart] = useState(false)
   const params = useParams()
   const navigate = useNavigate()
   let intervalId

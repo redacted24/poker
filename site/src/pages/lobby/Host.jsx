@@ -164,11 +164,11 @@ const Host = ({ clearIntervals }) => {
                             </div>
                             <div className='option'>
                                 <label className='option-label' htmlFor='smallBlindAmount'>Small blind amount: {options.smallBlindAmount}$</label>
-                                <input type="range" min="1" max="20" value={options.smallBlindAmount / 5} onChange={handleChange} class="option-slider" id='smallBlindAmount' />
+                                <input type="range" min="0" max="20" value={options.smallBlindAmount / 5} onChange={handleChange} class="option-slider" id='smallBlindAmount' />
                             </div>
                             <div className='option'>
                                 <label className='option-label' htmlFor='bigBlindAmount'>Big blind amount: {options.smallBlindAmount * 2}$</label>
-                                <input type="range" min="1" max="20" value={options.smallBlindAmount / 5} onChange={handleChange} class="option-slider" id='bigBlindAmount' />
+                                <input type="range" min="0" max="20" value={options.smallBlindAmount / 5} onChange={handleChange} class="option-slider" id='bigBlindAmount' />
                             </div>
                             <div className='option'>
                                 <label className='option-label' htmlFor='blindInterval'>Blind interval: +{options.blindInterval}$ per round</label>
