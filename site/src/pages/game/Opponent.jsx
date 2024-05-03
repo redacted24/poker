@@ -31,6 +31,7 @@ const Opponent = ({ player, isCurrentPlayer }) => {
 
   if (isCurrentPlayer) {
     status =  'currently-playing'
+    setTimeout(2000)
   } else if (!player.active) {
     status = 'not-playing'
   } else if (player.is_all_in) {
