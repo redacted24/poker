@@ -13,11 +13,13 @@
 
 .kick-img {
     border-radius: 6px;
+    -webkit-user-drag: none;
     height: 28px;
 }
 
 .kick-img:hover {
     background-color: #FF000040;
+    cursor: pointer;
 }
 .kick-img:active {
     background-color: #FF202080;

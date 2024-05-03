@@ -104,6 +104,7 @@
 
 .option-slider {
     width: 320px;
+    accent-color: #6c7bd1e0;
 }
 
 .option-checkbox {
@@ -148,7 +149,8 @@
 }
 
 #warning {
-    margin-left: 16px;
+    margin-top: 3vh;
+    margin-left: 6px;
     width: 320px;
     text-align: center;
 }
