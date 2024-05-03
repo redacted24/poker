@@ -3,9 +3,9 @@ import copy
 
 class Cards:
     def __init__(self, fullName: str, shortName: str, suit: str, value: int, num: int):
-        self.fullName = fullName
-        self.shortName = shortName
-        self.suit = suit
+        self.fullName = fullName            # Fullname of the card, e.g. Ace of Spades
+        self.shortName = shortName          # Shortname of the card, e.g. As (for Ace of Spades)
+        self.suit = suit                    
         self.value = int(value)
         self.num = num
 
@@ -47,7 +47,6 @@ class Deck:
         def top(self):
             '''Check top card of deck'''
             return self[-1]
-
 
     def __init__(self):
         self.cards_list = {} # [As:{object}, Ks:{object},...] where A = ace and s = spades.
