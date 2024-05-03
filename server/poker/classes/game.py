@@ -234,7 +234,7 @@ class Table():
         print(self.board.cards())
     
     def river(self):
-        '''Ready game for the rivefr.
+        '''Ready game for the river.
         - Sets required bet to 0
         - Clears all bets for all players
         - Clears last move
@@ -471,7 +471,7 @@ class Player():
             self.current_bet = 0                # Balance of the player's bet for the current round
             self.active = True                  # Whether the player is still in round (hasn't folded yet).
             self.position = None                # Determines the position of the player. 0 = dealer, 1 = small blind, 2 = big blind, etc.
-            self.previous_step = []
+            self.previous_step = []             # Holds the information of the previous move of the player (e.g. 'check')
             self.ehs = 0
             self.is_all_in = False
             self.stats = {
@@ -590,7 +590,6 @@ class Player():
                 return 4, getOriginalValues([3], values, sorted_hand)
             elif len([v for v in values.values() if v == 2]) >= 2:
                 return 3, getOriginalValues([2, 2], values, sorted_hand)
-            
             elif 2 in values.values():
                 return 2, getOriginalValues([2], values, sorted_hand)
             else:
@@ -598,6 +597,7 @@ class Player():
 
         def riverEval(self):
             '''Return the highest scoring hand pattern of player + board.'''
+            # Deprecated
             pass
 
         def look(self):
@@ -631,15 +631,18 @@ class Player():
 
 
         def check(self):
+            '''Check, a.k.a do nothing'''
             self.table.check(self)
             self.previous_step = ['check']
         
         def fold(self):
+            '''Lay down your cards and leave the table.'''
             self.active = False
             self.table.fold(self)
             self.previous_step = ['fold']
 
         def bet(self, amount):
+            '''Bet a certain amount into the pot'''
             if self.balance > (amount - self.current_bet):
                 self.table.bet(self, amount)
                 self.previous_step = ['bet', self.current_bet]
@@ -647,16 +650,19 @@ class Player():
                 self.all_in()
 
         def all_in(self):
+            '''Go all-in'''
             print('All-in')
             self.table.all_in(self)
             self.previous_step = ['all-in', self.balance]
 
         def rake(self):
+            '''Take in the amount of money in the pot after a win.'''
             self.balance += self.table.pot
 
 
         # Misc
         def reset(self):
+            '''Reset player stats'''
             self.current_bet = 0
             self.active = True
             self.is_all_in = False
@@ -667,6 +673,7 @@ class Player():
             self.ehs = 0
 
         def toJSON(self, player_name, show_all_bot_card, show_all_cards):
+            '''Put all player variables into JSON. Used for communication with frontend'''
             response = {
                 'name': self.name,
                 'is_computer': self.is_computer,
@@ -692,9 +699,11 @@ class Player():
                 self.stats[stat] = 0
 
         def update_player_position(self):
+            '''Update player_position. Used if the player is a computer'''
             pass
 
         def update_strategy_thresholds(self):
+            '''Update strategy_thresholds. Used if the player is a computer'''
             pass
 
 

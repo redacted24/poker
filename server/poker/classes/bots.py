@@ -51,7 +51,7 @@ class AdvancedBot(Player):
     }
 
     def __init__(self, name, tightness, table=None):
-        '''The general class for an advanced bot. Contains all the necessary information for advanced play. Children class will have specific methods that tweak information in this class in order to play.
+        '''The general class for an advanced bot. Contains all the necessary information for advanced play.
         
         - Name (str)
         - Table (table object)
