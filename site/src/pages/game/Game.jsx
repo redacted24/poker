@@ -17,7 +17,6 @@ const Game = ({ clearIntervals }) => {
   const [displayBoard, setDisplayBoard] = useState(false)
   const params = useParams()
   const navigate = useNavigate()
-  let intervalId
 
   useEffect(() => {
     const getTable = async () => {
@@ -80,8 +79,7 @@ const Game = ({ clearIntervals }) => {
 
       }
       fetchData()
-      const tempIntervalId = setInterval(fetchData, 2500)
-      intervalId = tempIntervalId
+      setInterval(fetchData, 2500)
     } else {
       clearIntervals()
     }

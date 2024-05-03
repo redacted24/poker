@@ -76,6 +76,7 @@ class Table():
         self.last_move: list[str, str] = []         # [Player.name, 'nameOfMove'] A list of two elements containing the player name, and the name of their last move (e.g. bet)
         self.id: str | None = None
         self.betting_cap = 0                        # Cap to the amount of bets that can be made
+        self.v = 0                                  # How many times this table has been updated
         self.round_stats: dict = {        
             'bet': 0,
             'raise': 0,

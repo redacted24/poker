@@ -2,11 +2,11 @@ import {
   BrowserRouter as Router,
   Routes, Route
 } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import ls from 'localstorage-slim'
 
 import Intro from './pages/intro/Intro'
-import Playground from './pages/playground/Playground'
+import QuickStart from './pages/quickstart/QuickStart'
 import Host from './pages/lobby/Host'
 import Lobby from './pages/lobby/Lobby'
 import Game from './pages/game/Game'
@@ -32,7 +32,7 @@ const App = () => {
   return (
     <Router>
       <Routes>
-        <Route path="/playground" element={<Playground clearIntervals={clearIntervals}/>} />
+        <Route path="/quick-start" element={<QuickStart />} />
         <Route path="/lobby/:id" element={<Lobby clearIntervals={clearIntervals}/>} />
         <Route path="/game/:id" element={<Game clearIntervals={clearIntervals}/>} />
         <Route path="/host" element={<Host clearIntervals={clearIntervals}/>} />

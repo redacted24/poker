@@ -6,7 +6,7 @@ const Intro = () => {
     <div id="intro-container">
       <h1 id='title'>The Poker Playground</h1>
       <div id='link-buttons'>
-        <Link className="react-link-clickable" to='/playground'>
+        <Link className="react-link-clickable" to='/quick-start'>
           <button id="campaign" className='link-button'>
             <div id="campaign-text">Campaign (in development)</div>
           </button>
@@ -23,7 +23,7 @@ const Intro = () => {
           <img src="../../src/assets/ui/bird.svg" alt="doesnt work" id="campaign-image-11"></img>        
         </Link>
 
-        <Link className="react-link-clickable" to='/playground'>
+        <Link className="react-link-clickable" to='/quick-start'>
           <button id="quickstart" className='link-button'>
             <div id="quickstart-text">Quick Start</div>
           </button>
