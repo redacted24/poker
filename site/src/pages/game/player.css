@@ -44,6 +44,11 @@
   color: white;
 }
 
+#confirm-button {
+  background: #63ac59fb;
+  color: white;
+}
+
 #folding-button {
   background-color: #cc2f2ffb;
   color: white;
@@ -80,6 +85,7 @@
   line-height: 20px;
   border: 1px solid black;
   border-radius: 10px;
+  text-align: center;
 }
 
 .action:hover {
@@ -94,5 +100,5 @@
 #dollar-sign {
   position: absolute;
   top: calc((100% - 18px) / 2);
-  left: 27%;
+  left: 94%;
 } 
