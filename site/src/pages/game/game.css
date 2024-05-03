@@ -80,3 +80,18 @@
   justify-content: center;
   gap: 32px;
 }
+
+.vertical-align {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#loading {
+  text-align: center;
+  color: whitesmoke;
+  font-size: 3rem;
+  font-weight: 600;
+}
