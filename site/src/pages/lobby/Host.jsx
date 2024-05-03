@@ -113,7 +113,7 @@ const Host = ({ clearIntervals }) => {
         const link_button = document.getElementById('link-button')
         link_button.textContent = 'Link Copied!'
         setTimeout(() => {
-            link_button.textContent = 'Copy Text'
+            link_button.textContent = 'Copy Link'
         }, 2000)
     }
 
@@ -183,8 +183,7 @@ const Host = ({ clearIntervals }) => {
                         {playerList.map(p => <Player player_name={p} key={p} removePlayer={removePlayer} kickable={p != getName()}/>)}
                     </div>
                     <div id='link-section'>
-                        <p className='share-link'>Share this link to invite others!</p>
-                        <button id='link-button' onClick={copyLink}>Copy link</button>
+                        <button id='link-button' onClick={copyLink}>Copy table link</button>
                     </div>
                 </div>
                 <div id='settings'>
