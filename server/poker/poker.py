@@ -112,6 +112,15 @@ def add_bot():
         raise ValueError('Not a real bot!')
     break
 
+  player_names = [p.name for p in table.players]
+
+  if bot.name in player_names:
+    original_name = bot.name
+    i = 1
+    while bot.name in player_names:
+      bot.name = f'{original_name} ({i})'
+      i += 1
+
   table.add_player(bot)
 
   res = requests.put(f'http://localhost:3003/api/session/{req["id"]}', json={ 'table': pickle.dumps(table).decode('latin1') })
