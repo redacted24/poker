@@ -43,9 +43,11 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot][product-screenshot]](https://example.com)
+[![Poker Screen Shot][product-screenshot]](http://35.199.11.69:5173/#/)
 
-The poker playground is a website designed to familiarize the user's understanding of poker and the some common poker AIs. Website is currently hosted by a Google Cloud VM. Site link: [http://35.199.11.69:5173/](http://35.199.11.69:5173/)
+[![Poker Gameplay][product-gameplay]](http://35.199.11.69:5173/#/)
+
+The poker playground is a website designed to familiarize the user's understanding of poker and the some common poker AIs. Website is currently hosted by a Google Cloud VM. Site link: [http://35.199.11.69:5173/#/](http://35.199.11.69:5173/#/)
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
@@ -202,7 +204,8 @@ Project Link: [https://github.com/redacted24/poker](https://github.com/redacted2
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[product-screenshot]: images/screenshot.jpg
+[product-screenshot]: images/index.png
+[product-gameplay]: images/game.png
 [Node.js]: https://img.shields.io/badge/Node-D5E6CE?style=for-the-badge&logo=nodedotjs&logoColor=339933
 [Node-url]: https://nodejs.org/en
 [React.js]: https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB
