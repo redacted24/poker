@@ -151,6 +151,8 @@ def start():
   res = requests.get(f'http://localhost:3003/api/session/{req["id"]}')
   table: Table = pickle.loads(res.json()['table'].encode('latin1'))
 
+  if len(table.board) != 0: return table.toJSON(req['name'])
+
   table.state = 0
   table.pre_flop()
 
