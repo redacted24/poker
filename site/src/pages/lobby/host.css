@@ -2,11 +2,11 @@
     text-align: center;
     padding-top: 10vh;
     padding-bottom: 4vh;
-    font-size: 2rem;
+    font-size: 2.4rem;
 }
 
 #lobby {
-    width: 80%;
+    width: 1200px;
     height: 64vh;
     margin: 0 auto;
     display: flex;
@@ -14,8 +14,9 @@
 }
 
 #player-list {
-    width: 20%;
+    width: 16vw;
     border: 1px solid black;
+    background-color: #6e6e6e27;
 }
 
 #players {
@@ -24,21 +25,162 @@
 }
 
 #link-section {
+    height: 12.5%;
     display: flex;
     flex-direction: column;
     text-align: center;
     align-items: center;
 }
 
+#link-button {
+    border: none;
+    width: 100%;
+    height: 100%;
+    background-color: #6c7bd18a;
+    color: white;
+    font-size: 1.2rem;
+    transition: all 0.25s;
+}
+
+#link-button:hover {
+    cursor: pointer;
+    background-color: #6c7bd1e0;
+    transition: 0.25s all;
+}
+
+#link-button:active {
+    box-shadow: 0px 0px 20px #6c7bd1e0;
+    font-size: 1rem;
+    transition: 0.25s all;
+}
+
 #settings {
-    width: 80%;
+    width: 100%;
     border: 1px solid black;
+    background-color: #5965ac44;
+
 }
 
 .subheader {
     padding: 10px;
     text-align: center;
-    font-size: 1.2rem;
+    font-size: 1.6rem;
     font-weight: bold;
     border-bottom: 2px solid black;
+}
+
+#options {
+    height: 90%;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    padding: 10px 36px;
+}
+
+.subtitle {
+    font-size: 1.25rem;
+    margin: 20px 0px 10px 0px;
+}
+
+.first.subtitle {
+    margin-top: 10px;
+}
+
+.option {
+    font-size: 1.1rem;
+    margin: 12px 0;
+    margin-left: 16px;
+}
+
+.option.checkbox {
+    display: flex;
+    align-items: center;
+}
+
+.option-label {
+    display: block;
+    width: 450px;
+}
+
+.option-slider {
+    width: 320px;
+    accent-color: #6c7bd1e0;
+}
+
+.option-checkbox {
+    width: 15px;
+    height: 15px;
+}
+
+.option-label.inline {
+    display: inline-block;
+    width: 300px;
+}
+
+#bot-buttons {
+    margin-top: 2vh;
+    width: 420px;
+    margin-left: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 30px;
+}
+
+.bot-button {
+    background-color: white;
+    width: 160px;
+    margin-top: 1vh;
+    padding: 6px 8px;
+    text-align: center;
+    border-radius: 8px;
+    border: 2px solid rgb(75, 75, 75);
+}
+
+.bot-button:hover {
+    transition-duration: 250ms;
+    background-color: rgb(175, 175, 175);
+    cursor: pointer;
+}
+
+.bot-button:active {
+    transition-duration: 250ms;
+    background-color: rgb(255, 255, 255);
+    cursor: pointer;
+}
+
+#warning {
+    margin-top: 3vh;
+    margin-left: 6px;
+    width: 320px;
+    text-align: center;
+}
+
+#host-start {
+    width: 30%;
+    height: 8%;
+    margin: auto;
+    margin-top: 5vh;
+    font-size: 1.5rem;
+    border-radius: 5px;
+    border: 2px solid black;
+    color: white;
+    background-color: #6c7bd18a;
+    box-shadow: -3px 3px 0px black;
+}
+
+#host-start:hover {
+    transition-duration: 250ms;
+    transform: translate(2px, -2px);
+    box-shadow: -3px 6px 0px black;
+    color: white;
+    background-color: #6c7bd18a;
+    cursor: pointer;
+}
+
+#host-start:active {
+    transition-duration: 250ms;
+    color: black;
+    box-shadow: 0px 0px 20px #6c7bd18a;
+    transform: translate(0px, 0px);
+    background-color: white;
 }

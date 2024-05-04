@@ -1,8 +1,11 @@
 import './player.css'
 
-const Player = ({ player }) => {
+const Player = ({ player_name, kickable, removePlayer }) => {
     return (
-        <div className='list-player'>{player.name}</div>
+        <div className='list-player'>
+            <span className='player-name'>{player_name} </span>
+            {kickable && <img className='kick-img' onClick={() => removePlayer(player_name)} src='../../src/assets/misc/close-button.svg'/>}
+        </div>
     )
 }
 

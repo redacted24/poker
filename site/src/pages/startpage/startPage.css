@@ -1,0 +1,75 @@
+@keyframes appear {
+  0% {
+    visibility: 'hidden';
+    opacity: 0;
+  }
+}
+
+#prompt-title {
+  position: absolute;
+  width: 100%;
+  top: 20%;
+  display: flex;
+  justify-content: center;
+  font-size: 2rem;
+  z-index: 2;
+  color: black;
+  pointer-events: none;
+  animation: 1.25s ease-in-out 0s 1 appear;
+}
+
+#prompt {
+  height: 100%;
+  margin-top: 36vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+  animation: 2.5s ease-in-out 0s 1 appear;
+}
+
+#prompt-question {
+  text-align: center;
+  font-size: 1.4rem;
+}
+
+#prompt-input {
+  width: 24vw;
+  font-size: 1.3rem;
+  line-height: 30px;
+  text-align: center;
+  margin: 0 auto;
+  background-color: transparent;
+  border: none;
+  border-bottom: 2px solid black;
+}
+
+#prompt-input:focus {
+  outline: none;
+  border: none;
+  border-color: inherit;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  border-bottom: 2px solid black;
+}
+
+#prompt-confirm {
+  margin: 0 auto;
+  font-size: 1.3rem;
+  border-radius: 4px;
+  width: 160px;
+  height: 35px;
+  transition: 0.75s all;
+  animation: 1.25s ease-in-out 0s 1 appear;
+}
+
+#prompt-confirm:hover {
+  cursor: pointer;
+  scale: 1.1;
+  transition: 0.75s all;
+}
+
+#prompt-confirm:active {
+  box-shadow: -3px 5px 0px 0px #212641;
+  transition: 0.25s all;
+}

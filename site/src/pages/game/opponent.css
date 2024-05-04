@@ -15,8 +15,22 @@
   margin: 0 calc(-1.5vh - 15px);
 }
 
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .previous-step {
-  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background-color: rgba(110, 110, 110, 0.199);;
 }
 
 
@@ -38,16 +52,25 @@
 
 .waiting {
   border: 3px solid black;
+  transition: 0.5s;
 }
 
 .currently-playing {
   border: 3px solid green;
+  background-color: #00800042;
+  transition: 0.5s;
 }
 
 .not-playing {
-  border: 3px solid red;
+  border: 3px solid black;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+  opacity: 0.2;
+  transition: 0.5s;
 }
 
 .all-in {
   border: 3px solid mediumpurple;
+  transition: 0.5s;
 }

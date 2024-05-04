@@ -51,7 +51,7 @@ class AdvancedBot(Player):
     }
 
     def __init__(self, name, tightness, table=None):
-        '''The general class for an advanced bot. Contains all the necessary information for advanced play. Children class will have specific methods that tweak information in this class in order to play.
+        '''The general class for an advanced bot. Contains all the necessary information for advanced play.
         
         - Name (str)
         - Table (table object)
@@ -81,12 +81,6 @@ class AdvancedBot(Player):
 
     def play(self):
         '''Playing function for the bot.'''
-        # from time import sleep
-        # sleep(1)
-        from time import sleep
-        sleep(0.2)
-
-
         if self.table.state == 0:       # We are in pre-flop
             self.IR = self.get_income_rate()
             #

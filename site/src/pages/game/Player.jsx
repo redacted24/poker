@@ -12,7 +12,8 @@ const Player = ({
     getTableId,
     updateTable,
     toggleFetching,
-    updateTableQueue
+    updateTableQueue,
+    startCooldown
   }) => {
 
   const [isBetting, setIsBetting] = useState(false)
@@ -33,10 +34,9 @@ const Player = ({
   }, [minBetAmount])
 
   const sendRequest = async (request, content) => {
+    startCooldown()
     updateTableQueue()
-    toggleFetching(true)
     const tableData = await request(content)
-    toggleFetching(false)
     setBetAmount(minBetAmount)
     updateTable(tableData)
     console.log(tableData)
@@ -83,18 +83,18 @@ const Player = ({
       if (!isBetting) {
         return (
           <div id='buttons'>
-            {!!callAmount && <button className='action' onClick={call}>Call ({callAmount}$)</button>}
+            {!!callAmount && <button className='action' id="calling-button" onClick={call}>Call ({callAmount}$)</button>}
             {!callAmount && <button className='action' onClick={check}>Check</button>}
-            <button className='action' onClick={fold}>Fold</button>
-            <button className='action' onClick={toggleIsBetting}>Bet</button>
+            <button className='action' id="folding-button" onClick={fold}>Fold</button>
+            <button className='action' id="betting-button" onClick={toggleIsBetting}>Bet</button>
           </div>
         )
       } else {
         return (
           <form onSubmit={bet} id='buttons'>
-            <input className='action' type='number' value={betAmount} onChange={handleChange} min={minBetAmount} /> <span id='dollar-sign'>$</span>
             <button className='action' type='button' onClick={toggleIsBetting}>Go back</button>
-            <button className='action' type='submit'>Confirm</button>
+            <button className='action' id="confirm-button" type='submit'>Confirm</button>
+            <input className='input-field' type='number' value={betAmount} onChange={handleChange} min={minBetAmount} /> <span id='dollar-sign'>$</span>
           </form>
         )
       }

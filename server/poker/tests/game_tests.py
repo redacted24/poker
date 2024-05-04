@@ -363,7 +363,7 @@ class TestAdvancedBotMethods(unittest.TestCase):
 
     def test_semi_bluffing_fail(self):
         '''Test semi_bluffing doesn't happen'''
-        # QUeue is p4,p1,p2,p3
+        # Queue is p4,p1,p2,p3
         print('TESTING SEMI BLUFFING')
         deck2 = Deck()
         self.table.pre_flop()
