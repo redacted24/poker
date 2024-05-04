@@ -1,10 +1,4 @@
 services:
-  site:
-    build: ./site
-    network_mode: "host"
-    depends_on:
-      - server
-
   server:
     build: ./server
     network_mode: "host"

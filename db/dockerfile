@@ -1,8 +1,14 @@
 FROM node:20
 
+WORKDIR /site
+
+RUN npm ci
+
 WORKDIR /db
 
 COPY . .
+
+COPY /site/dist ./dist
 
 RUN npm ci
 
