@@ -14,4 +14,4 @@ WORKDIR /site
 
 COPY ./dist ../db/dist
 
-ENTRYPOINT ["npm", "run", "dev"]
+ENTRYPOINT ["npm", "start"]
