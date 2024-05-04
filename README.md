@@ -162,7 +162,8 @@ Open the website on [http://localhost:5173/](http://localhost:5173/), and follow
 ## Roadmap
 
 - [x] Deploy site
-- [ ] Improve CSS
+- [x] Improve CSS
+- [ ] Complete campaign
 - [ ] Fix bugs
 
 See the [open issues](https://github.com/redacted24/poker/issues) for a full list of proposed features (and known issues).
@@ -191,7 +192,10 @@ Project Link: [https://github.com/redacted24/poker](https://github.com/redacted2
 
 * [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
 * [Poker Theory Paper](https://webdocs.cs.ualberta.ca/~jonathan/PREVIOUS/Grad/papp/thesis.html)
-* []()
+* [react-draggable](https://www.npmjs.com/package/react-draggable)
+* [react-toastify](https://www.npmjs.com/package/react-toastify)
+* [localstorage-slim.js](https://www.npmjs.com/package/localstorage-slim)
+* [unittest](https://docs.python.org/3/library/unittest.html)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
