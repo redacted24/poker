@@ -11,7 +11,7 @@ import pokerService from '../../services/poker'
 import './game.css'
 
 
-const Game = ({ clearIntervals }) => {
+const Game = ({ notify, clearIntervals }) => {
   const [table, setTable] = useState()
   const [inGame, setInGame] = useState(false)
   const [displayBoard, setDisplayBoard] = useState(false)
@@ -73,7 +73,7 @@ const Game = ({ clearIntervals }) => {
           const tableData = await pokerService.getTable({ name: getName(), id: getTableId(), })
           updateTable(tableData)
         } catch {
-          alert('You have lost connection to the game!')
+          notify('You have lost connection to the game!', error)
           navigate('/')
         }
 
@@ -99,7 +99,11 @@ const Game = ({ clearIntervals }) => {
     const checkWinner = async () => {
       if (table && table.winning_player && inGame) {
         setTimeout(async () => {
-          alert(`${table.winning_player.name} has won ${table.pot}!`)
+          if (table.winning_player.name == getName()) {
+            notify(`You have won ${table.pot}!`, 'success')
+          } else{
+            notify(`${table.winning_player.name} has won ${table.pot}!`, 'info')
+          }
           const tableData = await pokerService.next({ name: getName(), id: getTableId() })
           updateTable(tableData)
           setDisplayBoard(false)
@@ -111,7 +115,7 @@ const Game = ({ clearIntervals }) => {
   
   const updateTable = (newTableData) => {
     if (newTableData.players.length == 1) {
-      alert('All players have left the game. You won!')
+      notify('All players have left the game. You won!', 'success')
       pokerService.clear({ id: getTableId() })
       navigate('/')
     } else if (newTableData.players.some(p => p.name == getName())) {
@@ -121,7 +125,7 @@ const Game = ({ clearIntervals }) => {
       setTable(newTableData)
       console.log(newTableData)
     } else {
-      alert("You lost all your money and you've been kicked out of the table! Better luck next time :(")
+      notify("You lost all your money and you've been kicked out of the table! Better luck next time :(", 'error')
       navigate('/')
     }
   }

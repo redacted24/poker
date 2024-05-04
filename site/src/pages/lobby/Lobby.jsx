@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import useState from 'react-usestateref'
 import ls from 'localstorage-slim'
 
 import Player from './Player'
@@ -7,9 +8,9 @@ import './host.css'
 
 import pokerService from '../../services/poker'
 
-const Lobby = ({ clearIntervals }) => {
+const Lobby = ({ notify, clearIntervals }) => {
     const [table, setTable] = useState()
-    const [playerList, setPlayerList] = useState([])
+    const [playerList, setPlayerList, playerListRef] = useState([])
     const params = useParams()
     let intervalId
 
@@ -59,10 +60,21 @@ const Lobby = ({ clearIntervals }) => {
             toggleFetching(false)
             navigate(`../../game/${getTableId()}`)
         } else if (newTableData.players.some(p => p.name == getName())) {
+            newTableData.players.forEach(p => {
+                if (!playerListRef.current.includes(p.name)) {
+                    notify(`${p.name} has joined the lobby!`, 'success')
+                }
+            })
+            playerListRef.current.forEach(p => {
+                console.log(p)
+                if (!newTableData.players.map(p => p.name).includes(p)) {
+                    notify(`${p} has left the lobby!`, 'error')
+                }
+            })
             setTable(newTableData)
             setPlayerList(newTableData.players.map(p => p.name))
         } else {
-            alert("You have been kicked out of the lobby!")
+            notify('You have been kicked from the lobby!', 'error')
             navigate('../../')
         }
     }

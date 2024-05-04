@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
+import useState from 'react-usestateref'
 import Player from './Player'
 import './host.css'
 
@@ -6,7 +7,7 @@ import pokerService from '../../services/poker'
 import { useNavigate } from 'react-router-dom'
 import ls from 'localstorage-slim'
 
-const Host = ({ clearIntervals }) => {
+const Host = ({ notify, clearIntervals }) => {
     const increments = {
         startingBalance: 200,
         smallBlindAmount: 5,
@@ -24,7 +25,7 @@ const Host = ({ clearIntervals }) => {
         showAllCards: false
     })
 
-    const [playerList, setPlayerList] = useState([])
+    const [playerList, setPlayerList, playerListRef] = useState([])
     const [cooldown, setCooldown] = useState(false)
     const [table, setTable] = useState()
     const navigate = useNavigate()
@@ -60,8 +61,14 @@ const Host = ({ clearIntervals }) => {
 
     const updateTable = (newTableData) => {
         setTable(newTableData)
+        newTableData.players.forEach(p => {
+            if (!playerListRef.current.includes(p.name)) {
+                notify(`${p.name} has joined the lobby!`, 'success')
+            }
+        })
         setPlayerList(newTableData.players.map(p => p.name))
     }
+
 
     const toggleFetching = (fetching) => {
         if (fetching && !cooldown) {
@@ -119,7 +126,7 @@ const Host = ({ clearIntervals }) => {
         }, 2000)
     }
 
-    const startCooldown = (time=1000) => {
+    const startCooldown = (time=1500) => {
         setCooldown(true)
         setTimeout(() => setCooldown(false), time)
     }
@@ -136,13 +143,16 @@ const Host = ({ clearIntervals }) => {
 
     const removePlayer = async (player_name_to_remove) => {
         setPlayerList(playerList.filter(p => p !== player_name_to_remove))
+        notify(`${player_name_to_remove} has been kicked from the lobby!`, 'error')
         startCooldown()
         await pokerService.leave({ name: player_name_to_remove, id: getTableId() })
-        alert(`${player_name_to_remove} has been removed`)
     }
 
     const addBot = async (e) => {
         const bot_type = e.target.id
+        if (!playerListRef.current.includes(bot_type)) {
+            notify(`${bot_type} has joined the lobby!`, 'success')
+        }
         setPlayerList(playerList.concat(bot_type))
         startCooldown()
         const tableData = await pokerService.addBot({ id: getTableId(), bot_type })

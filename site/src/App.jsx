@@ -2,8 +2,10 @@ import {
   BrowserRouter as Router,
   Routes, Route
 } from 'react-router-dom'
-import { useEffect } from 'react'
+import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import ls from 'localstorage-slim'
+import { useEffect } from 'react'
 
 import Intro from './pages/intro/Intro'
 import QuickStart from './pages/quickstart/QuickStart'
@@ -29,15 +31,26 @@ const App = () => {
     }
   }
 
+  const notify = (message, type) => {
+    toast[type](message, {
+      position: "top-center",
+      pauseOnHover: false,
+      toastId: message,
+    })
+  }
+
   return (
     <Router>
       <Routes>
         <Route path="/quick-start" element={<QuickStart />} />
-        <Route path="/lobby/:id" element={<Lobby clearIntervals={clearIntervals}/>} />
-        <Route path="/game/:id" element={<Game clearIntervals={clearIntervals}/>} />
-        <Route path="/host" element={<Host clearIntervals={clearIntervals}/>} />
+        <Route path="/lobby/:id" element={<Lobby notify={notify} clearIntervals={clearIntervals}/>} />
+        <Route path="/game/:id" element={<Game notify={notify} clearIntervals={clearIntervals}/>} />
+        <Route path="/host" element={<Host notify={notify} clearIntervals={clearIntervals}/>} />
         <Route path="/" element={<Intro />} />
       </Routes>
+      <ToastContainer
+        pauseOnFocusLoss={false}
+      />
     </Router>
   )
 }
