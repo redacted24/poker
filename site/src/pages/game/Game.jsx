@@ -106,7 +106,7 @@ const Game = ({ notify, clearIntervals }) => {
           const tableData = await pokerService.next({ name: getName(), id: getTableId() })
           updateTable(tableData)
           setDisplayBoard(false)
-        }, 800)
+        }, 1600)
       }
     }
     checkWinner()
