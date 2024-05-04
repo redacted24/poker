@@ -15,12 +15,12 @@ const Card = ({ card }) => {
   if (card) {
     return (
       <Draggable onStart={handleStart} onStop={handleStop} position = {{x:0,y:0}}>
-        <img className='card noSelect' src={`../../src/assets/cards/${card}.svg`} />
+        <img className='card noSelect' src={`/cards/${card}.svg`} />
       </Draggable>
   )} else {
     return (
       <Draggable onStart={handleStart} onStop={handleStop} position = {{x:0,y:0}}>
-        <img className='card noSelect' src='../../src/assets/cards/back.png'/>
+        <img className='card noSelect' src='/cards/back.png'/>
       </Draggable>)
   }
 }

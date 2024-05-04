@@ -179,9 +179,9 @@ const Game = ({ notify, clearIntervals }) => {
       <div id='room'>
         <div id='table'>
           <div id = "firegif">
-            <img src="../../src/assets/ui/fire.gif" alt="firegif"></img>
-            <img src="../../src/assets/ui/fire.gif" alt="firegif"></img>
-            <img src="../../src/assets/ui/fire.gif" alt="firegif"></img>
+            <img src="/ui/fire.gif" alt="firegif"></img>
+            <img src="/ui/fire.gif" alt="firegif"></img>
+            <img src="/ui/fire.gif" alt="firegif"></img>
           </div>
           <p id='pot'>Pot: {table.pot}$</p>
           {
