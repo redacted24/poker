@@ -79,7 +79,7 @@ const Game = ({ notify, clearIntervals }) => {
 
       }
       fetchData()
-      setInterval(fetchData, 2500)
+      setInterval(fetchData, 1000)
     } else {
       clearIntervals()
     }
@@ -89,7 +89,6 @@ const Game = ({ notify, clearIntervals }) => {
     toggleFetching(true)
     setDisplayBoard(true)
     const tableData = await pokerService.start({ name: getName(), id: getTableId() })
-    toggleFetching(false)
     setInGame(true)
     updateTable(tableData)
     console.log(tableData)
