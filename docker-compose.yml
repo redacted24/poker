@@ -13,7 +13,7 @@ services:
   
   db:
     build: ./db
-    network_mode: "host"\
+    network_mode: "host"
     environment:
       # - MONGODB_URI=
       # - TEST_MONGODB_URI=
