@@ -5,11 +5,11 @@ const Opponent = ({ player, isCurrentPlayer}) => {
   const positionTag = () => {
     switch (player.position) {
       case 0:
-        return <img className='position-tag' src='../../src/assets/positions/dealer.png' />
+        return <img className='position-tag' src='/positions/dealer.png' />
       case 1:
-        return <img className='position-tag' src='../../src/assets/positions/small-blind.png' />
+        return <img className='position-tag' src='/positions/small-blind.png' />
       case 2:
-        return <img className='position-tag' src='../../src/assets/positions/big-blind.png' />
+        return <img className='position-tag' src='/positions/big-blind.png' />
       default:
         return <div className='position-tag'></div>
     }
