@@ -1,3 +1,23 @@
+@keyframes appear {
+  0% {
+    visibility: 'hidden';
+    opacity: 0;
+  }
+}
+
+#prompt-title {
+  position: absolute;
+  width: 100%;
+  top: 20%;
+  display: flex;
+  justify-content: center;
+  font-size: 2rem;
+  z-index: 2;
+  color: black;
+  pointer-events: none;
+  animation: 1.25s ease-in-out 0s 1 appear;
+}
+
 #prompt {
   height: 100%;
   margin-top: 36vh;
@@ -5,6 +25,7 @@
   display: flex;
   flex-direction: column;
   gap: 30px;
+  animation: 2.5s ease-in-out 0s 1 appear;
 }
 
 #prompt-question {
@@ -39,7 +60,7 @@
   width: 160px;
   height: 35px;
   transition: 0.75s all;
-  transition: visibility 0s, opacity 1s ease-in-out;
+  animation: 1.25s ease-in-out 0s 1 appear;
 }
 
 #prompt-confirm:hover {
