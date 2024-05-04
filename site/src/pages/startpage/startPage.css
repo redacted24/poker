@@ -59,17 +59,22 @@
   border-radius: 4px;
   width: 160px;
   height: 35px;
+  border: none;
+  background-color: #47ac3a65;
   transition: 0.75s all;
   animation: 1.25s ease-in-out 0s 1 appear;
 }
 
 #prompt-confirm:hover {
   cursor: pointer;
-  scale: 1.1;
-  transition: 0.75s all;
+  transform: translate(2px, -2px);
+  box-shadow: -3px 3px 0px rgba(0, 0, 0, 0.644);
+  transition: 0.25s all;
 }
 
 #prompt-confirm:active {
-  box-shadow: -3px 5px 0px 0px #212641;
+  box-shadow: 0px 0px 15px #63ac5980;
+  border: none;
+  transform: translate(0px, 0px);
   transition: 0.25s all;
 }
