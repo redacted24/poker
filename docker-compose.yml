@@ -3,7 +3,7 @@ services:
     build: ./site
     network_mode: "host"
     depends_on:
-      - site
+      - server
 
   server:
     build: ./server
@@ -13,7 +13,7 @@ services:
   
   db:
     build: ./db
-    network_mode: "host"
+    network_mode: "host"\
     environment:
       # - MONGODB_URI=
       # - TEST_MONGODB_URI=
