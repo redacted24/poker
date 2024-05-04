@@ -8,7 +8,7 @@ from poker.classes.bots import *
 # define /api/poker to be the point of contact for backend logic
 bp = Blueprint('poker', __name__, url_prefix='/api/poker')
 
-def get_table(request):
+def fetch_table(request):
   '''Get table table data with a given table ID'''
 
   req = request.get_json()
@@ -53,7 +53,7 @@ def init():
 
   table.id = res.json()['id']
 
-  update_table(table, table['id'])
+  update_table(table, table.id)
 
   return table.toJSON(req['name'])
 
@@ -78,7 +78,7 @@ def quick_start():
 
   table.id = res.json()['id']
 
-  res = update_table(table, table['id'])
+  res = update_table(table, table.id)
 
   table = load_table(res)
 
@@ -87,7 +87,7 @@ def quick_start():
 @bp.post('/join')
 def join():
   '''Joins an existing game'''
-  req, res, table = get_table(request)
+  req, res, table = fetch_table(request)
 
   player = Player(req['name'], False)
   table.add_player(player)
@@ -101,7 +101,7 @@ def join():
 @bp.post('/add_bot')
 def add_bot():
   '''Adds a bot to an existing game'''
-  req, res, table = get_table(request)
+  req, res, table = fetch_table(request)
 
   bot = None
 
@@ -149,7 +149,7 @@ def add_bot():
 @bp.post('/leave')
 def leave():
   '''Leave an existing game'''
-  req, res, table = get_table(request)
+  req, res, table = fetch_table(request)
 
   table.remove_player(req['name'])
 
@@ -162,7 +162,7 @@ def leave():
 @bp.post('/start')
 def start():
   '''Beings the pre-flop phase of the game. Deals 3 cards on the table and a hand to each player.'''
-  req, res, table = get_table(request)
+  req, res, table = fetch_table(request)
 
   if len(table.board) != 0: return table.toJSON(req['name'])
 
@@ -180,13 +180,13 @@ def start():
 @bp.post('/get-table')
 def get_table():
   '''Get the current state of the table'''
-  req, res, table = get_table(request)
+  req, res, table = fetch_table(request)
 
   return table.toJSON(req['name'])
 
 @bp.post('/set-settings')
 def set_settings():
-  req, res, table = get_table(request)
+  req, res, table = fetch_table(request)
 
   table.initial_balance = req['startingBalance']
 
@@ -215,7 +215,7 @@ def set_settings():
 @bp.post('/call')
 def call():
   '''Player calls, matching the current bet.'''
-  req, res, table = get_table(request)
+  req, res, table = fetch_table(request)
 
   player = next(player for player in table.players if player.name == req['name'])
 
@@ -230,7 +230,7 @@ def call():
 @bp.post('/check')
 def check():
   'Player checks, passing the turn without betting.'
-  req, res, table = get_table(request)
+  req, res, table = fetch_table(request)
 
   player = next(player for player in table.players if player.name == req['name'])
 
@@ -245,7 +245,7 @@ def check():
 @bp.post('/fold')
 def fold():
   'Player folds, giving up their current hand.'
-  req, res, table = get_table(request)
+  req, res, table = fetch_table(request)
 
   player = next(player for player in table.players if player.name == req['name'])
 
@@ -260,7 +260,7 @@ def fold():
 @bp.post('/bet')
 def bet():
   'Player bets, raising the required bet to stay in for the entire table.'
-  req, res, table = get_table(request)
+  req, res, table = fetch_table(request)
 
   player = next(player for player in table.players if player.name == req['name'])
 
@@ -274,7 +274,7 @@ def bet():
 
 @bp.post('/go_next')
 def go_next():
-  req, res, table = get_table(request)
+  req, res, table = fetch_table(request)
 
   table.play()
 
