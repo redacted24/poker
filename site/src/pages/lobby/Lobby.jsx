@@ -20,6 +20,7 @@ const Lobby = ({ notify, clearIntervals }) => {
         const join = async () => {
             const tableData = await pokerService.getTable({ name: null, id: params.id })
             const originalUsername = getName()
+            if (!originalUsername) return null
             let username = getName()
 
             const tempPlayerList = tableData.players.map(p => p.name)
@@ -105,8 +106,8 @@ const Lobby = ({ notify, clearIntervals }) => {
 
     const getName = () => {
         if (!ls.get('username')) {
-            const username = prompt('Please enter your username.', 'Bob')
-            ls.set('username', username, { ttl: 60 * 60 })
+            navigate('/start')
+            return null
         }
         return ls.get('username')
     }
@@ -157,8 +158,7 @@ const Lobby = ({ notify, clearIntervals }) => {
                         {table && playerList.map(p => <Player player_name={p} key={p}/>)}
                     </div>
                     <div id='link-section'>
-                        <p className='share-link'>Share this link to invite others!</p>
-                        <button id='link-button' onClick={copyLink}>Copy link</button>
+                        <button id='link-button' onClick={copyLink}>Copy table link</button>
                     </div>
                 </div>
                 <div id='settings'>
