@@ -288,8 +288,6 @@ class Table():
                 n_turns += 1
                 if n_turns > 1000:
                     raise Exception(self.round_stats)
-                    self.player_queue.clear()           # temp fix for bot problem
-                    break
             else:
                 break
         print(self.state)

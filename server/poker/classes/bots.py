@@ -81,12 +81,6 @@ class AdvancedBot(Player):
 
     def play(self):
         '''Playing function for the bot.'''
-        # from time import sleep
-        # sleep(1)
-        from time import sleep
-        sleep(0.2)
-
-
         if self.table.state == 0:       # We are in pre-flop
             self.IR = self.get_income_rate()
             #
