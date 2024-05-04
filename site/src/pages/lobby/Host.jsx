@@ -113,7 +113,7 @@ const Host = ({ notify, clearIntervals }) => {
 
 
     const copyLink = () => {
-        const gameUrl = `${window.location.host}/lobby/${getTableId()}`
+        const gameUrl = `${window.location.host}/#/lobby/${getTableId()}`
         try {
             navigator.clipboard.writeText(gameUrl)
         } catch {
