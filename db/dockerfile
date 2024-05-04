@@ -1,11 +1,15 @@
-FROM node:20
+WORKDIR /site
+
+RUN npm ci
 
 WORKDIR /db
 
 COPY . .
 
-COPY /site/dist ./dist
-
 RUN npm ci
 
-ENTRYPOINT ["npm", "start"]
+WORKDIR /site
+
+COPY ./dist ../db/dist
+
+ENTRYPOINT ["npm", "run", "dev"]
