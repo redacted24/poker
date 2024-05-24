@@ -1,0 +1,44 @@
+#status {
+    text-align: center;
+    padding-top: 10vh;
+    padding-bottom: 4vh;
+    font-size: 2rem;
+}
+
+#lobby {
+    width: 80%;
+    height: 64vh;
+    margin: 0 auto;
+    display: flex;
+    border: 1px solid black;
+}
+
+#player-list {
+    width: 20%;
+    border: 1px solid black;
+}
+
+#players {
+    height: calc(56vh - 50px);
+    border-bottom: 2px solid black; 
+}
+
+#link-section {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+}
+
+#settings {
+    width: 80%;
+    border: 1px solid black;
+}
+
+.subheader {
+    padding: 10px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    border-bottom: 2px solid black;
+}

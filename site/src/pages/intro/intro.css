@@ -1,0 +1,545 @@
+:root {
+    --animation-retreat-time: 0.5s;
+}
+
+#intro-container {
+    height: 100vh;
+}
+
+#title {
+    position: absolute;
+    width: 100%;
+    top: 20%;
+    display: flex;
+    justify-content: center;
+    font-size: 2rem;
+    z-index: 2;
+    color: black;
+    pointer-events: none;
+}
+
+#link-buttons {
+    width: 100%;
+    height: 100%;
+    display: flex;
+}
+
+.back-animation {
+    animation: top-left-appear-back 0.75s forwards;
+}
+
+#campaign:hover {
+    position: relative;
+    background-color: #5965ac80;
+    transform: scale(1.3);
+    transition: all 0.75s;
+    cursor: pointer;
+    z-index: 1;
+}
+
+#campaign:hover #campaign-text {
+    padding: 2vh;
+    background-color: #fefbf6;
+    border-radius: 3px;
+    box-shadow: -3px 5px 0px #212641;
+
+    transition: all 0.25s;
+}
+
+#campaign:active {
+    background-color: #5965acbb;
+    transform: scale(1);
+    transition: all 0.25s;
+}
+
+/* Castle */
+#campaign-image-1 {
+    position: absolute;
+    width: 6vw;
+    aspect-ratio: 1;
+    top: 55vh;
+    left: -10vw;
+    rotate: 25deg;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-1 {
+    top: 60vh;
+    rotate: 0deg;
+    left: 5vw;
+    transition: all 1s;
+}
+
+/* Shield */
+#campaign-image-2 {
+    position: absolute;
+    width: 3vw;
+    aspect-ratio: 1;
+    top: 110vh;
+    left: 20vw;
+    rotate: -60deg;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-2 {
+    top: 82vh;
+    left: 28vw;
+    rotate: 0deg;
+    transition: all 1s;
+}
+
+/* Swords */
+#campaign-image-3 {
+    position: absolute;
+    width: 3vw;
+    aspect-ratio: 1;
+    top: 120vh;
+    left: 20vw;
+    rotate: -60deg;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-3 {
+    top: 90vh;
+    left: 28vw;
+    rotate: 0deg;
+    transition: all 1.2s;
+}
+
+/* Heart 1 (unfilled) */
+#campaign-image-4 {
+    position: absolute;
+    width: 3vw;
+    aspect-ratio: 1;
+    top: 105vh;
+    left: 5vw;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-4 {
+    top: 90vh;
+    left: 5vw;
+    transition: all 1.5s;
+}
+
+/* Heart 2 (unfilled) */
+#campaign-image-5 {
+    position: absolute;
+    width: 3vw;
+    aspect-ratio: 1;
+    top: 105vh;
+    left: 9vw;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-5 {
+    top: 90vh;
+    left: 9vw;
+    transition: all 2s;
+}
+
+/* Heart 3 (filled) */
+#campaign-image-6 {
+    position: absolute;
+    width: 3vw;
+    aspect-ratio: 1;
+    top: 105vh;
+    left: 1vw;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-6 {
+    top: 90vh;
+    left: 1vw;
+    transition: all 1s;
+}
+
+/* Sun */
+#campaign-image-7 {
+    position: absolute;
+    width: 20vw;
+    aspect-ratio: 1;
+    top: -50vh;
+    left: 15vw;
+    rotate: 60deg;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-7 {
+    top: -18vh;
+    left: 22vw;
+    rotate: 0deg;
+    transition: all 1s;
+}
+
+/* Cloud */
+#campaign-image-8 {
+    position: absolute;
+    width: 5vw;
+    aspect-ratio: 1;
+    top: -20vh;
+    left: 0vw;
+    rotate: 60deg;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-8 {
+    top: 15vh;
+    left: 5vw;
+    rotate: 0deg;
+    transition: all 1s;
+}
+
+/* Cloud 2*/
+#campaign-image-9 {
+    position: absolute;
+    width: 5vw;
+    aspect-ratio: 1;
+    top: -20vh;
+    left: 0vw;
+    rotate: 60deg;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-9 {
+    top: 10vh;
+    left: 10vw;
+    rotate: 0deg;
+    transition: all 1.5s;
+}
+
+/* Line */
+#campaign-image-10 {
+    position: absolute;
+    width: 30vw;
+    aspect-ratio: 1;
+    left: -35vw;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-10 {
+    top: 40vh;
+    left: -4vw;
+    rotate: 0deg;
+    transition: all 1.5s;
+}
+
+/* Bird 1*/
+#campaign-image-11 {
+    position: absolute;
+    width: 2vw;
+    aspect-ratio: 1;
+    top: 100vh;
+    left: -10vw;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#campaign:hover ~ #campaign-image-11 {
+    top: 35vh;
+    left: 23vw;
+    transition: all 1s;
+}
+
+
+/* QUICKSTART ---------------*/
+
+
+#quickstart:hover {
+    background-color: #63ac5980;
+    transform: scale(1.3);
+    transition: background-color 0.25s;
+    transition: transform 0.5s;
+    cursor: pointer;
+    z-index: 1;
+}
+
+#quickstart:active {
+    background-color: #63ac59b7;
+    transform: scale(1);
+    transition: all 0.25s;
+}
+
+#quickstart:hover #quickstart-text {
+    padding: 2vh;
+    background-color: #fefbf6;
+    border-radius: 3px;
+    box-shadow: -3px 5px 0px #233d20;
+    z-index: 2;
+    transition: all 0.25s;
+}
+
+/* Card 1*/
+#quickstart-image-1 {
+    position: absolute;
+    width: 10vw;
+    aspect-ratio: 1;
+    left: 45vw;
+    top: 100vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#quickstart:hover ~ #quickstart-image-1 {
+    top: 85vh;
+    rotate: -15deg;
+    left: 45vw;
+    transition: all 1s;
+}
+
+/* Card 2*/
+#quickstart-image-2 {
+    position: absolute;
+    width: 10vw;
+    aspect-ratio: 1;
+    rotate: 180deg;
+    left: 45vw;
+    top: -30vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#quickstart:hover ~ #quickstart-image-2 {
+    top: -10vh;
+    left: 45vw;
+    transition: all 1s;
+}
+
+/* Poker Chip3*/
+#quickstart-image-3 {
+    position: absolute;
+    width: 3vw;
+    aspect-ratio: 1;
+    rotate: 15deg;
+    left: 48.6vw;
+    top: -10vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#quickstart:hover ~ #quickstart-image-3 {
+    left: 48.6vw;
+    top: 30vh;
+    transition: all 1.5s;
+}
+
+/* Poker Chip4*/
+#quickstart-image-4 {
+    position: absolute;
+    width: 3vw;
+    aspect-ratio: 1;
+    rotate: 15deg;
+    left: 48.6vw;
+    top: 100vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#quickstart:hover ~ #quickstart-image-4 {
+    left: 48.6vw;
+    top: 66vh;
+    transition: all 1.5s;
+}
+
+/* Community Card 1*/
+#quickstart-image-5 {
+    position: absolute;
+    width: 8vw;
+    aspect-ratio: 1;
+    left: 30vw;
+    rotate: -20deg;
+    top: -30vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#quickstart:hover ~ #quickstart-image-5 {
+    left: 38.5vw;
+    rotate: 0deg;
+    top: 42vh;
+    transition: all 1s;
+}
+
+/* Community Card 2*/
+#quickstart-image-6 {
+    position: absolute;
+    width: 8vw;
+    aspect-ratio: 1;
+    left: 46vw;
+    top: -30vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#quickstart:hover ~ #quickstart-image-6 {
+    left: 46vw;
+    rotate: 0deg;
+    top: 42vh;
+    transition: all 1.25s;
+}
+
+/* Community Card 3*/
+#quickstart-image-7 {
+    position: absolute;
+    width: 8vw;
+    aspect-ratio: 1;
+    left: 60vw;
+    rotate: 20deg;
+    top: -30vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#quickstart:hover ~ #quickstart-image-7 {
+    left: 53.5vw;
+    rotate: 0deg;
+    top: 42vh;
+    transition: all 1.5s;
+}
+
+/* MULTIPLAYER ------------------ */
+
+
+#multiplayer {
+    transition: all 0.25s;
+}
+
+#multiplayer:hover {
+    background-color: #f4433680;
+    transform: scale(1.3);
+    transition: background-color 0.25s;
+    transition: transform 0.5s;
+    cursor: pointer;
+    z-index: 1;
+}
+
+#multiplayer:hover #multiplayer-text {
+    padding: 2vh;
+    background-color: #fefbf6;
+    border-radius: 3px;
+    box-shadow: -3px 5px 0px #501612;
+
+    transition: all 0.25s;
+}
+
+#multiplayer:active {
+    background-color: #f44336bb;
+    transform: scale(1);
+    transition: all 0.25s;
+}
+
+/* Gears */
+#multiplayer-image-1 {
+    position: absolute;
+    width: 8vw;
+    aspect-ratio: 1;
+    left: 105vw;
+    rotate: -20deg;
+    top: -15vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#multiplayer:hover ~ #multiplayer-image-1 {
+    left: 91vw;
+    top: 2vh;
+    rotate: 0deg;
+    transition: all 1s;
+}
+
+/* Plus Icon */
+#multiplayer-image-2 {
+    position: absolute;
+    width: 3vw;
+    aspect-ratio: 1;
+    left: 68vw;
+    top: 100vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#multiplayer:hover ~ #multiplayer-image-2 {
+    left: 68vw;
+    top: 89vh;
+    transition: all 1.3s;
+}
+
+/* People Icon */
+#multiplayer-image-3 {
+    position: absolute;
+    width: 5vw;
+    aspect-ratio: 1;
+    left: 71.5vw;
+    top: 100vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#multiplayer:hover ~ #multiplayer-image-3 {
+    top: 87vh;
+    transition: all 1.3s;
+}
+
+/* Plus Icon */
+#multiplayer-image-4 {
+    position: absolute;
+    width: 3vw;
+    aspect-ratio: 1;
+    left: 68vw;
+    top: 100vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#multiplayer:hover ~ #multiplayer-image-4 {
+    left: 68vw;
+    top: 76vh;
+    transition: all 1.3s;
+}
+
+/* Robot Icon */
+#multiplayer-image-5 {
+    position: absolute;
+    width: 4vw;
+    aspect-ratio: 1;
+    left: 72vw;
+    top: 100vh;
+    pointer-events: none;
+    transition: all var(--animation-retreat-time);
+}
+
+#multiplayer:hover ~ #multiplayer-image-5 {
+    top: 74vh;
+    transition: all 1.3s;
+}
+
+
+.react-link-clickable {
+    width: 100%;
+    -webkit-user-drag:none;
+    overflow: hidden;
+}
+
+.link-button {
+    border: none;
+    width: 100%;
+    height: 100%;
+    font-size: 1.5rem;
+    padding: 10px;
+    transition: all 0.25s;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}

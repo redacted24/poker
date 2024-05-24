@@ -6,4 +6,4 @@ COPY . .
 
 RUN pip install -e .
 
-ENTRYPOINT ["python", "-m", "flask", "--app", "poker", "run", "--debug"]
+ENTRYPOINT ["python", "-m", "flask", "--app", "poker", "run"]

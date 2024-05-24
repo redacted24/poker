@@ -338,6 +338,51 @@ class TestAdvancedBotMethods(unittest.TestCase):
     def test_botPositionFail(self):
         '''Check if func works if board is not set'''
         self.assertRaises(ValueError, lambda: self.p4.update_player_position())     # Use lambda as wrapper
+    
+    def test_semi_bluffing_success(self):
+        '''Test when semi_bluffing happens'''
+        # QUeue is p4,p1,p2,p3
+        print('TESTING SEMI BLUFFING')
+        deck2 = Deck()
+        self.table.pre_flop()
+        self.p4.call()
+        self.p1.call()
+        self.p2.call()
+        self.p3.check()
+        self.table.flop()
+        self.table.state += 1
+        # Queue now should be p1,p2,p3,p4, pot is 50
+        self.table.board.force_put([deck2.get('6s'), deck2.get('2d'), deck2.get('4h')])
+        self.p1.clear_hand()
+        self.p1.receive([deck2.get('7d'), deck2.get('5d')])
+        # This should make p1's PPOT very low
+        # Now, for the pot odds, p1.balance = 990 so betsize is 5% of that which is 50 rounded up.
+        # Which means Implied Pot Odds are around 100/(50+200)+100 = 0.2857
+        # Here PPOT is 0.33 for p1. Therefore p1 should be semi-bluffing, as a last resort since p1's EHS is not strong enough to trigger make1 nor make2 strategies
+        self.assertEqual(self.p1.play(), 'semi-bluff')
+
+    def test_semi_bluffing_fail(self):
+        '''Test semi_bluffing doesn't happen'''
+        # Queue is p4,p1,p2,p3
+        print('TESTING SEMI BLUFFING')
+        deck2 = Deck()
+        self.table.pre_flop()
+        self.p4.call()
+        self.p1.call()
+        self.p2.call()
+        self.p3.check()
+        self.table.flop()
+        self.table.state += 1
+        # Queue now should be p1,p2,p3,p4, pot is 50
+        self.table.board.force_put([deck2.get('6s'), deck2.get('2d'), deck2.get('4h')])
+        self.p1.clear_hand()
+        self.p1.receive([deck2.get('Jd'), deck2.get('5d')])
+        # This should make p1's PPOT very low
+        # Now, for the pot odds, p1.balance = 990 so betsize is 5% of that which is 50 rounded up.
+        # Which means Implied Pot Odds are around 100/(50+200)+100 = 0.2857
+        # Here PPOT is 0.33 for p1. Therefore p1 should be semi-bluffing, as a last resort since p1's EHS is not strong enough to trigger make1 nor make2 strategies
+        self.assertNotEqual(self.p1.play(), 'semi-bluff')
+        # Instead of semi-bluffing, the bot would just use the next strategy in line
 
     # ---
     # Note: not used anymore since the preflop strategy values have been tweaked. Already tested to work with the values before.
@@ -758,6 +803,14 @@ class TestGameProcessAdvancedBot(unittest.TestCase):
         self.p4.bet(110)
         self.p1.bet(110)
         self.assertEqual(self.table.round_stats['call'], 1)
+    
+    def test_allin(self):
+        print('eeeeeeee')
+        self.p4.call()
+        self.p1.all_in()
+        self.p2.fold()
+        self.p3.fold()
+        self.p4.call()
 
 
 

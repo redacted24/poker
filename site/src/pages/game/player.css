@@ -1,0 +1,104 @@
+#player {
+  position: absolute;
+  top: 70%;
+  height: 30%;
+  width: 100%;
+}
+
+#player > .position-tag {
+  position: absolute;
+  left: calc(56% - (30px + 4vh) / 2);
+  width: calc(30px + 4vh);
+}
+
+#hand {
+  position: absolute;
+  top: calc(-40px + 4vh);
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+#hand > .card {
+  margin: 0 calc(-2vh - 20px);
+}
+
+#balance {
+  position: absolute;
+  top: 65%;
+  width: 100%;
+  text-align: center;
+  font-size: 1.2rem;
+}
+
+#buttons {
+  position: absolute;
+  top: 80%;
+  display: flex;
+  width: 100%;
+  justify-content: space-around;
+}
+
+#betting-button {
+  background: #63ac59fb;
+  color: white;
+}
+
+#confirm-button {
+  background: #63ac59fb;
+  color: white;
+}
+
+#folding-button {
+  background-color: #cc2f2ffb;
+  color: white;
+}
+
+.action:hover  {
+  transform: translate(2px, -2px);
+  box-shadow: -3px 5px 0px #3d3c3cfb;
+  transition: all 0.25s;
+}
+
+.action:active {
+  transform: translate(0px, 0px);
+  box-shadow: none;
+  filter: brightness(0.9);
+  transition: all 0.25s;
+}
+
+.action:active::after {
+  box-shadow: 0px 5px 2px red;
+}
+
+.action {
+  width: 20vw;
+  height: 4vh;
+  line-height: 20px;
+  border: 1px solid black;
+  border-radius: 10px;
+}
+
+.input-field {
+  width: 20vw;
+  height: 4vh;
+  line-height: 20px;
+  border: 1px solid black;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.action:hover {
+  cursor: pointer;
+}
+
+.green-button {
+  border: none;
+  
+}
+
+#dollar-sign {
+  position: absolute;
+  top: calc((100% - 18px) / 2);
+  left: 94%;
+} 

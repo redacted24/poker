@@ -3,6 +3,7 @@ const Session = require('../models/session')
 
 sessionsRouter.get('/:id', async (request, response) => {
   const session = await Session.findById(request.params.id)
+  console.log(request.params.id)
   response.json(session)
 })
 
@@ -29,7 +30,8 @@ sessionsRouter.put('/:id', async (request, response) => {
 
   const new_session = await Session.findByIdAndUpdate(
     request.params.id,
-    session_update
+    session_update,
+    { new: true }
   )
 
   response.json(new_session)
