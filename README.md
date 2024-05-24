@@ -47,7 +47,7 @@
 
 [![Poker Gameplay][product-gameplay]](http://35.199.11.69:5173/#/)
 
-The poker playground is a website designed to familiarize the user's understanding of poker and the some common poker AIs. Website is currently hosted by a Google Cloud VM. Site link: [http://35.199.11.69:5173/#/](http://35.199.11.69:5173/#/)
+The poker playground is a website designed to familiarize the user's understanding of poker and the some common poker AIs. Website is currently hosted by a Google Cloud VM. Site link: [https://poker-playground.app/start](https://poker-playground.app/start)
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 
