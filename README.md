@@ -43,9 +43,9 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Poker Screen Shot][product-screenshot]](http://35.199.11.69:5173/#/)
+[![Poker Screen Shot][product-screenshot]](https://poker-playground.app)
 
-[![Poker Gameplay][product-gameplay]](http://35.199.11.69:5173/#/)
+[![Poker Gameplay][product-gameplay]](https://poker-playground.app)
 
 The poker playground is a website designed to familiarize the user's understanding of poker and the some common poker AIs. Website is currently hosted by a Google Cloud VM. Site link: [https://poker-playground.app](https://poker-playground.app)
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
