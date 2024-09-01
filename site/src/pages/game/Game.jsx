@@ -210,7 +210,14 @@ const Game = ({ notify, clearIntervals }) => {
               startCooldown={startCooldown}
             />
         })}
-        <Opponents opponents={table.players.filter(player => player.name !== getName())} playerQueue={table.player_queue} />
+        <Opponents 
+          opponents={(
+            table.players
+              .slice(table.players.findIndex(player => player.name === getName()) + 1)
+              .concat(table.players.slice(0, table.players.findIndex(player => player.name === getName())))
+          )} 
+          playerQueue={table.player_queue} 
+        />
 
       </div>
     </>
