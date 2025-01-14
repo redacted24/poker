@@ -10,11 +10,11 @@ export default ({ mode }) => {
     base: "./",
     server: {
       host: true,
-      port: 443,
-      https: {
-        key: process.env.VITE_PRIVKEY,
-        cert: process.env.VITE_FULLCHAIN
-      },
+      port: 8080,
+      // https: {
+      //   key: process.env.VITE_PRIVKEY,
+      //   cert: process.env.VITE_FULLCHAIN
+      // },
       proxy: {
         '/api': {
           target: 'http://localhost:5000',

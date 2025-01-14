@@ -10,7 +10,8 @@ const StartPage = () => {
   const navigate = useNavigate()
 
 
-  const setName = () => {
+  const setName = (e) => {
+    e.preventDefault()
     ls.set('username', username, { ttl: 60 * 60 })
     navigate(-1)
   }
@@ -18,11 +19,11 @@ const StartPage = () => {
   return (
     <div id="intro-container">
       <h1 id='prompt-title'>The Poker Playground</h1>
-      <div id='prompt'>
+      <form id='prompt' onSubmit={setName}>
         <label htmlFor='prompt-input' id='prompt-question'>Please enter your username: </label>
         <input id='prompt-input' type='text' value={username} onChange={(e) => setUsername(e.target.value)}></input>
-        {username && <button id='prompt-confirm' onClick={setName}>Confirm</button>}
-      </div>
+        {username && <button id='prompt-confirm' type='submit'>Confirm</button>}
+      </form>
     </div>
   )
 }

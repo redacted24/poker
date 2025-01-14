@@ -137,7 +137,7 @@ const Host = ({ notify, clearIntervals }) => {
             toggleFetching(false)
             navigate(`../game/${getTableId()}`, { replace: true })
         } else {
-            alert('You cannot start a game with less than 2 players!')
+            notify('You cannot start a game with less than 2 players!', 'error')
         }
     }
 
