@@ -35,55 +35,25 @@ const Game = ({ socket, notify }) => {
         return ls.get('username')
     }
 
-    const getTableId = () => {
-        return ls.get('tableId')
-    }
-
     const start = () => {
         setDisplayBoard(true)
         setInGame(true)
         socket.emit("start", { name: getName(), table_id: table.id })
     }
 
-//   useEffect(() => {
-//     const checkWinner = async () => {
-//       if (table && table.winning_player && inGame) {
-//         setTimeout(async () => {
-//           if (table.winning_player.name == getName()) {
-//             notify(`You have won ${table.pot}!`, 'success')
-//           } else{
-//             notify(`${table.winning_player.name} has won ${table.pot}!`, 'info')
-//           }
-//           const tableData = await pokerService.next({ name: getName(), id: getTableId() })
-//           updateTable(tableData)
-//           setDisplayBoard(false)
-//         }, 1600)
-//       }
-//     }
-//     checkWinner()
-//   }, [table])
-  
-//   const updateTable = (newTableData) => {
-//     if (newTableData.players.length == 1) {
-//       notify('All players have left the game. You won!', 'success')
-//       pokerService.clear({ id: getTableId() })
-//       navigate('/')
-//     } else if (newTableData.players.some(p => p.name == getName())) {
-//       if (newTableData.player_queue.length !== 0) {
-//         setDisplayBoard(true)
-//       }
-//       setTable(newTableData)
-//       console.log(newTableData)
-//     } else {
-//       notify("You lost all your money and you've been kicked out of the table! Better luck next time :(", 'error')
-//       navigate('/')
-//     }
-//   }
-
-//   const updateTableQueue = () => {
-//     const newPlayerQueue = table.player_queue.slice(1)
-//     setTable({ ...table, player_queue: newPlayerQueue })
-//   }
+    useEffect(() => {
+        if (table && table.winning_player && inGame) {
+            setTimeout(() => {
+                if (table.winning_player.name == getName()) {
+                    notify(`You have won ${table.pot}!`, 'success')
+                } else{
+                    notify(`${table.winning_player.name} has won ${table.pot}!`, 'info')
+                }
+                socket.emit("next", { name: getName(), table_id: table.id })
+                setDisplayBoard(false)
+            }, 1600)
+        }
+    }, [table])
 
   if (!table) {
     return (
@@ -149,12 +119,13 @@ const Game = ({ socket, notify }) => {
             {table.players.filter(player => player.name == getName()).map(player => {
                 return <Player 
                 key={getName()}
+                socket={socket}
                 player={player}
                 numPlayers={table.players.length}
                 playerQueue={table.player_queue}
                 requiredBet={table.required_bet}
                 requiredRaise={table.required_raise}
-                getTableId={getTableId}
+                tableId={table.id}
                 />
             })}
 

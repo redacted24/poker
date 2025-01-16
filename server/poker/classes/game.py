@@ -1,5 +1,4 @@
 import requests
-import pickle
 from time import sleep
 
 try:
@@ -264,12 +263,10 @@ class Table():
 
     def play(self):
         '''Lets all the computers play their turn, then starts the next round if needed.'''
-        n_turns = 0
 
         while len(self.player_queue) != 0:
             if len([p for p in self.active_players() if not p.is_all_in]) == 1:
                 self.player_queue.clear()
-                self.state = 3
                 break
             current_player = self.player_queue[0]
 
@@ -281,20 +278,23 @@ class Table():
                 current_player.previous_step = None
                 sleep(1.5)
                 current_player.play()
-                n_turns += 1
-                if n_turns > 1000:
-                    raise Exception(self.round_stats)
+                return True
             else:
-                break
-        print(self.state)
-        if len(self.player_queue) == 0:
-            if self.state != 5:
-                self.state = (self.state + 1) % 6
-                rounds = [self.pre_flop, self.flop, self.turn, self.river, self.showdown, self.reset]
-                
-                rounds[self.state]()
-                if 0 < self.state < 4:
-                    self.play()
+                return False
+
+        if len(self.player_queue) != 0: return False
+
+        if self.state != 5:
+            self.state = (self.state + 1) % 6
+            rounds = [self.pre_flop, self.flop, self.turn, self.river, self.showdown, self.reset]
+            
+            rounds[self.state]()
+            if 0 < self.state < 4:
+                sleep(0.5)
+                return True
+
+        return False
+
 
     def reset(self):
         '''Clears current cards on the board, resets deck, and removes all player handheld cards.
@@ -376,8 +376,6 @@ class Table():
                 self.call(player)
             elif amount - self.required_bet < self.required_raise:
                 raise Exception('cannot bet under minimum raise requirement')
-            elif amount > player.balance:
-                raise Exception('cant bet that, player has to go all-in. Remove this exception once allin method is done')  # Remove this when allin method is done
             else: 
                 self.update_table_stats(player, 'bet')              # Update table stats
                 amount_bet = amount - player.current_bet            # amount that the player throws into the pot

@@ -1,5 +1,6 @@
-from flask import Flask
+from flask import Flask, request
 from flask_socketio import SocketIO, join_room, leave_room, send, emit
+import requests
 
 from random import randint, choice
 
@@ -175,9 +176,88 @@ def start(data):
     table.state = 0
     table.pre_flop()
 
+    while table.play():
+        send(table.toJSON(data["name"]))
+
     send(table.toJSON(data["name"]))
+
+
+@socketio.event
+def call(data):
+    '''Player calls, matching the current bet.'''
+    table_id = data["table_id"]
+    table = games[table_id]
+
+    player = next(player for player in table.players if player.name == data['name'])
+
+    player.call()
+
+    send(table.toJSON(data["name"]))
+    while table.play():
+        send(table.toJSON(data["name"]))
+
+    send(table.toJSON(data["name"]))
+
+
+@socketio.event
+def check(data):
+    'Player checks, passing the turn without betting.'
+    table_id = data["table_id"]
+    table = games[table_id]
+
+    player = next(player for player in table.players if player.name == data['name'])
+
+    player.check()
+
+    send(table.toJSON(data["name"]))
+    while table.play():
+        send(table.toJSON(data["name"]))
+
+    send(table.toJSON(data["name"]))
+
+
+@socketio.event
+def fold(data):
+    'Player folds, giving up their current hand.'
+    table_id = data["table_id"]
+    table = games[table_id]
+
+    player = next(player for player in table.players if player.name == data['name'])
+
+    player.fold()
+
+    send(table.toJSON(data["name"]))
+    while table.play():
+        send(table.toJSON(data["name"]))
+
+    send(table.toJSON(data["name"]))
+
+
+@socketio.event
+def bet(data):
+    'Player bets, raising the datauired bet to stay in for the entire table.'
+    table_id = data["table_id"]
+    table = games[table_id]
+
+    player = next(player for player in table.players if player.name == data['name'])
+
+    player.bet(data['amount'])
+
+    send(table.toJSON(data["name"]))
+    while table.play():
+        send(table.toJSON(data["name"]))
+
+    send(table.toJSON(data['name']))
+
+
+@socketio.on("next")
+def go_next(data):
+    table_id = data["table_id"]
+    table = games[table_id]
+
     table.play()
-    send(table.toJSON(data["name"]))
+
+    send(table.toJSON(data['name']))
 
 
 if __name__ == '__main__':

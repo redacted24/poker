@@ -35,23 +35,24 @@
   position: absolute;
   top: 80%;
   display: flex;
-  width: 100%;
+  margin: 0 20% ;
   justify-content: space-around;
+  gap: 4%;
 }
 
-#betting-button {
-  background: #63ac59fb;
+#betting-button, #confirm-button {
   color: white;
-}
-
-#confirm-button {
-  background: #63ac59fb;
-  color: white;
+  background-color: #7cb575fb;
 }
 
 #folding-button {
-  background-color: #cc2f2ffb;
   color: white;
+  background-color: #d85151fb;
+}
+
+.action {
+  background-color: rgb(217, 217, 217);
+  height: 40px;
 }
 
 .action:hover  {
