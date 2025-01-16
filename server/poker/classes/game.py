@@ -53,8 +53,8 @@ class Board():
         self._show_cards = False
 
 class Table():
-    def __init__(self, deck: Deck):
-        self.deck: Deck = deck                      # Setup the deck used for the table
+    def __init__(self, id: str):
+        self.deck: Deck = Deck()                    # Setup the deck used for the table
         self.board: Board = Board()                 # Making a board class. Easier to manage the state of the board
         self.pot: int = 0                           # The flop on the table
         self.state: int = 0                         # Pre-flop (0), flop (1), turn (2), river (3), showdown(4)
@@ -74,7 +74,7 @@ class Table():
         self.show_all_bot_cards: bool = False       # Determines whether players can see bot cards
         self.show_all_cards: bool = False           # Determines whether to show all cards
         self.last_move: list[str, str] = []         # [Player.name, 'nameOfMove'] A list of two elements containing the player name, and the name of their last move (e.g. bet)
-        self.id: str | None = None
+        self.id: str = id
         self.betting_cap = 0                        # Cap to the amount of bets that can be made
         self.v = 0                                  # How many times this table has been updated
         self.round_stats: dict = {        

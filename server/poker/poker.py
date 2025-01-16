@@ -105,29 +105,25 @@ def add_bot():
 
   bot = None
 
-  while True:
-    match req['bot_type']:
-      case 'better':
-        bot = Better('better', True)
-      case 'caller':
-        bot = RingRingItsTheCaller('caller', True)
-      case 'scary_cat':
-        bot = ScaryCat('scary_cat', True)
-      case 'copy_cat':
-        bot = CopyCat('copy_cat', True)
-      case 'tight_bot':
-        bot = AdvancedBot('tight_bot', 'tight')
-      case 'moderate_bot':
-        bot = AdvancedBot('moderate_bot', 'moderate')
-      case 'loose_bot':
-        bot = AdvancedBot('loose_bot', 'loose')
-      case 'random':
-        from random import choice
-        bot = choice(['better', 'caller', 'scary_cat', 'copy_cat', 'tight_bot', 'moderate_bot', 'loose_bot'])
-        continue
-      case _:
-        raise ValueError('Not a real bot!')
-    break
+  match req['bot_type']:
+    case 'better':
+      bot = Better('better', True)
+    case 'caller':
+      bot = RingRingItsTheCaller('caller', True)
+    case 'scary_cat':
+      bot = ScaryCat('scary_cat', True)
+    case 'copy_cat':
+      bot = CopyCat('copy_cat', True)
+    case 'tight_bot':
+      bot = AdvancedBot('tight_bot', 'tight')
+    case 'moderate_bot':
+      bot = AdvancedBot('moderate_bot', 'moderate')
+    case 'loose_bot':
+      bot = AdvancedBot('loose_bot', 'loose')
+    case 'random':
+      from random import choice
+      bot = choice(['better', 'caller', 'scary_cat', 'copy_cat', 'tight_bot', 'moderate_bot', 'loose_bot'])
+
 
   player_names = [p.name for p in table.players]
 

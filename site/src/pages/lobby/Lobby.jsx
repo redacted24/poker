@@ -7,52 +7,38 @@ import Player from './Player'
 import './host.css'
 
 import pokerService from '../../services/poker'
+import { io } from 'socket.io-client'
 
-const Lobby = ({ notify, clearIntervals }) => {
+const Lobby = ({ notify }) => {
+    const [socketInstance, setSocketInstance] = useState(null)
+
     const [table, setTable] = useState()
-    const [playerList, setPlayerList, playerListRef] = useState([])
+    const [playerList, setPlayerList] = useState([])
     const params = useParams()
     let intervalId
 
     const navigate = useNavigate()
 
     useEffect(() => {
-        const join = async () => {
-            const tableData = await pokerService.getTable({ name: null, id: params.id })
-            const originalUsername = getName()
-            if (!originalUsername) return null
-            let username = getName()
+        const socket = io("localhost:5000/");
+        setSocketInstance(socket);
 
-            const tempPlayerList = tableData.players.map(p => p.name)
+        socket.emit("join", {
+            name: getName(),
+            table_id: params.id
+        })
 
-            if (tempPlayerList.includes(originalUsername)) {
-                let i = 1
-                while (tempPlayerList.includes(username)) {
-                    username = `${originalUsername} (${i})`
-                    i += 1
-                }
-            }
+        socket.on("message", (data) => {
+            setTable(data)
+            setPlayerList(data.players)
+        })
 
-            console.log(username)
-
-            const newTableData = await pokerService.join({ name: username, id: params.id })
-            setTable(newTableData)
-
-            ls.set('tableId', newTableData.id)
-            toggleFetching(true)
-        }
-        join()
-
-        const removeTableId = () => {
-            pokerService.leave({ name: getName(), id: getTableId() })
-            ls.set('tableId', undefined)
-        }
-
-        window.addEventListener('beforeunload', removeTableId)
+        socket.on("change_username", (data) => {
+            ls.set("username", data)
+        })
 
         return () => {
-            window.removeEventListener('beforeunload', removeTableId)
-            clearIntervals()
+            socket.disconnect();
         }
     }, [])
 
@@ -117,30 +103,10 @@ const Lobby = ({ notify, clearIntervals }) => {
     }
 
 
-    const unsecureCopy = (text) => {
-        `Workaround for copying due to browser preventing copying from non secure wesbites`
-
-        const textArea = document.createElement("textarea");
-        textArea.value = text;
-        document.body.appendChild(textArea);
-        textArea.focus();
-        textArea.select();
-        try {
-            document.execCommand('copy');
-        } catch (err) {
-            alert('Unable to copy to clipboard', err);
-        }
-        document.body.removeChild(textArea);
-    }
-
-
     const copyLink = () => {
         const gameUrl = `${window.location.host}/lobby/${getTableId()}`
-        try {
-            navigator.clipboard.writeText(gameUrl)
-        } catch {
-            unsecureCopy(gameUrl)
-        }
+        navigator.clipboard.writeText(gameUrl)
+
         const link_button = document.getElementById('link-button')
         link_button.textContent = 'Link Copied!'
         setTimeout(() => {
@@ -155,7 +121,7 @@ const Lobby = ({ notify, clearIntervals }) => {
                 <div id='player-list'>
                     <p className='subheader'>Player list</p>
                     <div id='players'>
-                        {table && playerList.map(p => <Player player_name={p} key={p}/>)}
+                        {table && playerList.map(p => <Player player_name={p.name} key={p.name}/>)}
                     </div>
                     <div id='link-section'>
                         <button id='link-button' onClick={copyLink}>Copy table link</button>
