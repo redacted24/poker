@@ -75,7 +75,7 @@ def join(data):
 
     if (data["name"] != name): emit("change_username", name)
 
-    send(table.toJSON(None), to=table_id)
+    send(table.toJSON(), to=table_id)
     emit("player_joined", name, to=table_id)
 
 
@@ -103,9 +103,8 @@ def add_bot(data):
 
     table.add_player(bot)
 
-    send(table.toJSON(None), to=table_id)
+    send(table.toJSON(), to=table_id)
     emit("player_joined", bot_name, to=table_id)
-
 
 
 @socketio.event
@@ -116,8 +115,34 @@ def remove_player(data):
 
     table.remove_player(data['name'])
 
-    send(table.toJSON(None), to=table_id)
+    send(table.toJSON(), to=table_id)
     emit("player_left", data['name'], to=table_id)
+
+
+@socketio.event
+def set_settings(data):
+    table_id = data['table_id']
+    table = games[table_id]
+
+    table.initial_balance = data['startingBalance']
+
+    for player in table.players:
+        player.balance = data['startingBalance']
+
+    table.small_blind_amount = data['smallBlindAmount']
+    table.big_blind_amount = data['smallBlindAmount'] * 2
+
+    table.blind_interval = data['blindInterval']
+    
+    table.auto_rebuy = data['autoRebuy']
+    table.display_game_stats = data['gameStats']
+    table.dynamic_table = data['dynamicTable']
+
+    table.show_all_bot_cards = data['showAllBotCards']
+    table.show_all_cards = data['showAllCards']
+
+    send(table.toJSON(), to=table_id)
+    emit("start_game", to=table_id)
 
 
 @socketio.event
@@ -128,6 +153,31 @@ def disconnect(data):
 
     emit("player_left", data['name'], to=table_id)
 
+
+
+
+
+@socketio.event
+def get_table(data):
+    """Grabs the table instance of a given table id"""
+    table_id = data["table_id"]
+    table = games[table_id]
+
+    send(table.toJSON())
+
+
+@socketio.event
+def start(data):
+    '''Beings the pre-flop phase of the game. Deals 3 cards on the table and a hand to each player.'''
+    table_id = data["table_id"]
+    table = games[table_id]
+
+    table.state = 0
+    table.pre_flop()
+
+    send(table.toJSON(data["name"]))
+    table.play()
+    send(table.toJSON(data["name"]))
 
 
 if __name__ == '__main__':

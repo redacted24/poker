@@ -274,17 +274,13 @@ class Table():
             current_player = self.player_queue[0]
 
             if current_player.is_all_in:                 # the player does not need to act if they are already all in
-                requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
                 self.player_queue.pop(0)
-                requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
                 continue
 
             if (current_player.is_computer):
                 current_player.previous_step = None
-                requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
                 sleep(1.5)
                 current_player.play()
-                requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
                 n_turns += 1
                 if n_turns > 1000:
                     raise Exception(self.round_stats)
@@ -430,7 +426,7 @@ class Table():
         self.players = updated_players
         self.player_queue = [p for p in self.player_queue if p.name != player_name_to_remove]
 
-    def toJSON(self, player_name):
+    def toJSON(self, player_name=None):
         return {
             'board': self.board.display(),
             'pot': self.pot,

@@ -1,140 +1,91 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import ls from 'localstorage-slim'
-import _ from 'lodash'
+import _, { random } from 'lodash'
 
 import Card from './Card'
 import Player from './Player'
 import Opponents from './Opponents'
 
-import pokerService from '../../services/poker'
 import './game.css'
 
 
-const Game = ({ notify, clearIntervals }) => {
-  const [table, setTable] = useState()
-  const [inGame, setInGame] = useState(false)
-  const [displayBoard, setDisplayBoard] = useState(false)
-  const params = useParams()
-  const navigate = useNavigate()
+const Game = ({ socket, notify }) => {
+    const [table, setTable] = useState()
+    const [inGame, setInGame] = useState(false)
+    const [displayBoard, setDisplayBoard] = useState(false)
+    const params = useParams()
+    const navigate = useNavigate()
 
-  useEffect(() => {
-    const getTable = async () => {
-      const tableData = await pokerService.getTable({ name: getName(), id: params.id })
-      setTable(tableData)
-      window.localStorage.setItem('tableId', tableData.id)
-      toggleFetching(true)
-      if (tableData.player_queue.length === 0) {
-        await start()
-      } else {
-        setInGame(true)
-      }
+    useEffect(() => {
+        if (!socket) return undefined
+
+        socket.on("message", (table) => {
+            setTable(table)
+            ls.set("table_id", table.id, { ttl: 60 * 5 })
+        })
+
+        socket.on("start_round", () => {
+            ;
+        })
+
+    }, [socket])
+
+    const getName = () => {
+        return ls.get('username')
     }
-    getTable()
 
-    const resetUser = async () => {
-      console.log('reset')
-      const tableId = ls.get('tableId')
-      if (tableId) {
-        console.log('clearing')
-        await pokerService.clear({ id: tableId })
-        ls.set('tableId', undefined)
-      }
-      clearIntervals()
-      navigate('/')
+    const getTableId = () => {
+        return ls.get('tableId')
     }
-    
-    window.addEventListener('beforeunload', resetUser)
 
-    return () => {
-      resetUser()
-      window.removeEventListener('beforeunload', resetUser)
-    }
-  }, [])
-
-  const getName = () => {
-    return ls.get('username')
-  }
-
-  const getTableId = () => {
-    return ls.get('tableId')
-  }
-
-  const startCooldown = (time=500) => {
-    toggleFetching(false)
-    setTimeout(() => toggleFetching(true), time)
-  }
-
-  const toggleFetching = (fetching) => {
-    if (fetching) {
-      const fetchData = async () => {
-        console.log('fetching')
-        try {
-          const tableData = await pokerService.getTable({ name: getName(), id: getTableId(), })
-          updateTable(tableData)
-        } catch {
-          notify('You have lost connection to the game!', error)
-          navigate('/')
-        }
-
-      }
-      fetchData()
-      setInterval(fetchData, 1000)
-    } else {
-      clearIntervals()
-    }
-  }
-
-  const start = async () => {
-    toggleFetching(true)
-    setDisplayBoard(true)
-    const tableData = await pokerService.start({ name: getName(), id: getTableId() })
-    setInGame(true)
-    updateTable(tableData)
-    console.log(tableData)
-  }
-
-  useEffect(() => {
-    const checkWinner = async () => {
-      if (table && table.winning_player && inGame) {
-        setTimeout(async () => {
-          if (table.winning_player.name == getName()) {
-            notify(`You have won ${table.pot}!`, 'success')
-          } else{
-            notify(`${table.winning_player.name} has won ${table.pot}!`, 'info')
-          }
-          const tableData = await pokerService.next({ name: getName(), id: getTableId() })
-          updateTable(tableData)
-          setDisplayBoard(false)
-        }, 1600)
-      }
-    }
-    checkWinner()
-  }, [table])
-  
-  const updateTable = (newTableData) => {
-    if (newTableData.players.length == 1) {
-      notify('All players have left the game. You won!', 'success')
-      pokerService.clear({ id: getTableId() })
-      navigate('/')
-    } else if (newTableData.players.some(p => p.name == getName())) {
-      if (newTableData.player_queue.length !== 0) {
+    const start = () => {
         setDisplayBoard(true)
-      }
-      setTable(newTableData)
-      console.log(newTableData)
-    } else {
-      notify("You lost all your money and you've been kicked out of the table! Better luck next time :(", 'error')
-      navigate('/')
+        setInGame(true)
+        socket.emit("start", { name: getName(), table_id: table.id })
     }
-  }
 
-  const updateTableQueue = () => {
-    const newPlayerQueue = table.player_queue.slice(1)
-    setTable({ ...table, player_queue: newPlayerQueue })
-  }
+//   useEffect(() => {
+//     const checkWinner = async () => {
+//       if (table && table.winning_player && inGame) {
+//         setTimeout(async () => {
+//           if (table.winning_player.name == getName()) {
+//             notify(`You have won ${table.pot}!`, 'success')
+//           } else{
+//             notify(`${table.winning_player.name} has won ${table.pot}!`, 'info')
+//           }
+//           const tableData = await pokerService.next({ name: getName(), id: getTableId() })
+//           updateTable(tableData)
+//           setDisplayBoard(false)
+//         }, 1600)
+//       }
+//     }
+//     checkWinner()
+//   }, [table])
+  
+//   const updateTable = (newTableData) => {
+//     if (newTableData.players.length == 1) {
+//       notify('All players have left the game. You won!', 'success')
+//       pokerService.clear({ id: getTableId() })
+//       navigate('/')
+//     } else if (newTableData.players.some(p => p.name == getName())) {
+//       if (newTableData.player_queue.length !== 0) {
+//         setDisplayBoard(true)
+//       }
+//       setTable(newTableData)
+//       console.log(newTableData)
+//     } else {
+//       notify("You lost all your money and you've been kicked out of the table! Better luck next time :(", 'error')
+//       navigate('/')
+//     }
+//   }
 
-  if (!inGame) {
+//   const updateTableQueue = () => {
+//     const newPlayerQueue = table.player_queue.slice(1)
+//     setTable({ ...table, player_queue: newPlayerQueue })
+//   }
+
+  if (!table) {
     return (
       <>
         <div id='room'>
@@ -176,48 +127,45 @@ const Game = ({ notify, clearIntervals }) => {
   
   return (
     <>
-      <div id='room'>
-        <div id='table'>
-          <div id = "firegif">
-            <img src="/ui/fire.gif" alt="firegif"></img>
-            <img src="/ui/fire.gif" alt="firegif"></img>
-            <img src="/ui/fire.gif" alt="firegif"></img>
-          </div>
-          <p id='pot'>Pot: {table.pot}$</p>
-          {
-            displayBoard && (table.board.length === 0) && <div className='vertical-align'><h1 id='loading'>Cleaning up the table...</h1></div>
-          }
-          {
-            displayBoard && (table.board.length !== 0) && <div id='board'>{table.board.map((card, i) => <Card key={i} card={card} />)}</div>
-          }
-          {
-            !displayBoard &&
-            <button id='start-button' onClick={start}>Start</button>
-          }
-        </div>
-        {table.players.filter(player => player.name == getName()).map(player => {
-            return <Player 
-              key={getName()}
-              player={player}
-              numPlayers={table.players.length}
-              playerQueue={table.player_queue}
-              requiredBet={table.required_bet}
-              requiredRaise={table.required_raise}
-              getTableId={getTableId}
-              updateTable={updateTable}
-              toggleFetching={toggleFetching}
-              updateTableQueue={updateTableQueue}
-              startCooldown={startCooldown}
+        <div id='room'>
+            <div id='table'>
+                <div id = "firegif">
+                    <img src="/ui/fire.gif" alt="firegif"></img>
+                    <img src="/ui/fire.gif" alt="firegif"></img>
+                    <img src="/ui/fire.gif" alt="firegif"></img>
+                </div>
+                <p id='pot'>Pot: {table.pot}$</p>
+                {
+                    displayBoard ?
+                        (table.board.length === 0) ?
+                            <div className='vertical-align'><h1 id='loading'>Cleaning up the table...</h1></div>
+                        :
+                            <div id='board'>{table.board.map((card, i) => <Card key={i || random(1000, false)} card={card} />)}</div>
+                    :
+                        <button id='start-button' onClick={start}>Start</button>
+
+                }
+            </div>
+            {table.players.filter(player => player.name == getName()).map(player => {
+                return <Player 
+                key={getName()}
+                player={player}
+                numPlayers={table.players.length}
+                playerQueue={table.player_queue}
+                requiredBet={table.required_bet}
+                requiredRaise={table.required_raise}
+                getTableId={getTableId}
+                />
+            })}
+
+            <Opponents 
+                opponents={(
+                    table.players
+                    .slice(table.players.findIndex(player => player.name === getName()) + 1)
+                    .concat(table.players.slice(0, table.players.findIndex(player => player.name === getName())))
+                )} 
+                playerQueue={table.player_queue} 
             />
-        })}
-        <Opponents 
-          opponents={(
-            table.players
-              .slice(table.players.findIndex(player => player.name === getName()) + 1)
-              .concat(table.players.slice(0, table.players.findIndex(player => player.name === getName())))
-          )} 
-          playerQueue={table.player_queue} 
-        />
 
       </div>
     </>

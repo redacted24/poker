@@ -3,14 +3,10 @@ import useState from 'react-usestateref'
 import Player from './Player'
 import './host.css'
 
-import pokerService from '../../services/poker'
 import { useNavigate } from 'react-router-dom'
 import ls from 'localstorage-slim'
-import { io } from 'socket.io-client'
 
-const Host = ({ notify }) => {
-    const [socketInstance, setSocketInstance] = useState(null)
-    
+const Host = ({ socket, notify }) => {    
     const increments = {
         startingBalance: 200,
         smallBlindAmount: 5,
@@ -37,17 +33,16 @@ const Host = ({ notify }) => {
     }
 
     useEffect(() => {
-        const socket = io("localhost:5000/");
-
-        setSocketInstance(socket);
+        if (!socket) return undefined
 
         socket.emit("host", {
             name: getName()
         })
 
-        socket.on("message", (data) => {
-            setTable(data)
-            setPlayerList(data.players)
+        socket.on("message", (table) => {
+            setTable(table)
+            setPlayerList(table.players)
+            ls.set("table_id", table.id, { ttl: 60 * 5 })
         })
 
         socket.on("player_joined", (playerName) => {
@@ -58,10 +53,11 @@ const Host = ({ notify }) => {
             notify(`${playerName} has left the lobby`, "error")
         })
 
-        return () => {
-            socket.disconnect();
-        };
-    }, [])
+        socket.on("start_game", () => {
+            notify("game has started!", "success")
+            navigate(`/game/${table.id}`)
+        })
+    }, [socket])
 
 
     const copyLink = () => {
@@ -78,9 +74,10 @@ const Host = ({ notify }) => {
 
     const startGame = () => {
         if (table.players.length >= 2) {
-            pokerService.setSettings({ id: getTableId(), ...options })
-            toggleFetching(false)
-            navigate(`../game/${getTableId()}`, { replace: true })
+            socket.emit("set_settings", {
+                table_id: table.id, ...options
+            })
+            navigate(`../game/${table.id}`, { replace: true })
         } else {
             notify('You cannot start a game with less than 2 players!', 'error')
         }
@@ -89,11 +86,11 @@ const Host = ({ notify }) => {
 
     const addBot =  (e) => {
         const bot_type = e.target.id
-        socketInstance.emit("add_bot", { bot_type, table_id: table.id })
+        socket.emit("add_bot", { bot_type, table_id: table.id })
     }
 
     const removePlayer = (name) => {
-        socketInstance.emit("remove_player", { name, table_id: table.id })
+        socket.emit("remove_player", { name, table_id: table.id })
     }
 
 

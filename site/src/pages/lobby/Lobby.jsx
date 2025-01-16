@@ -5,11 +5,7 @@ import ls from 'localstorage-slim'
 import Player from './Player'
 import './host.css'
 
-import { io } from 'socket.io-client'
-
-const Lobby = ({ notify }) => {
-    const [socketInstance, setSocketInstance] = useState(null)
-
+const Lobby = ({ socket, notify }) => {
     const [table, setTable] = useState()
     const [playerList, setPlayerList] = useState([])
     const params = useParams()
@@ -17,8 +13,7 @@ const Lobby = ({ notify }) => {
     const navigate = useNavigate()
 
     useEffect(() => {
-        const socket = io("localhost:5000/");
-        setSocketInstance(socket);
+        if (!socket) return undefined
 
         socket.emit("join", {
             name: getName(),
@@ -28,6 +23,7 @@ const Lobby = ({ notify }) => {
         socket.on("message", (data) => {
             setTable(data)
             setPlayerList(data.players)
+            ls.set("table_id", table.id, { ttl: 60 * 5 })
         })
 
         socket.on("change_username", (data) => {
@@ -46,11 +42,7 @@ const Lobby = ({ notify }) => {
                 notify(`${playerName} has left the lobby`, "error")
             }
         })
-
-        return () => {
-            socket.disconnect();
-        }
-    }, [])
+    }, [socket])
 
 
     const getName = () => {
@@ -61,13 +53,8 @@ const Lobby = ({ notify }) => {
         return ls.get('username')
     }
 
-    const getTableId = () => {
-        return ls.get('tableId')
-    }
-
-
     const copyLink = () => {
-        const gameUrl = `${window.location.host}/lobby/${getTableId()}`
+        const gameUrl = `${window.location.host}/lobby/${table.id}`
         navigator.clipboard.writeText(gameUrl)
 
         const link_button = document.getElementById('link-button')
