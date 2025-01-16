@@ -32,6 +32,10 @@ const Host = ({ notify }) => {
     const [table, setTable] = useState()
     const navigate = useNavigate()
 
+    const getName = () => {
+        return ls.get('username')
+    }
+
     useEffect(() => {
         const socket = io("localhost:5000/");
 
@@ -46,14 +50,19 @@ const Host = ({ notify }) => {
             setPlayerList(data.players)
         })
 
+        socket.on("player_joined", (playerName) => {
+            notify(`${playerName} has joined the lobby!`, "success")
+        })
+
+        socket.on("player_left", (playerName) => {
+            notify(`${playerName} has left the lobby`, "error")
+        })
+
         return () => {
             socket.disconnect();
         };
     }, [])
 
-    const getName = () => {
-        return ls.get('username')
-    }
 
     const copyLink = () => {
         const gameUrl = `http://${window.location.host}/lobby/${table.id}`
@@ -66,6 +75,7 @@ const Host = ({ notify }) => {
         }, 2000)
     }
 
+
     const startGame = () => {
         if (table.players.length >= 2) {
             pokerService.setSettings({ id: getTableId(), ...options })
@@ -76,17 +86,16 @@ const Host = ({ notify }) => {
         }
     }
 
-    const addBot = async (e) => {
+
+    const addBot =  (e) => {
         const bot_type = e.target.id
-        if (!playerListRef.current.includes(bot_type)) {
-            notify(`${bot_type} has joined the lobby!`, 'success')
-        }
-        setPlayerList(playerList.concat(bot_type))
-        startCooldown()
-        const tableData = await pokerService.addBot({ id: getTableId(), bot_type })
-        updateTable(tableData)
-        console.log(tableData)
+        socketInstance.emit("add_bot", { bot_type, table_id: table.id })
     }
+
+    const removePlayer = (name) => {
+        socketInstance.emit("remove_player", { name, table_id: table.id })
+    }
+
 
     const handleChange = (e) => {
         const newOptions = { ...options }
@@ -100,6 +109,7 @@ const Host = ({ notify }) => {
         setOptions({ ...newOptions })
     }
 
+
     const handleCheckChange = (e) => {
         const newOptions = { ...options }
         newOptions[e.target.id] = !options[e.target.id]
@@ -111,6 +121,8 @@ const Host = ({ notify }) => {
         setOptions({ ...newOptions })
     }
 
+
+
     return (
         <>
             <h2 id='status'>Waiting...</h2>
@@ -118,7 +130,7 @@ const Host = ({ notify }) => {
                 <div id='player-list'>
                     <h3 className='subheader'>Player list</h3>
                     <div id='players'>
-                        {playerList.map(p => <Player player_name={p.name} key={p.name} kickable={p.name != getName()}/>)}
+                        {playerList.map(p => <Player player_name={p.name} key={p.name} kickable={p.name != getName()} removePlayer={removePlayer}/>)}
                     </div>
                     <div id='link-section'>
                         <button id='link-button' onClick={copyLink}>Copy table link</button>

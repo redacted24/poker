@@ -1,12 +1,10 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import useState from 'react-usestateref'
 import ls from 'localstorage-slim'
 
 import Player from './Player'
 import './host.css'
 
-import pokerService from '../../services/poker'
 import { io } from 'socket.io-client'
 
 const Lobby = ({ notify }) => {
@@ -15,7 +13,6 @@ const Lobby = ({ notify }) => {
     const [table, setTable] = useState()
     const [playerList, setPlayerList] = useState([])
     const params = useParams()
-    let intervalId
 
     const navigate = useNavigate()
 
@@ -37,57 +34,23 @@ const Lobby = ({ notify }) => {
             ls.set("username", data)
         })
 
+        socket.on("player_joined", (playerName) => {
+            notify(`${playerName} has joined the lobby!`, "success")
+        })
+
+        socket.on("player_left", (playerName) => {
+            if (playerName == getName()) {
+                notify('You have been kicked out of the lobby!', "error")
+                navigate('/')
+            } else {
+                notify(`${playerName} has left the lobby`, "error")
+            }
+        })
+
         return () => {
             socket.disconnect();
         }
     }, [])
-
-    const updateTable = (newTableData) => {
-        if (newTableData.player_queue.length !== 0) {
-            toggleFetching(false)
-            navigate(`../../game/${getTableId()}`)
-        } else if (newTableData.players.some(p => p.name == getName())) {
-            newTableData.players.forEach(p => {
-                if (!playerListRef.current.includes(p.name)) {
-                    notify(`${p.name} has joined the lobby!`, 'success')
-                }
-            })
-            playerListRef.current.forEach(p => {
-                console.log(p)
-                if (!newTableData.players.map(p => p.name).includes(p)) {
-                    notify(`${p} has left the lobby!`, 'error')
-                }
-            })
-            setTable(newTableData)
-            setPlayerList(newTableData.players.map(p => p.name))
-        } else {
-            notify('You have been kicked from the lobby!', 'error')
-            navigate('../../')
-        }
-    }
-
-    const toggleFetching = (fetching) => {
-        if (fetching) {
-          const fetchData = async () => {
-            console.log('fetching')
-            try {
-                const tableData = await pokerService.getTable({ name: getName(), id: getTableId(), })
-                updateTable(tableData)
-                console.log(tableData)
-            } catch {
-                alert('The host has closed the lobby.')
-                navigate('../../')
-            }
-
-          }
-          fetchData()
-          const tempIntervalId = setInterval(fetchData, 2500)
-          intervalId = tempIntervalId
-        } else {
-          clearInterval(intervalId)
-          intervalId = null
-        }
-    }
 
 
     const getName = () => {

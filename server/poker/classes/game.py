@@ -418,6 +418,7 @@ class Table():
             self.players.append(player)
             player.join(self)
 
+
     def remove_player(self, player_name_to_remove):
         updated_players = []
         for player in self.players:
@@ -463,7 +464,7 @@ class Table():
 
 # -------------------------- #
 class Player():
-        def __init__(self, name, is_computer, table=None, balance = 1000):
+        def __init__(self, name, is_computer=True, table=None, balance = 1000):
             '''The Player class. All bots/computers inherit from this class.'''
             self.name = name
             self.is_computer = is_computer

@@ -339,6 +339,7 @@ class AdvancedBot(Player):
         self.ehs = 0
         self.ppot = 0
 
+
 # Meme bots
 class Better(Player):
     '''A bot that always bets 99$, or all of his balance if it is less than 99$.'''

@@ -1,10 +1,7 @@
 from flask import Flask
-from flask_socketio import SocketIO, join_room, leave_room, send
-from flask_cors import CORS
+from flask_socketio import SocketIO, join_room, leave_room, send, emit
 
-from flask import ( Blueprint, session, request )
-import pickle, requests
-from random import randint
+from random import randint, choice
 
 from poker.classes.cards import *
 from poker.classes.game import *
@@ -25,16 +22,29 @@ def create_app():
 
     return app
 
+
+
 @socketio.on("connect")
 def connected():
     """event listener when client connects to the server"""
     print("client has connected")
 
 
+def get_unique_name(name, player_names):
+    if name in player_names:
+        original_name = name
+        i = 1
+        while name in player_names:
+            name = f'{original_name} ({i})'
+            i += 1
+
+    return name
+    
+
+
 @socketio.event
 def host(data):
     '''Host a server for other players to join.'''
-    print("hosting server")
     table_id = hex(randint(0, 16777215))[2:].zfill(6).upper()
     join_room(table_id)
 
@@ -53,22 +63,71 @@ def host(data):
 def join(data):
     '''Joins an existing game'''
     table_id = data['table_id']
-    print('joining', table_id)
 
     join_room(table_id)
     table = games[table_id]
 
-    player = Player(data['name'], False)
+    player_names = [p.name for p in table.players]
+    name = get_unique_name(data["name"], player_names)
+
+    player = Player(name, False)
     table.add_player(player)
 
-    send(table.toJSON(data['name']), to=table_id)
+    if (data["name"] != name): emit("change_username", name)
+
+    send(table.toJSON(None), to=table_id)
+    emit("player_joined", name, to=table_id)
+
+
+@socketio.event
+def add_bot(data):
+    '''Adds a bot to an existing game'''
+
+    bots = {
+        "better": Better,
+        "caller": RingRingItsTheCaller,
+        "scary_cat": ScaryCat,
+        "copy_cat": CopyCat,
+        "tight_bot": lambda name: AdvancedBot(name, "tight"),
+        "moderate_bot": lambda name: AdvancedBot(name, "moderate"),
+        "loose_bot": lambda name: AdvancedBot(name, "loose"),
+    }
+
+    table_id = data['table_id']
+    table = games[table_id]
+
+    player_names = [p.name for p in table.players]
+    bot_name = get_unique_name(data["bot_type"], player_names)
+
+    bot = bots.get(data["bot_type"], choice(list(bots.values())))(bot_name)
+
+    table.add_player(bot)
+
+    send(table.toJSON(None), to=table_id)
+    emit("player_joined", bot_name, to=table_id)
 
 
 
-@socketio.on("disconnect")
-def disconnected():
+@socketio.event
+def remove_player(data):
+    '''Remove a player from an existing game'''
+    table_id = data['table_id']
+    table = games[table_id]
+
+    table.remove_player(data['name'])
+
+    send(table.toJSON(None), to=table_id)
+    emit("player_left", data['name'], to=table_id)
+
+
+@socketio.event
+def disconnect(data):
     """event listener when client disconnects to the server"""
-    print("user disconnected")
+    table_id = data["table_id"]
+    leave_room(data["table_id"])
+
+    emit("player_left", data['name'], to=table_id)
+
 
 
 if __name__ == '__main__':
