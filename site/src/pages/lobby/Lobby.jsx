@@ -20,9 +20,9 @@ const Lobby = ({ socket, notify }) => {
             table_id: params.id
         })
 
-        socket.on("message", (data) => {
-            setTable(data)
-            setPlayerList(data.players)
+        socket.on("message", (table) => {
+            setTable(table)
+            setPlayerList(table.players)
             ls.set("table_id", table.id, { ttl: 60 * 5 })
         })
 
@@ -41,6 +41,11 @@ const Lobby = ({ socket, notify }) => {
             } else {
                 notify(`${playerName} has left the lobby`, "error")
             }
+        })
+
+        socket.on("start_game", () => {
+            notify("game has started!", "success")
+            navigate(`../game/${ls.get("table_id")}`, { replace: true })
         })
     }, [socket])
 

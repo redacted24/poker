@@ -55,7 +55,7 @@ const Host = ({ socket, notify }) => {
 
         socket.on("start_game", () => {
             notify("game has started!", "success")
-            navigate(`/game/${table.id}`)
+            navigate(`../game/${ls.get("table_id")}`, { replace: true })
         })
     }, [socket])
 
@@ -77,7 +77,6 @@ const Host = ({ socket, notify }) => {
             socket.emit("set_settings", {
                 table_id: table.id, ...options
             })
-            navigate(`../game/${table.id}`, { replace: true })
         } else {
             notify('You cannot start a game with less than 2 players!', 'error')
         }

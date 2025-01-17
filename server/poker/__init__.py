@@ -157,6 +157,14 @@ def disconnect(data):
 
 
 
+def play_round(table):
+    emit("get_table", to=table.id)
+
+    while table.play():
+        emit("get_table", to=table.id)
+
+    emit("get_table", to=table.id)
+
 
 @socketio.event
 def get_table(data):
@@ -164,7 +172,7 @@ def get_table(data):
     table_id = data["table_id"]
     table = games[table_id]
 
-    send(table.toJSON())
+    send(table.toJSON(data["name"]))
 
 
 @socketio.event
@@ -173,13 +181,11 @@ def start(data):
     table_id = data["table_id"]
     table = games[table_id]
 
-    table.state = 0
-    table.pre_flop()
+    if table.state != 0:
+        table.state = 0
+        table.pre_flop()
 
-    while table.play():
-        send(table.toJSON(data["name"]))
-
-    send(table.toJSON(data["name"]))
+    play_round(table)
 
 
 @socketio.event
@@ -192,11 +198,7 @@ def call(data):
 
     player.call()
 
-    send(table.toJSON(data["name"]))
-    while table.play():
-        send(table.toJSON(data["name"]))
-
-    send(table.toJSON(data["name"]))
+    play_round(table)
 
 
 @socketio.event
@@ -209,11 +211,7 @@ def check(data):
 
     player.check()
 
-    send(table.toJSON(data["name"]))
-    while table.play():
-        send(table.toJSON(data["name"]))
-
-    send(table.toJSON(data["name"]))
+    play_round(table)
 
 
 @socketio.event
@@ -226,11 +224,7 @@ def fold(data):
 
     player.fold()
 
-    send(table.toJSON(data["name"]))
-    while table.play():
-        send(table.toJSON(data["name"]))
-
-    send(table.toJSON(data["name"]))
+    play_round(table)
 
 
 @socketio.event
@@ -243,11 +237,7 @@ def bet(data):
 
     player.bet(data['amount'])
 
-    send(table.toJSON(data["name"]))
-    while table.play():
-        send(table.toJSON(data["name"]))
-
-    send(table.toJSON(data['name']))
+    play_round(table)
 
 
 @socketio.on("next")
@@ -255,9 +245,13 @@ def go_next(data):
     table_id = data["table_id"]
     table = games[table_id]
 
-    table.play()
+    play_round(table)
 
-    send(table.toJSON(data['name']))
+    sleep(4)
+    start(data)
+
+
+
 
 
 if __name__ == '__main__':
