@@ -3,17 +3,21 @@ body {
     overflow: hidden;
 }
 
-a:link, a:visited, a:hover, a:active {
+a:link,
+a:visited,
+a:hover,
+a:active {
     text-decoration: none;
 }
 
-body, html {
+body,
+html {
     margin: 0;
     padding: 0;
 }
 
 * {
-    font-family: 'Josefin Sans', 'Roboto', sans-serif;
+    font-family: "Josefin Sans", "Roboto", sans-serif;
 }
 
 .noSelect {

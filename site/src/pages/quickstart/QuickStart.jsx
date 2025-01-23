@@ -1,42 +1,58 @@
-import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import ls from 'localstorage-slim'
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import ls from "localstorage-slim";
 
-import pokerService from '../../services/poker'
-import './quickStart.css'
+import "./quickStart.css";
 
+const QuickStart = ({ socket }) => {
+    const navigate = useNavigate();
 
-const QuickStart = () => {
-  const navigate = useNavigate()
+    useEffect(() => {
+        const init = async () => {
+            useEffect(() => {
+                if (!socket) return undefined;
 
-  useEffect(() => {
-    const init = async () => {
-      const tableData = await pokerService.init({ name: getName() })
-      const tableId = tableData.id
-      ls.set('tableId', tableId)
-      await pokerService.addBot({ id: tableId, bot_type: 'tight_bot' })
-      await pokerService.addBot({ id: tableId, bot_type: 'moderate_bot' })
-      await pokerService.addBot({ id: tableId, bot_type: 'loose_bot' })
-      navigate(`../game/${tableId}`, { replace: true })
-    }
-    init()
-  }, [])
+                socket.emit("host", {
+                    name: getName(),
+                });
 
-  const getName = () => {
-    return ls.get('username')
-  }
-  
-  return (
-    <>
-      <div id='room'>
-        <div id='table'>
-          <div className='vertical-align'>
-            <h1 id='loading'>Loading...</h1>
-          </div>
-        </div>
-      </div>
-    </>
-  )
-}
+                socket.on("message", (table) => {
+                    setTable(table);
+                    setPlayerList(table.players);
+                    ls.set("table_id", table.id, { ttl: 60 * 5 });
+                });
 
-export default QuickStart
+                socket.emit("set_settings", {
+                    table_id: table.id,
+                    ...options,
+                });
+
+                socket.on("start_game", () => {
+                    notify("game has started!", "success");
+                    navigate(`../game/${ls.get("table_id")}`, {
+                        replace: true,
+                    });
+                });
+            }, [socket]);
+        };
+        init();
+    }, []);
+
+    const getName = () => {
+        return ls.get("username");
+    };
+
+    return (
+        <>
+            <div id="room">
+                <div id="table">
+                    <div className="vertical-align">
+                        <h1 id="loading">Loading...</h1>
+                    </div>
+                </div>
+            </div>
+        </>
+    );
+};
+
+export default QuickStart;
