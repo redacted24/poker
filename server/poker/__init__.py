@@ -184,8 +184,9 @@ def start(data):
     if table.state != 0:
         table.state = 0
         table.pre_flop()
-
-    play_round(table)
+        play_round(table)
+    
+    emit("get_table", to=table.id)
 
 
 @socketio.event
@@ -245,13 +246,12 @@ def go_next(data):
     table_id = data["table_id"]
     table = games[table_id]
 
-    play_round(table)
+    if (table.state != 5):
+        play_round(table)
 
-    sleep(4)
+    sleep(2)
+
     start(data)
-
-
-
 
 
 if __name__ == '__main__':

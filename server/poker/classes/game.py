@@ -56,7 +56,7 @@ class Table():
         self.deck: Deck = Deck()                    # Setup the deck used for the table
         self.board: Board = Board()                 # Making a board class. Easier to manage the state of the board
         self.pot: int = 0                           # The flop on the table
-        self.state: int = 0                         # Pre-flop (0), flop (1), turn (2), river (3), showdown(4)
+        self.state: int = 5                         # Pre-flop (0), flop (1), turn (2), river (3), showdown(4), reset(5)
         self.players: list[Player] = []             # [PlayerObject,'move']
         self.dealer: int = 0                        # Index of the player who is currently the dealer. The small/big blind players are also determined by this number.
         self.player_queue: list[Player] = []        # A list of all the players that will be playing in the round
@@ -72,7 +72,9 @@ class Table():
         self.dynamic_table: bool = True             # Adds the cool CSS table
         self.show_all_bot_cards: bool = False       # Determines whether players can see bot cards
         self.show_all_cards: bool = False           # Determines whether to show all cards
-        self.last_move: list[str, str] = []         # [Player.name, 'nameOfMove'] A list of two elements containing the player name, and the name of their last move (e.g. bet)
+        self.last_move: list[str] = []              # [Player.name, 'nameOfMove'] A list of two elements containing the player name, and the name of their last move (e.g. bet)
+        self.winning_hand: tuple[int, list[Cards]] = (None, [])         # Cards of the winning hand
+
         self.id: str = id
         self.betting_cap = 0                        # Cap to the amount of bets that can be made
         self.v = 0                                  # How many times this table has been updated
@@ -258,6 +260,7 @@ class Table():
 
         print(f'The winning player is {winning_player}, with a hand of {winning_player.handEval(self.board.cards())}')
         winning_player.rake()       # Winning player takes in all the money
+        self.winning_hand = winning_player.handEval(self.board.cards())
         self.winning_player = winning_player
 
 
@@ -306,6 +309,7 @@ class Table():
         self.board.clear()
         self.deck.reset()
         self.winning_player = None
+        self.winning_hand = (None, [])
         self.dealer = (self.dealer + 1) % len(self.players)     # Shift players
         self.betting_cap = 0                                    # Reset betting cap
         self.last_move: list[str, str] = []                     # Reset self.last_move
@@ -435,6 +439,7 @@ class Table():
             'state': self.state,
             'last_move': self.last_move,
             'winning_player': self.winning_player and self.winning_player.toJSON(player_name, self.show_all_bot_cards, self.show_all_cards),
+            'winning_hand': [self.winning_hand[0], [card.shortName for card in self.winning_hand[1]]],
             'dynamic_table': self.dynamic_table,
             'id': self.id
         }

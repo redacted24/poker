@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import ls from 'localstorage-slim'
-import _, { random } from 'lodash'
 
 import Card from './Card'
 import Player from './Player'
@@ -9,6 +8,19 @@ import Opponents from './Opponents'
 
 import './game.css'
 
+
+const HANDS = {
+    10: "Royal Flush",
+    9: "Straight Flush",
+    8: "Four of a Kind",
+    7: "Full House",
+    6: "Flush",
+    5: "Straight",
+    4: "Three of a Kind",
+    3: "Two Pair",
+    2: "Pair",
+    1: "High Card"
+}
 
 const Game = ({ socket, notify }) => {
     const [table, setTable] = useState()
@@ -36,24 +48,34 @@ const Game = ({ socket, notify }) => {
         })
 
     }, [socket])
+    
+    useEffect(() => {
+        if (table && table.winning_player) {
+            console.log(table.winning_player)
+            highlightCards(table.winning_hand[1])
+            if (table.winning_player.name == getName()) {
+                notify(`You have won ${table.pot} with ${HANDS[table.winning_hand[0]]}!`, 'success')
+            } else{
+                notify(`${table.winning_player.name} has won ${table.pot} with ${HANDS[table.winning_hand[0]]}!`, 'info')
+            }
+
+            setTimeout(() => {
+                socket.emit("next", { name: getName(), table_id: table.id })
+            }, 7200)
+        }
+    }, [table])
 
     const getName = () => {
         return ls.get('username')
     }
 
-    useEffect(() => {
-        if (table && table.winning_player) {
-            setTimeout(() => {
-                if (table.winning_player.name == getName()) {
-                    notify(`You have won ${table.pot}!`, 'success')
-                } else{
-                    notify(`${table.winning_player.name} has won ${table.pot}!`, 'info')
-                }
-                socket.emit("next", { name: getName(), table_id: table.id })
-                setDisplayBoard(false)
-            }, 1600)
-        }
-    }, [table])
+    const highlightCards = (cards) => {
+        cards.forEach(cardValue => {
+            const card = document.getElementById(cardValue)
+            card.classList.add("winning_card")
+        })
+    }
+
 
     if (!table) {
         return (
@@ -111,7 +133,7 @@ const Game = ({ socket, notify }) => {
                         (table.board.length === 0) ?
                             <div className='vertical-align'><h1 id='loading'>Cleaning up the table...</h1></div>
                         :
-                            <div id='board'>{table.board.map((card, i) => <Card key={i || random(1000, false)} card={card} />)}</div>
+                            <div id='board'>{table.board.map((card, i) => <Card key={i} card={card} />)}</div>
                     :
                         null
                 }

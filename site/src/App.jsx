@@ -38,7 +38,7 @@ const App = () => {
 
     const notify = (message, type) => {
         toast[type](message, {
-        position: "top-center",
+        position: "top-right",
         autoClose: 4000,
         pauseOnHover: false,
         toastId: message,

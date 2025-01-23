@@ -7,6 +7,15 @@
   }
 }
 
+@keyframes winning {
+  from {
+    rotate: -3deg;
+  }
+  to {
+    rotate: 3deg;
+  }
+}
+
 @keyframes appear {
   from {
     opacity:0;
@@ -30,6 +39,18 @@
 
 .card:active {
   box-shadow: 10px 10px 0px #00000086;
+}
+
+.winning_card {
+  border: 2px solid rgb(0, 0, 0);
+  margin: -2px;
+  border-radius: 8px;
+  box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.342);
+  transition-duration: 0.4s;
+  animation: winning 2s alternate ease-in-out infinite;
+  animation-delay: -0.47s;
+  box-shadow: calc(0.4vh + 4px) calc(0.4vh + 4px) 0px #00000086;
+  z-index: 100;
 }
 
 .noSelect {
