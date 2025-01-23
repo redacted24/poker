@@ -45,7 +45,7 @@ const App = () => {
     return (
         <>
             <Routes>
-                <Route path="/quick-start" element={<QuickStart />} />
+                <Route path="/quick-start" element={<QuickStart socket={socketInstance} notify={notify} />} />
                 <Route
                     path="/lobby/:id"
                     element={<Lobby socket={socketInstance} notify={notify} />}

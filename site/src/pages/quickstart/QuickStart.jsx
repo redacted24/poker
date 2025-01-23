@@ -4,39 +4,39 @@ import ls from "localstorage-slim";
 
 import "./quickStart.css";
 
-const QuickStart = ({ socket }) => {
+const QuickStart = ({ socket, notify }) => {
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const init = async () => {
-            useEffect(() => {
-                if (!socket) return undefined;
+	useEffect(() => {
+		if (!socket) return undefined;
 
-                socket.emit("host", {
-                    name: getName(),
-                });
+		socket.emit("host", {
+			name: getName(),
+		});
 
-                socket.on("message", (table) => {
-                    setTable(table);
-                    setPlayerList(table.players);
-                    ls.set("table_id", table.id, { ttl: 60 * 5 });
-                });
+		socket.on("message", (table) => {
+			ls.set("table_id", table.id, { ttl: 60 * 5 });
+			console.log(table)
 
-                socket.emit("set_settings", {
-                    table_id: table.id,
-                    ...options,
-                });
+			if (table.players.length !== 1) return undefined;
 
-                socket.on("start_game", () => {
-                    notify("game has started!", "success");
-                    navigate(`../game/${ls.get("table_id")}`, {
-                        replace: true,
-                    });
-                });
-            }, [socket]);
-        };
-        init();
-    }, []);
+			setTimeout(() => {
+				socket.emit("add_bot", { bot_type: "loose_bot", table_id: table.id });
+				socket.emit("add_bot", { bot_type: "moderate_bot", table_id: table.id });
+				socket.emit("add_bot", { bot_type: "tight_bot", table_id: table.id });
+				notify("game has started!", "success");
+				navigate(`../game/${ls.get("table_id")}`, {
+					replace: true,
+				});
+			}, 1000)
+		});
+		
+		return () => {
+			socket.off("message");
+		}
+
+	}, [socket]);
+
 
     const getName = () => {
         return ls.get("username");

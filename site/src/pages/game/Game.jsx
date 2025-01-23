@@ -56,6 +56,11 @@ const Game = ({ socket, notify }) => {
                 name: getName(),
             });
         });
+
+        return () => {
+            socket.off("message");
+            socket.off("get_table");
+        }
     }, [socket]);
 
     useEffect(() => {

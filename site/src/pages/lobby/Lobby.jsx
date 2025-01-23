@@ -47,6 +47,14 @@ const Lobby = ({ socket, notify }) => {
             notify("game has started!", "success");
             navigate(`../game/${ls.get("table_id")}`, { replace: true });
         });
+
+        return () => {
+            socket.off("message");
+            socket.off("change_username");
+            socket.off("player_joined");
+            socket.off("player_left");
+            socket.off("start_game");
+        }
     }, [socket]);
 
     const getName = () => {
