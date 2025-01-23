@@ -28,6 +28,12 @@ const Game = ({ socket, notify }) => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        if (!socket) {
+            notify("You have been disconnected from the server!", "error");
+            navigate('/');
+            return undefined;
+        }
+
         socket.emit("start", { name: getName(), table_id: ls.get("table_id") });
         setDisplayBoard(true);
     }, []);
@@ -109,6 +115,11 @@ const Game = ({ socket, notify }) => {
         });
     };
 
+    const leaveLobby = () => {
+        notify("You have left the lobby!", "info");
+        navigate("/");
+    }
+
     if (!table) {
         return (
             <>
@@ -153,6 +164,9 @@ const Game = ({ socket, notify }) => {
     return (
         <>
             <div id="room">
+                <button id='leave-button' onClick={leaveLobby}>
+                    Leave lobby
+                </button>
                 <div id="table">
                     <div id="firegif">
                         <img src="/ui/fire.gif" alt="firegif"></img>

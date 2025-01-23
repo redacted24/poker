@@ -12,6 +12,25 @@
     color: #700505;
 }
 
+#leave-button {
+    position: absolute;
+    bottom: 8vh;
+    left: 4vw;
+    height: 5vh;
+    width: 8vw;
+    font-size: 1.2rem;
+    display: flex;
+    padding-top: 4px;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+#leave-button:hover {
+    background-color: lightgray;
+    border: 1px solid black;
+}
+
 #table {
     position: absolute;
     top: calc(80px + 15vh);
