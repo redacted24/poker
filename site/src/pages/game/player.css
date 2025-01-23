@@ -33,11 +33,12 @@
 
 #buttons {
   position: absolute;
+  left: 35%;
+  width: 30%;
   top: 80%;
   display: flex;
-  margin: 0 20% ;
   justify-content: space-around;
-  gap: 4%;
+  gap: 6%;
 }
 
 #betting-button, #confirm-button {
@@ -73,7 +74,7 @@
 }
 
 .action {
-  width: 20vw;
+  width: 100%;
   height: 4vh;
   line-height: 20px;
   border: 1px solid black;

@@ -230,7 +230,7 @@ def fold(data):
 
 @socketio.event
 def bet(data):
-    'Player bets, raising the datauired bet to stay in for the entire table.'
+    'Player bets, raising the required bet to stay in for the entire table.'
     table_id = data["table_id"]
     table = games[table_id]
 

@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
 import ls from 'localstorage-slim'
 
 import Card from './Card'
@@ -7,6 +6,7 @@ import Player from './Player'
 import Opponents from './Opponents'
 
 import './game.css'
+import { useNavigate } from 'react-router-dom'
 
 
 const HANDS = {
@@ -25,6 +25,8 @@ const HANDS = {
 const Game = ({ socket, notify }) => {
     const [table, setTable] = useState()
     const [displayBoard, setDisplayBoard] = useState(false)
+    
+    const navigate = useNavigate();
 
     useEffect(() => {
         socket.emit("start", { name: getName(), table_id: ls.get("table_id") })
@@ -36,6 +38,12 @@ const Game = ({ socket, notify }) => {
 
         socket.on("message", (table) => {
             console.log(table)
+
+            if (table.players.length == 1) {
+                notify('All players have been kicked out of the game. You won!', 'success');
+                navigate('/');
+            }
+
             setTable(table)
             ls.set("table_id", table.id, { ttl: 60 * 5 })
         })
@@ -51,7 +59,6 @@ const Game = ({ socket, notify }) => {
     
     useEffect(() => {
         if (table && table.winning_player) {
-            console.log(table.winning_player)
             highlightCards(table.winning_hand[1])
             if (table.winning_player.name == getName()) {
                 notify(`You have won ${table.pot} with ${HANDS[table.winning_hand[0]]}!`, 'success')
@@ -59,8 +66,14 @@ const Game = ({ socket, notify }) => {
                 notify(`${table.winning_player.name} has won ${table.pot} with ${HANDS[table.winning_hand[0]]}!`, 'info')
             }
 
+
             setTimeout(() => {
-                socket.emit("next", { name: getName(), table_id: table.id })
+                if (table.players.find(player => player.name == getName()).balance === 0) {
+                    notify('You lost all your money and have been kicked out of the game!', 'error');
+                    navigate('/');
+                } else {
+                    socket.emit("next", { name: getName(), table_id: table.id })
+                }
             }, 7200)
         }
     }, [table])
