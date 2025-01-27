@@ -18,9 +18,9 @@
 }
 
 .kick-img:hover {
-    background-color: #FF000040;
+    background-color: #ff000040;
     cursor: pointer;
 }
 .kick-img:active {
-    background-color: #FF202080;
+    background-color: #ff202080;
 }

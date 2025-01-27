@@ -1,37 +1,37 @@
 * {
-  padding: 0;
-  margin: 0;
+    padding: 0;
+    margin: 0;
 }
 
 #room {
-  width: 100vw;
-  height: 100vh;
+    width: 100vw;
+    height: 100vh;
 }
 
 #table {
-  position: absolute;
-  top: calc(80px + 15vh);
-  left: 20%;
-  width: 60%;
-  height: calc(45vh - 50px);
-  border: 10px solid #057005;
-  border-radius: 32px;
-  background-color: #63ac59fb;
+    position: absolute;
+    top: calc(80px + 15vh);
+    left: 20%;
+    width: 60%;
+    height: calc(45vh - 50px);
+    border: 10px solid #057005;
+    border-radius: 32px;
+    background-color: #63ac59fb;
 
-  transition: all 0.5s;
+    transition: all 0.5s;
 }
 
 .vertical-align {
-  height: 100%;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #loading {
-  text-align: center;
-  color: whitesmoke;
-  font-size: 3rem;
-  font-weight: 600;
+    text-align: center;
+    color: whitesmoke;
+    font-size: 3rem;
+    font-weight: 600;
 }

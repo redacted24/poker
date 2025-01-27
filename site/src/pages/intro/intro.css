@@ -251,9 +251,7 @@
     transition: all 1s;
 }
 
-
 /* QUICKSTART ---------------*/
-
 
 #quickstart:hover {
     background-color: #63ac5980;
@@ -409,7 +407,6 @@
 
 /* MULTIPLAYER ------------------ */
 
-
 #multiplayer {
     transition: all 0.25s;
 }
@@ -523,10 +520,9 @@
     transition: all 1.3s;
 }
 
-
 .react-link-clickable {
     width: 100%;
-    -webkit-user-drag:none;
+    -webkit-user-drag: none;
     overflow: hidden;
 }
 

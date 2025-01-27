@@ -1,5 +1,4 @@
 import requests
-import pickle
 from time import sleep
 
 try:
@@ -53,11 +52,11 @@ class Board():
         self._show_cards = False
 
 class Table():
-    def __init__(self, deck: Deck):
-        self.deck: Deck = deck                      # Setup the deck used for the table
+    def __init__(self, id: str):
+        self.deck: Deck = Deck()                    # Setup the deck used for the table
         self.board: Board = Board()                 # Making a board class. Easier to manage the state of the board
         self.pot: int = 0                           # The flop on the table
-        self.state: int = 0                         # Pre-flop (0), flop (1), turn (2), river (3), showdown(4)
+        self.state: int = 5                         # Pre-flop (0), flop (1), turn (2), river (3), showdown(4), reset(5)
         self.players: list[Player] = []             # [PlayerObject,'move']
         self.dealer: int = 0                        # Index of the player who is currently the dealer. The small/big blind players are also determined by this number.
         self.player_queue: list[Player] = []        # A list of all the players that will be playing in the round
@@ -73,8 +72,10 @@ class Table():
         self.dynamic_table: bool = True             # Adds the cool CSS table
         self.show_all_bot_cards: bool = False       # Determines whether players can see bot cards
         self.show_all_cards: bool = False           # Determines whether to show all cards
-        self.last_move: list[str, str] = []         # [Player.name, 'nameOfMove'] A list of two elements containing the player name, and the name of their last move (e.g. bet)
-        self.id: str | None = None
+        self.last_move: list[str] = []              # [Player.name, 'nameOfMove'] A list of two elements containing the player name, and the name of their last move (e.g. bet)
+        self.winning_hand: tuple[int, list[Cards]] = (None, [])         # Cards of the winning hand
+
+        self.id: str = id
         self.betting_cap = 0                        # Cap to the amount of bets that can be made
         self.v = 0                                  # How many times this table has been updated
         self.round_stats: dict = {        
@@ -259,46 +260,44 @@ class Table():
 
         print(f'The winning player is {winning_player}, with a hand of {winning_player.handEval(self.board.cards())}')
         winning_player.rake()       # Winning player takes in all the money
+        self.winning_hand = winning_player.handEval(self.board.cards())
         self.winning_player = winning_player
 
 
     def play(self):
         '''Lets all the computers play their turn, then starts the next round if needed.'''
-        n_turns = 0
 
         while len(self.player_queue) != 0:
             if len([p for p in self.active_players() if not p.is_all_in]) == 1:
                 self.player_queue.clear()
-                self.state = 3
                 break
             current_player = self.player_queue[0]
 
             if current_player.is_all_in:                 # the player does not need to act if they are already all in
-                requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
                 self.player_queue.pop(0)
-                requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
                 continue
 
             if (current_player.is_computer):
                 current_player.previous_step = None
-                requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
                 sleep(1.5)
                 current_player.play()
-                requests.put(f'http://localhost:3003/api/session/{self.id}', json={ 'table': pickle.dumps(self).decode('latin1') })
-                n_turns += 1
-                if n_turns > 1000:
-                    raise Exception(self.round_stats)
+                return True
             else:
-                break
-        print(self.state)
-        if len(self.player_queue) == 0:
-            if self.state != 5:
-                self.state = (self.state + 1) % 6
-                rounds = [self.pre_flop, self.flop, self.turn, self.river, self.showdown, self.reset]
-                
-                rounds[self.state]()
-                if 0 < self.state < 4:
-                    self.play()
+                return False
+
+        if len(self.player_queue) != 0: return False
+
+        if self.state != 5:
+            self.state = (self.state + 1) % 6
+            rounds = [self.pre_flop, self.flop, self.turn, self.river, self.showdown, self.reset]
+            
+            rounds[self.state]()
+            if 0 < self.state < 4:
+                sleep(0.5)
+                return True
+
+        return False
+
 
     def reset(self):
         '''Clears current cards on the board, resets deck, and removes all player handheld cards.
@@ -310,6 +309,7 @@ class Table():
         self.board.clear()
         self.deck.reset()
         self.winning_player = None
+        self.winning_hand = (None, [])
         self.dealer = (self.dealer + 1) % len(self.players)     # Shift players
         self.betting_cap = 0                                    # Reset betting cap
         self.last_move: list[str, str] = []                     # Reset self.last_move
@@ -380,8 +380,6 @@ class Table():
                 self.call(player)
             elif amount - self.required_bet < self.required_raise:
                 raise Exception('cannot bet under minimum raise requirement')
-            elif amount > player.balance:
-                raise Exception('cant bet that, player has to go all-in. Remove this exception once allin method is done')  # Remove this when allin method is done
             else: 
                 self.update_table_stats(player, 'bet')              # Update table stats
                 amount_bet = amount - player.current_bet            # amount that the player throws into the pot
@@ -418,6 +416,7 @@ class Table():
             self.players.append(player)
             player.join(self)
 
+
     def remove_player(self, player_name_to_remove):
         updated_players = []
         for player in self.players:
@@ -429,7 +428,7 @@ class Table():
         self.players = updated_players
         self.player_queue = [p for p in self.player_queue if p.name != player_name_to_remove]
 
-    def toJSON(self, player_name):
+    def toJSON(self, player_name=None):
         return {
             'board': self.board.display(),
             'pot': self.pot,
@@ -440,6 +439,7 @@ class Table():
             'state': self.state,
             'last_move': self.last_move,
             'winning_player': self.winning_player and self.winning_player.toJSON(player_name, self.show_all_bot_cards, self.show_all_cards),
+            'winning_hand': [self.winning_hand[0], [card.shortName for card in self.winning_hand[1]]],
             'dynamic_table': self.dynamic_table,
             'id': self.id
         }
@@ -463,7 +463,7 @@ class Table():
 
 # -------------------------- #
 class Player():
-        def __init__(self, name, is_computer, table=None, balance = 1000):
+        def __init__(self, name, is_computer=True, table=None, balance = 1000):
             '''The Player class. All bots/computers inherit from this class.'''
             self.name = name
             self.is_computer = is_computer

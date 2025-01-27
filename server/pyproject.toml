@@ -3,7 +3,7 @@ name = "poker"
 version = "1.0.0"
 description = "The playground for exciting poker plays!"
 dependencies = [
-    "flask", "requests"
+    "flask", "requests", "flask_socketio", "flask_cors"
 ]
 
 [build-system]

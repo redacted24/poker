@@ -8,13 +8,3 @@ services:
   server:
     build: ./server
     network_mode: "host"
-    depends_on:
-      - db
-  
-  db:
-    build: ./db
-    network_mode: "host"
-    environment:
-      # - MONGODB_URI=
-      # - TEST_MONGODB_URI=
-      - PORT=3003

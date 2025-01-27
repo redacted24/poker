@@ -6,24 +6,29 @@
 }
 
 #lobby {
-    width: 80%;
-    height: 64vh;
+    width: 1200px;
+    height: 70vh;
     margin: 0 auto;
     display: flex;
     border: 1px solid black;
 }
 
 #player-list {
-    width: 20%;
+    width: 16vw;
     border: 1px solid black;
+    background-color: #6e6e6e27;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 #players {
-    height: calc(56vh - 50px);
-    border-bottom: 2px solid black; 
+    margin-bottom: auto;
 }
 
 #link-section {
+    border-top: 2px solid black;
+    height: 12.5%;
     display: flex;
     flex-direction: column;
     text-align: center;
