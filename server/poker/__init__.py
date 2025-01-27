@@ -1,6 +1,5 @@
-from flask import Flask, request
+from flask import Flask
 from flask_socketio import SocketIO, join_room, leave_room, send, emit
-import requests
 
 from random import randint, choice
 
