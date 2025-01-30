@@ -6,7 +6,7 @@ except:
     from eval import *      # type: ignore
 from random import random
 
-class AdvancedBot(Player):
+class Loki(Player):
     # --- Pre-Flop Betting Strategy --- #
     # Income rates for pre-flop. Used to determine what strategy to play
     # From left to right, each column goes from 2 to A
@@ -54,12 +54,11 @@ class AdvancedBot(Player):
         '''The general class for an advanced bot. Contains all the necessary information for advanced play.
         
         - Name (str)
-        - Table (table object)
+        - Table (table object)'''
 
-        There is no is_computer parameter since it is put as True by default in AdvancedBot class.'''
         Player.__init__(self, name, True, table)
         self.tightness = tightness
-        self.chosen_pre_flop_strategy = AdvancedBot.preflop_strategy_values[tightness]        # Chosen strategy is moderate by default. The variable is a dictionnary. See preflop_strategy_values
+        self.chosen_pre_flop_strategy = Loki.preflop_strategy_values[tightness]        # Chosen strategy is moderate by default. The variable is a dictionnary. See preflop_strategy_values
         self.thresholds_position = 0       # The number of players to play before it goes back to the player who started the round (small blind in most rounds except pre-flop)
         self.strategy_thresholds = {
             'make1': 0,
@@ -67,10 +66,10 @@ class AdvancedBot(Player):
             'make4': 0
         }
         self.ehs_thresholds = {
-            'make1': AdvancedBot.ehs[self.tightness]['make1'],
-            'make2': AdvancedBot.ehs[self.tightness]['make2'],
+            'make1': Loki.ehs[self.tightness]['make1'],
+            'make2': Loki.ehs[self.tightness]['make2'],
         }
-        self.bluff_threshold = AdvancedBot.bluff_percentage[self.tightness]
+        self.bluff_threshold = Loki.bluff_percentage[self.tightness]
         self.IR = 0     # IR rate, used to calculate preflop strategy
         self.fake_ehs = 0.90        # EHS used when bluffing
         self.fake_IR = 700          # IR used when bluffing
@@ -155,7 +154,7 @@ class AdvancedBot(Player):
             self.ehs = round(self.fake_ehs + random()/10, 4)
             return True
         else:
-            self.bluff_threshold += AdvancedBot.bluff_percentage[self.tightness]/10      # Increment the bluff percentage threshold so that the bot has more chances of doing a bluff later on. Increment depends on bot playstyle; if loose, increments fast, if tight, increments slowly
+            self.bluff_threshold += Loki.bluff_percentage[self.tightness]/10      # Increment the bluff percentage threshold so that the bot has more chances of doing a bluff later on. Increment depends on bot playstyle; if loose, increments fast, if tight, increments slowly
             return False
     
     def are_we_semi_bluffing(self):
@@ -223,9 +222,9 @@ class AdvancedBot(Player):
         '''Return the IR rate of the bot's hand.'''
         temp = sorted(self.hand(), key=lambda x:x.value)
         if self.hand()[0].suit == self.hand()[1].suit:
-            return AdvancedBot.income_rates[temp[1].value-2][temp[0].value-2]
+            return Loki.income_rates[temp[1].value-2][temp[0].value-2]
         else:
-            return AdvancedBot.income_rates[temp[0].value-2][temp[1].value-2]
+            return Loki.income_rates[temp[0].value-2][temp[1].value-2]
     
     def find_bet_amount(self):
         '''Compute an amount to bet based on different factors. Returns the bet amount'''
@@ -334,7 +333,7 @@ class AdvancedBot(Player):
         self.previous_step = []
         self.bluffing = False
         self.semi_bluffing = False
-        self.bluff_threshold = AdvancedBot.bluff_percentage[self.tightness]
+        self.bluff_threshold = Loki.bluff_percentage[self.tightness]
         self.number_of_play_actions = 0
         self.ehs = 0
         self.ppot = 0

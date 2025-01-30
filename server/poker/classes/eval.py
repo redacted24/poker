@@ -1,10 +1,10 @@
 try:
     from itertools import combinations
-    from poker.classes.cards import Deck
+    from poker.classes.cards import Deck, Cards
     from poker.classes.game import Player
 except:
-    from cards import Deck      # type: ignore
-    from game import Player     # type: ignore
+    from cards import Deck, Cards       # type: ignore
+    from game import Player             # type: ignore
 
 class eval():
     def __init__(self, hand, board_cards):
@@ -60,6 +60,14 @@ class eval():
         
         # print(win, tie, loss)
         return (win + 0.5 * tie) / sum([win, tie, loss])
+    
+    @staticmethod
+    def check_possible_flush(cards):
+        suits = {}
+        for card in cards:
+            suits[card.suit] = suits.get(card.suit, 0) + 1
+
+        return max([suit for suit in suits.values()]) >= 3
 
     def potential_hand_strength(self, look_ahead, only_ppot=False):
         '''Compute potential hand strength. look_ahead is an integer that specifies the number of cards to look ahead for. On turn, it should be one, and on flop, it should be 2.'''      
@@ -71,6 +79,7 @@ class eval():
         p1.receive(self.hand)
 
         p1_rank_5 = p1.handEval(self.board_cards)
+        flush_possible_p1 = eval.check_possible_flush(list(self.hand) + self.board_cards)
 
         d = Deck()
         computed_p1_ranks = {}
@@ -82,9 +91,8 @@ class eval():
             p2.clear_hand()
             p2.receive(list(p2_hand))
 
-            sum_p2_hand = sum(p2_hand)
-
             p2_rank_5 = p2.handEval(self.board_cards)
+            flush_possible_p2 = eval.check_possible_flush(list(p2_hand) + self.board_cards)
 
             if p1_rank_5 > p2_rank_5:
                 if only_ppot:
@@ -101,22 +109,20 @@ class eval():
             for new_board_cards in list(combinations(new_filtered_deck, look_ahead)):
                 predicted_board_cards = self.board_cards + list(new_board_cards)
 
-                sum_new_board_cards = sum(new_board_cards)
+                hash_p1 = Cards.hash_list(new_board_cards, flush_possible_p1)
+                hash_p2 = Cards.hash_list(p2_hand + new_board_cards, flush_possible_p2)
 
-                sum_p1_cards = sum_new_board_cards
-                sum_p2_cards = sum_p2_hand + sum_new_board_cards
-
-                if sum_p1_cards in computed_p1_ranks:
-                    p1_rank_7 = computed_p1_ranks[sum_p1_cards]
+                if hash_p1 in computed_p1_ranks:
+                    p1_rank_7 = computed_p1_ranks[hash_p1]
                 else:
                     p1_rank_7 = p1.handEval(predicted_board_cards)
-                    computed_p1_ranks[sum_p1_cards] = p1_rank_7
+                    computed_p1_ranks[hash_p1] = p1_rank_7
 
-                if sum_p2_cards in computed_p2_ranks:
-                    p2_rank_7 = computed_p2_ranks[sum_p2_cards]
+                if hash_p2 in computed_p2_ranks:
+                    p2_rank_7 = computed_p2_ranks[hash_p2]
                 else:
                     p2_rank_7 = p2.handEval(predicted_board_cards)
-                    computed_p2_ranks[sum_p2_cards] = p2_rank_7
+                    computed_p2_ranks[hash_p2] = p2_rank_7
             
                 if p1_rank_7 > p2_rank_7:
                     hand_potentials[i][0] += 1
@@ -149,6 +155,6 @@ board = [d.get('8h'), d.get('6c'), d.get('4h')]
 
 e = eval(hand, board)
 
-print(e.potential_hand_strength(1))
+# print(e.potential_hand_strength(1))
 # print(e.potential_hand_strength(2, only_ppot=True))
-# print(e.potential_hand_strength(2))
+print(e.potential_hand_strength(2))

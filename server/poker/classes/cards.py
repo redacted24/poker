@@ -29,6 +29,16 @@ class Cards:
 
     def __int__(self):
         return self.num
+    
+    def __hash__(self):
+        return self.num
+    
+    @staticmethod
+    def hash_list(cards, flush_possible=True):
+        if (flush_possible) :
+            return ''.join(sorted([card.shortName for card in cards]))
+        
+        return ''.join(sorted([str(card.value) for card in cards]))
 
 class Deck:
     class DeckStack(list):
