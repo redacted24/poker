@@ -78,7 +78,7 @@ class eval():
 
         filtered_deck = self.remove_cards(d, self.hand + self.board_cards)
 
-        for p2_hand in list(combinations(filtered_deck, 2)):
+        for p2_hand in combinations(filtered_deck, 2):
             p2.clear_hand()
             p2.receive(list(p2_hand))
 
@@ -125,6 +125,8 @@ class eval():
                 else:
                     hand_potentials[i][2] += 1
 
+        print(hand_potentials)
+
         try:
             ppot = (hand_potentials[2][0] + hand_potentials[2][1] / 2 + hand_potentials[1][0]) / (sum(hand_potentials[2]) + sum(hand_potentials[1]) / 2)
             if only_ppot:
@@ -142,11 +144,11 @@ class eval():
 
 d = Deck()
 
-hand = [d.get('Ad'), d.get('Qc')]
-board = [d.get('3h'), d.get('4c'), d.get('Jh')]
+hand = [d.get('9h'), d.get('7h')]
+board = [d.get('8h'), d.get('6c'), d.get('4h')]
 
 e = eval(hand, board)
 
-# print(e.potential_hand_strength(1))
+print(e.potential_hand_strength(1))
 # print(e.potential_hand_strength(2, only_ppot=True))
 # print(e.potential_hand_strength(2))
