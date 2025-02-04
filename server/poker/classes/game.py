@@ -582,11 +582,4 @@ if __name__ == "__main__":
 
     print(table.player_queue)
 
-    # print(p1.handEval([Deck.get('9s'), Deck.get('Ts'), Deck.get('Js'), Deck.get('Ks'), Deck.get('As')])) # == (5, '[As, Ks, Js, Ts, 9s]')
-    # print(p1.handEval([Deck.get('Ts'), Deck.get('Qs'), Deck.get('Js'), Deck.get('Ks'), Deck.get('As')])) # == (1, '[As, Ks, Qs, Js, Ts]')
-    # print(p1.handEval([Deck.get(card) for card in ['2d', '6s', 'Kh', 'Qd', 'Ad', 'Ks', 'Td']])) # == (3, '[9s, 9h, 9d, 9c]') 
-    # print(p1.handEval([Deck.get('As'), Deck.get('Ks'), Deck.get('Qs'), Deck.get('Qh'), Deck.get('Js'), Deck.get('Jh'), Deck.get('Ts')])) # == (1, '[As, Ks, Qs, Js, Ts]')
-    # print(p1.handEval([Deck.get('Ks'), Deck.get('Ts'), Deck.get('8h'), Deck.get('9d'), Deck.get('7c'), Deck.get('6s'), Deck.get('8s')])) # == (6, '[10, 9, 8, 7, 6]')
-    # print(p1.handEval([Deck.get('Ks'), Deck.get('Ts'), Deck.get('8h'), Deck.get('9d'), Deck.get('8c'), Deck.get('8s'), Deck.get('6h')]))
-
     print('All tests passed.')

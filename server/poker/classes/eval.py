@@ -1,4 +1,6 @@
 from itertools import combinations
+from time import time
+
 from poker.classes.cards import Deck, Cards
 from poker.classes.game import Player
 
@@ -69,8 +71,8 @@ class eval():
         '''Compute potential hand strength. look_ahead is an integer that specifies the number of cards to look ahead for. On turn, it should be one, and on flop, it should be 2.'''      
         hand_potentials = [[0] * 3 for _ in range(3)]
         
-        p1 = Player('player', True)
-        p2 = Player('opponent', True)
+        p1 = Player('player')
+        p2 = Player('opponent')
 
         p1.receive(self.hand)
 
@@ -151,6 +153,11 @@ if __name__ == "__main__":
 
     e = eval(hand, board)
 
+    start = time()
+
     # print(e.potential_hand_strength(1))
     # print(e.potential_hand_strength(2, only_ppot=True))
     print(e.potential_hand_strength(2))
+
+
+    print(time() - start)
