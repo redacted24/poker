@@ -1,10 +1,12 @@
-import requests
-from time import sleep
+from poker.classes.cards import *
 
-try:
-    from poker.classes.cards import *
-except:
-    from cards import *     # type: ignore
+PREFLOP = 0
+FLOP = 1
+TURN = 2
+RIVER = 3
+SHOWDOWN = 4
+RAKE = 5
+
 
 class Board():
     def __init__(self):
@@ -40,62 +42,39 @@ class Board():
             return [card.shortName for card in self._cards]
         else:
             return [False for _ in self._cards]
-    
-    def force_put(self, cards):
-        '''Forcefully clear the board and put a list of the wanted cards on the table. Only used in testing.'''
-        self._cards = []
-        self._cards.extend(cards)
-    
+
     def clear(self):
         '''Clears and resets the board to its initial state'''
         self._cards = []
         self._show_cards = False
 
-class Table():
-    def __init__(self, id: str):
-        self.deck: Deck = Deck()                    # Setup the deck used for the table
-        self.board: Board = Board()                 # Making a board class. Easier to manage the state of the board
-        self.pot: int = 0                           # The flop on the table
-        self.state: int = 5                         # Pre-flop (0), flop (1), turn (2), river (3), showdown(4), reset(5)
-        self.players: list[Player] = []             # [PlayerObject,'move']
-        self.dealer: int = 0                        # Index of the player who is currently the dealer. The small/big blind players are also determined by this number.
-        self.player_queue: list[Player] = []        # A list of all the players that will be playing in the round
-        self.winning_player: Player | None = None   # The player who won the round. It is None while the game is in progress.
-        self.required_bet: int = 0                  # How much money is required to stay in the game. Very useful to program the call function
-        self.required_raise: int = 10               # Minimum amount of money a player needs to raise the bet
-        self.initial_balance: int = 0               # Starting balance of all players
-        self.small_blind_amount: int = 5            # Amount of money that the small blind puts into the game
-        self.big_blind_amount: int = 10             # Amount of money that the big blind puts into the game
-        self.blind_interval: int = 0                # Amount that the blind amounts increase with each game
-        self.auto_rebuy: bool = False               # Auto rebuys for the player when their balance reaches 0
-        self.display_game_stats: bool = False       # Display game stats
-        self.dynamic_table: bool = True             # Adds the cool CSS table
-        self.show_all_bot_cards: bool = False       # Determines whether players can see bot cards
-        self.show_all_cards: bool = False           # Determines whether to show all cards
-        self.last_move: list[str] = []              # [Player.name, 'nameOfMove'] A list of two elements containing the player name, and the name of their last move (e.g. bet)
-        self.winning_hand: tuple[int, list[Cards]] = (None, [])         # Cards of the winning hand
 
-        self.id: str = id
-        self.betting_cap = 0                        # Cap to the amount of bets that can be made
-        self.v = 0                                  # How many times this table has been updated
-        self.round_stats: dict = {        
-            'bet': 0,
-            'raise': 0,
-            'call': 0,
-            'check': 0,
-            'all-in': 0,
-            'fold': 0
-        }
-        self.game_stats: dict = {
-            'bet': 0,
-            'raise': 0,
-            'call': 0,
-            'check': 0,
-            'all-in': 0,
-            'fold': 0
-        }
+class Table():
+    def __init__(self):
+        self.deck: Deck = Deck()
+        self.board: Board = Board()
+        self.players: list[Player] = []
+        self.dealer_pos: int = 0
+        self.player_queue: list[Player] = []
+
+        self.pot = 0
+        self.required_bet = 0
+        self.required_raise = 0
+        self.state = PREFLOP
+        self.winning_player = None
+        self.winning_hand = None
+
+        self.blind_amount = 5
+        self.log_moves = True
+
 
     # Functionality
+    def add_player(self, player):
+        self.players.append(player)
+
+    def remove_player(self, player):
+        self.players.remove(player)
+
     def increase_pot(self, amount):
         '''Increase pot by certain amount.'''
         self.pot += amount
@@ -107,7 +86,7 @@ class Table():
     def add_card(self):
         '''Add a card from the top of the deck to the board'''
         self.board.place_card(self.deck.draw())
-    
+
     def deal_hands(self):
         '''Deal two cards to all players in the table'''
         for p in self.players:
@@ -115,387 +94,261 @@ class Table():
             p.receive(self.deck.draw())
             self.deck.burn()
 
-    def clear_bets(self):
-        for p in self.active_players():
-            p.current_bet = 0
+    def set_queue(self, start_pos):
+        queue = self.players[start_pos:] + self.players[:start_pos]
+        self.player_queue = [p for p in queue if p.active]
 
-    def active_players(self, pre_flop=False): 
-        '''Returns a list of the active players in the round'''
-        self.set_positions()
-        if self.player_queue:
-            starting_position = self.player_queue[0].position
-        elif pre_flop:
-            starting_position = 3
-        else:
-            starting_position = 0
+    def log(self, message):
+        if self.log_moves:
+            print(message)
 
-        sorted_players = sorted(self.players, key=lambda p:(p.position - starting_position) % len(self.players))
+    # Player Actions
+    def action(f):
+        def wrapped(table, player, *args, **kwargs):
+            if player != table.player_queue[0]: raise ValueError('Not your turn yet!')
 
-        return [p for p in sorted_players if p.active]
+            starting_balance = player.balance
+
+            amount = f(table, player, *args, **kwargs)
+
+            if (table.log_moves):
+                print(str(player).ljust(8),
+                      ':',
+                      str(starting_balance).ljust(4),
+                      "->",
+                      str(player.balance).ljust(4),
+                      "|",
+                      f.__name__[0].upper(),
+                      str(amount or "").ljust(4))
+
+            table.player_queue.pop(0)
+
+            if (len(table.player_queue) == 0):
+                table.log(f"Pot: ${table.pot}")
+                table.state += 1
+                table.start_round()
+
+        return wrapped
+
+
+    @action
+    def check(self, player):
+        '''Player checks, passing the turn without betting.'''
+        if (self.required_bet != player.current_bet): raise ValueError('Cannot check when a call is necessary!')
+
+    @action
+    def bet(self, player, amount):
+        '''Player bets, raising the required bet to stay in for the entire table.'''
+        if (amount - self.required_bet < self.required_bet + self.required_raise): raise ValueError('Less than the minimum raise!')
+
+        bet_amount = amount - player.current_bet
+
+        player.balance -= bet_amount
+        self.increase_pot(bet_amount)
+        self.required_bet = amount
+
+        player.current_bet = self.required_bet
+        self.set_queue(self.players.index(player))
+
+        return bet_amount
+
+    @action
+    def call(self, player):
+        '''Player calls, matching the current bet.'''
+        if (self.required_bet == player.current_bet): raise ValueError('No bets to call!')
+
+        call_amount = self.required_bet - player.current_bet
+        player.balance -= call_amount
+        self.increase_pot(call_amount)
     
-    def randomize(self):
-        from random import shuffle
-        shuffle(self.players)
+        player.current_bet = self.required_bet
 
-    def start_queue(self, pre_flop=False):
-        '''Adds a queue for the players' turn to play'''
-        print('starting queue')
-        self.player_queue = self.active_players(pre_flop)
+        return call_amount
 
-    def extend_queue(self, game_state):
-        '''Extends the current queue for players to call/fold the bet'''
-        self.player_queue.extend([p for p in self.active_players(game_state == 0) if p not in self.player_queue])
+    @action
+    def fold(self, player):
+        '''Player folds, giving up their hand.'''
 
-    def prepare_round(self, pre_flop=False):
-        '''Prepares the table for the current round'''
-        for key in self.round_stats.keys():     # Reset round stats
-            self.round_stats[key] = 0
-        self.required_bet = self.big_blind_amount if pre_flop else 0
-        self.required_raise = self.big_blind_amount
-        self.betting_cap = 0
-        self.clear_bets()
-        self.last_move.clear()
-        self.start_queue(pre_flop)
+    @action
+    def all_in(self, player):
+        '''Player all-ins, betting the remainder of their balance to stay in the game.'''
 
-    def set_positions(self):
-        '''Set the positions of the players for the current round'''
-        for i, player in enumerate(self.players):
-            player.position = (i + self.dealer) % len(self.players)
+        amount = player.balance
 
-    def set_blinds(self):
-        '''Takes out the required contributions from the blinds to the pot'''
-        sorted_players = sorted(self.players, key=lambda p: p.position)
-        small_blind, big_blind = (sorted_players * 2)[1:3]                          # Allows the list to loop back if there are only 2 players
+        player.balance = 0
+        player.current_bet += amount
+        self.increase_pot(amount)
+
+        self.required_bet = max(player.current_bet, self.required_bet)
+        player.is_all_in = True
+        self.set_queue(self.players.index(player))
         
-        if small_blind.balance >= self.small_blind_amount:
-            small_blind.balance -= self.small_blind_amount
-            small_blind.current_bet = self.small_blind_amount
-            self.pot += self.small_blind_amount
-        else:
-            self.pot += small_blind.balance
-            small_blind.current_bet = small_blind.balance
-            small_blind.balance = 0
-            small_blind.is_all_in = True
-            self.update_table_stats(small_blind, 'all-in')
-            print(f"{small_blind} has gone all-in with {small_blind.balance}$ (balance: {small_blind.balance}) (the pot is now {self.pot}$). They had {small_blind.hand()}", "EHS:", small_blind.ehs)
+        return amount
+    
+    @action
+    def show_hand(self, player):
+        '''Player shows their hand for the final showdown'''
+        if (self.state != SHOWDOWN): raise ValueError('Not showdown yet!')
         
-        if big_blind.balance >= self.big_blind_amount:
-            big_blind.balance -= self.big_blind_amount
-            big_blind.current_bet = self.big_blind_amount
-            self.pot += self.big_blind_amount
-        else:
-            self.pot += big_blind.balance
-            big_blind.current_bet = big_blind.balance
-            big_blind.balance = 0
-            big_blind.is_all_in = True
-            self.update_table_stats(big_blind, 'all-in')
-            print(f"{big_blind} has gone all-in with {big_blind.balance}$ (balance: {big_blind.balance}) (the pot is now {self.pot}$). They had {big_blind.hand()}", "EHS:", big_blind.ehs)
-        
-    # Game Rounds
-    def pre_flop(self):
-        '''Ready game for the pre-flop.
-        - Sets required bet to 10$ (small blind)
-        - Clears all bets for all players
-        - Clears last move
-        - Adds a queue for players to start playing
-        - Set blinds for the current round
-        - Shuffle deck and add three cards to the board, and deal cards to players'''
-        print('Pre-flop')
-        self.prepare_round(pre_flop=True)
-        self.set_blinds()
-        self.deck.shuffle()
+        if (self.winning_player is None or self.winning_player.handEval(self.board.cards()) < player.handEval(self.board.cards())):
+            self.winning_player = player
+
+
+    # Game Logic
+    def start_round(self):
+        self.required_bet = self.required_raise = 0
+        for player in self.players:
+            player.clear_bet()
+
+        match self.state:
+            case 0:
+                self.pre_flop()
+
+            case 1:
+                self.flop()
+
+            case 2:
+                self.turn()
+            
+            case 3:
+                self.river()
+
+            case 4:
+                self.showdown()
+
+            case 5:
+                self.rake()
+
+    def pre_flop(self): 
+        "Ready game for the pre-flop."
+
+        self.set_queue(self.dealer_pos+1)
         self.deal_hands()
         for _ in range(3):
             self.add_card()
-        for player in self.players:
-            if player.is_computer:
-                player.update_player_position()           # Must come before update strategy thresholds!
-                player.update_strategy_thresholds()
+
+        self.print_setup()
+        self.log("\nPreflop")
+
+        self.player_queue[0].bet(self.blind_amount)
+        self.player_queue[0].bet(self.blind_amount * 2)
+        self.set_queue(self.dealer_pos+3)
+
 
     def flop(self):
-        '''Ready game for the flop.
-        - Sets required bet to 0$
-        - Clears all bets for all players
-        - Clears last move
-        - Starts the queue again for all players
-        - Reveal cards on the board'''
-        print('Flop', end = ': ')
-        self.prepare_round()
         self.board.reveal()
-        print(self.board.cards())
+
+        self.log(f"\nFlop: {self.board.cards()}")
+        self.set_queue(self.dealer_pos+1)
 
     def turn(self):
-        '''Ready game for the turn.
-        - Sets required bet to 0
-        - Clears all bets for all players
-        - Clears last move
-        - Start the queue again for all players
-        - Adds a card to the board.'''
-        print('Turn', end = ': ')
-        self.prepare_round()
         self.add_card()
-        print(self.board.cards())
-    
+        self.log(f"\nTurn: {self.board.cards()[:-1]} {self.board.cards()[-1:]}")
+        self.set_queue(self.dealer_pos+1)
+
     def river(self):
-        '''Ready game for the river.
-        - Sets required bet to 0
-        - Clears all bets for all players
-        - Clears last move
-        - Start the queue again for all players
-        - Adds a card to the board.'''
-        print('River', end=': ')
-        self.prepare_round()
         self.add_card()
-        print(self.board.cards())
+        self.log(f"\nRiver: {self.board.cards()[:-1]} {self.board.cards()[-1:]}")
+        self.set_queue(self.dealer_pos+1)
 
     def showdown(self):
-        '''Checks who will win.'''
-        print('Showdown')
-        winning_player = self.active_players()[0]
+        self.log(f"\nShowdown: {self.board.cards()}")
+        self.set_queue(self.dealer_pos+1)
 
-        for player in self.active_players():
-            print(f"{player} had {player.handEval(self.board.cards())}")
-            if player.handEval(self.board.cards()) > winning_player.handEval(self.board.cards()):
-                winning_player = player
+    def rake(self):
+        self.winning_hand = self.winning_player.handEval(self.board.cards())
+        self.winning_player.rake()       # Winning player takes in all the money
 
-        print(f'The winning player is {winning_player}, with a hand of {winning_player.handEval(self.board.cards())}')
-        winning_player.rake()       # Winning player takes in all the money
-        self.winning_hand = winning_player.handEval(self.board.cards())
-        self.winning_player = winning_player
-
-
-    def play(self):
-        '''Lets all the computers play their turn, then starts the next round if needed.'''
-
-        while len(self.player_queue) != 0:
-            if len([p for p in self.active_players() if not p.is_all_in]) == 1:
-                self.player_queue.clear()
-                break
-            current_player = self.player_queue[0]
-
-            if current_player.is_all_in:                 # the player does not need to act if they are already all in
-                self.player_queue.pop(0)
-                continue
-
-            if (current_player.is_computer):
-                current_player.previous_step = None
-                sleep(1.5)
-                current_player.play()
-                return True
-            else:
-                return False
-
-        if len(self.player_queue) != 0: return False
-
-        if self.state != 5:
-            self.state = (self.state + 1) % 6
-            rounds = [self.pre_flop, self.flop, self.turn, self.river, self.showdown, self.reset]
-            
-            rounds[self.state]()
-            if 0 < self.state < 4:
-                sleep(0.5)
-                return True
-
-        return False
-
+        self.log(f'The winning player is {self.winning_player}, with a hand of {self.winning_hand}')
+        self.reset()
 
     def reset(self):
         '''Clears current cards on the board, resets deck, and removes all player handheld cards.
         Clears current round stats. Game stats are left unchanged.
         Players are still on the table, but shifted by one seat'''
-        print('Reset')
-        self.pot = 0
-        self.state = 5
-        self.board.clear()
-        self.deck.reset()
-        self.winning_player = None
-        self.winning_hand = (None, [])
-        self.dealer = (self.dealer + 1) % len(self.players)     # Shift players
-        self.betting_cap = 0                                    # Reset betting cap
-        self.last_move: list[str, str] = []                     # Reset self.last_move
-        self.small_blind_amount += self.blind_interval
-        self.big_blind_amount += self.blind_interval * 2
-        for stat in self.game_stats.keys():
-            self.round_stats[stat] = 0
-        for player in self.players:
-            player.reset()
-        if not self.auto_rebuy:
-            self.players = [p for p in self.players if p.balance > 0]       # kicks players who have no money left
-        else:
-            for p in self.players:
-                if p.balance == 0:
-                    p.balance = self.initial_balance
+        self.log('\nReset\n')
 
+        self.deck.reset()
+        self.board.clear()
+        self.players = [p for p in self.players if p.balance > 0]
+        self.dealer_pos = (self.dealer_pos + 1) % len(self.players)
         self.player_queue.clear()
 
+        self.pot = 0
+        self.required_bet = 0
+        self.required_raise = 0
+        self.state = PREFLOP
+        self.winning_player = None
+        self.winning_hand = None
 
-    # Player actions Table Class
-    def update_table_stats(self, player, move):
-        '''Updates all table stats, based on the move. Used in all possible game moves.'''
-        self.game_stats[move] += 1
-        self.round_stats[move] += 1
-        player.stats[move] += 1
-        self.last_move = [player.name, move]
+        for player in self.players:
+            player.reset()
 
-    def call(self, player):
-        '''Player calls, matching the current bet.'''
-        if player == self.player_queue[0]:
-            self.update_table_stats(player, 'call')
-            amount_to_call = self.required_bet - player.current_bet
-            player.balance -= amount_to_call
-            self.increase_pot(amount_to_call)
-            print(f"{player} has called for {self.required_bet-player.current_bet}$ (balance: {player.balance}) (pot is now {self.pot}$). They had {player.hand()}", "EHS:", player.ehs)
-            player.current_bet = self.required_bet
-            self.player_queue.pop(0)
-        else:
-            raise(ValueError('Not your turn yet!'))
 
-    def check(self, player):
-        '''Player checks, passing the turn without betting.'''
-        if player == self.player_queue[0]:
-            if player.current_bet == self.required_bet:
-                print(f"{player} has checked. (balance: {player.balance}) They had {player.hand()}", "EHS:", player.ehs)
-                self.update_table_stats(player, 'check')
-                self.player_queue.pop(0)
-            else:
-                raise Exception("Can't check if your current bet does not match required bet!")
-        else:
-            raise(ValueError('Not your turn yet!'))
-
-    def fold(self, player):
-        '''Player folds, giving up their hand.'''
-        if player == self.player_queue[0]:
-            print(f"{player} has folded. (balance: {player.balance}) They had {player.hand()}", "EHS:", player.ehs)
-            self.update_table_stats(player, 'fold')
-            self.player_queue.pop(0)
-        else:
-            raise(ValueError('Not your turn yet!'))     # ValueError is accounted for in tests, i.e. its appearance is checked for several testCases. You may decide to use another way of handling error, we'll just need to also change the test file.
-
-    def bet(self, player, amount):
-        '''Player bets, raising the required bet to stay in for the entire table.'''
-        if player == self.player_queue[0]:
-            if self.round_stats['bet'] == 3:        # Player cannot raise past this
-                self.call(player)                   # Call the betting cap
-            elif amount==self.required_bet:     # If bet amount is the same as required bet, it's basically a call.
-                self.call(player)
-            elif amount - self.required_bet < self.required_raise:
-                raise Exception('cannot bet under minimum raise requirement')
-            else: 
-                self.update_table_stats(player, 'bet')              # Update table stats
-                amount_bet = amount - player.current_bet            # amount that the player throws into the pot
-                player.balance -= amount_bet                        # Remove amount bet from player balance. The exact amount is not removed, because player could already have some money in the pot (current bet)
-                self.increase_pot(amount_bet)                       # Increase the table pot by the extra amount that the player has bet on top of what they have already bet
-                player.current_bet = amount                         # Set the player bet to the full current amount
-                self.required_raise = amount - self.required_bet    # amount that the player has raised the pot by. this is now the minimum raise value, and the next raises cannot be lower than this
-                self.required_bet = player.current_bet              
-                self.betting_cap += 1
-                print(f"{player} has bet {amount}$ (balance: {player.balance}) (the pot is now {self.pot}$). They had {player.hand()}", "EHS:", player.ehs)
-                self.extend_queue(self.state)
-                self.player_queue.pop(0)
-        else:
-            raise(ValueError('Not your turn yet!'))
-
-    def all_in(self, player):
-        '''Player all-ins, betting the remainder of their balance to stay in the game.'''
-        if player == self.player_queue[0]:
-            self.update_table_stats(player, 'all-in')                                                   # Update table stats
-            self.increase_pot(player.balance)                                                           # Increase the table pot by the extra amount that the player has bet on top of what they have already bet
-            player.current_bet += player.balance                                                        # Set the player bet to the full current amount
-            self.required_raise = max(player.balance - self.required_bet, self.required_raise)          # The maximum raise becomes the raise that the player has just performed if it is larger than the current raise
-            self.required_bet = max(player.current_bet, self.required_bet)              
-            self.betting_cap += 1
-            print(f"{player} has gone all-in with {player.balance}$ (balance: {player.balance}) (the pot is now {self.pot}$). They had {player.hand()}", "EHS:", player.ehs)
-            player.balance = 0                                                                         # Remove amount bet from player balance. The exact amount is not removed, because player could already have some money in the pot (current bet)
-            player.is_all_in = True
-            self.extend_queue(self.state)
-            self.player_queue.pop(0)
 
     # Misc
-    def add_player(self, player):
-        if player not in self.players:
-            self.players.append(player)
-            player.join(self)
+    def print_setup(self):
+        self.log("Setup")
 
+        roles = ["SB", "BB"]
 
-    def remove_player(self, player_name_to_remove):
-        updated_players = []
-        for player in self.players:
-            if player.name == player_name_to_remove:
-                player.leave()
-            else:
-                updated_players.append(player)
-        
-        self.players = updated_players
-        self.player_queue = [p for p in self.player_queue if p.name != player_name_to_remove]
+        for player, role in zip(self.player_queue, roles):
+            self.log(f"{role}: {player}")
+
 
     def toJSON(self, player_name=None):
         return {
             'board': self.board.display(),
+            'players': [p.toJSON(player_name) for p in self.players],
+            'player_queue': [p.toJSON(player_name) for p in self.player_queue],
+            'dealer_pos': self.dealer_pos,
+
             'pot': self.pot,
-            'players': [p.toJSON(player_name, self.show_all_bot_cards, self.show_all_cards) for p in self.players],
-            'player_queue': [p.toJSON(player_name, self.show_all_bot_cards, self.show_all_cards) for p in self.player_queue],
             'required_bet': self.required_bet,
             'required_raise': self.required_raise,
             'state': self.state,
-            'last_move': self.last_move,
-            'winning_player': self.winning_player and self.winning_player.toJSON(player_name, self.show_all_bot_cards, self.show_all_cards),
-            'winning_hand': [self.winning_hand[0], [card.shortName for card in self.winning_hand[1]]],
-            'dynamic_table': self.dynamic_table,
-            'id': self.id
+
+            'winning_player': self.winning_player and self.winning_player.toJSON(player_name),
+            'winning_hand': [self.winning_hand[0], [card.shortName for card in self.winning_hand[1]]]
         }
 
-    def end(self):
-        '''A method that ends the current game. Clears game_stats. Players leave the table. Basically a harder reset than the reset method.'''
-        self.reset()
-        self.blinds_adjustment_factor = 0
-        self.players.clear()
-        for stat in self.game_stats.keys():
-            self.game_stats[stat] = 0
-
 # -------------------------- #
-
-
-
-
-
 
 
 
 # -------------------------- #
 class Player():
-        def __init__(self, name, is_computer=True, table=None, balance = 1000):
+        def __init__(self, name, table=None, is_computer=True, balance=1000):
             '''The Player class. All bots/computers inherit from this class.'''
             self.name = name
             self.is_computer = is_computer
-            self.table: Table | None = None
+            self.table: Table | None = table
             self.__hand = []
             self.balance = balance
+
             self.current_bet = 0                # Balance of the player's bet for the current round
             self.active = True                  # Whether the player is still in round (hasn't folded yet).
-            self.position = None                # Determines the position of the player. 0 = dealer, 1 = small blind, 2 = big blind, etc.
-            self.previous_step = []             # Holds the information of the previous move of the player (e.g. 'check')
+
             self.ehs = 0
             self.is_all_in = False
-            self.stats = {
-                'bet': 0,
-                'raise': 0,
-                'call': 0,
-                'check': 0,
-                'all-in': 0,
-                'fold': 0
-            }
 
             if table:
                 table.add_player(self)              # Add player to table
         
         def __repr__(self):
             return self.name
-        
+
         def join(self, table: Table):
             self.table = table
+            table.add_player(self)
 
         def leave(self):
             self.table = None
+            table.remove_player(self)
+    
+        def can_pay(self, amount):
+            return self.balance > (amount - self.current_bet)
+
 
         def handEval(self, river):
             '''Compute strength of a certain hand of a certain size.
@@ -597,15 +450,6 @@ class Player():
             else:
                 return 1, sorted_hand[0:5]
 
-        def riverEval(self):
-            '''Return the highest scoring hand pattern of player + board.'''
-            # Deprecated
-            pass
-
-        def look(self):
-            '''Prints player hand.'''
-            print(f'Your hand is: {str(self.__hand)}')
-        
         def hand(self):
             '''Returns player hand'''
             return self.__hand
@@ -623,39 +467,36 @@ class Player():
 
 
         # Player moves
-        def call(self):
-            '''Try calling, otherwise go all-in and bet'''
-            if self.balance > self.table.required_bet - self.current_bet:
-                self.table.call(self)
-                self.previous_step = ['call', self.table.required_bet]
-            else:
-                self.all_in()
-
-
         def check(self):
             '''Check, a.k.a do nothing'''
             self.table.check(self)
-            self.previous_step = ['check']
-        
+
         def fold(self):
             '''Lay down your cards and leave the table.'''
             self.active = False
             self.table.fold(self)
-            self.previous_step = ['fold']
+
+        def call(self):
+            '''Try calling, otherwise go all-in and bet'''
+            if self.can_pay(self.table.required_bet): 
+                self.table.call(self)
+            else: 
+                self.all_in()
 
         def bet(self, amount):
             '''Bet a certain amount into the pot'''
-            if self.balance > (amount - self.current_bet):
+            if self.can_pay(amount):
                 self.table.bet(self, amount)
-                self.previous_step = ['bet', self.current_bet]
             else:
                 self.all_in()
 
         def all_in(self):
             '''Go all-in'''
-            print('All-in')
             self.table.all_in(self)
-            self.previous_step = ['all-in', self.balance]
+
+        def show_hand(self):
+            '''Shows hand'''
+            self.table.show_hand(self)
 
         def rake(self):
             '''Take in the amount of money in the pot after a win.'''
@@ -663,16 +504,18 @@ class Player():
 
 
         # Misc
-        def reset(self):
-            '''Reset player stats'''
+        def clear_bet(self):
+            '''Reset player bet'''
             self.current_bet = 0
-            self.active = True
-            self.is_all_in = False
-            self.clear_hand()
-            self.position = None
-            self.previous_step = []
-            self.bluffing = False
+
+        def reset(self):
+            self.__hand.clear()
+
+            self.current_bet = 0                # Balance of the player's bet for the current round
+            self.active = True                  # Whether the player is still in round (hasn't folded yet).
+
             self.ehs = 0
+            self.is_all_in = False
 
         def toJSON(self, player_name, show_all_bot_card, show_all_cards):
             '''Put all player variables into JSON. Used for communication with frontend'''
@@ -695,32 +538,55 @@ class Player():
 
             return response
 
-        def clear_all_stats(self):
-            '''Clears all player stats.'''
-            for stat in self.stats.keys():
-                self.stats[stat] = 0
-
-        def update_player_position(self):
-            '''Update player_position. Used if the player is a computer'''
-            pass
-
-        def update_strategy_thresholds(self):
-            '''Update strategy_thresholds. Used if the player is a computer'''
-            pass
-
 
 
 if __name__ == "__main__":
-    deck = Deck()
-    table = Table(deck)
-    p1 = Player('Haha', table)
+    table = Table()
+    p1 = Player("alex", table)
+    p2 = Player("bob", table)
+    p3 = Player("charlie", table)
+    p4 = Player("david", table)
 
-    # Check for flushes
-    print(p1.handEval([deck.get('9s'), deck.get('Ts'), deck.get('Js'), deck.get('Ks'), deck.get('As')])) # == (5, '[As, Ks, Js, Ts, 9s]')
-    print(p1.handEval([deck.get('Ts'), deck.get('Qs'), deck.get('Js'), deck.get('Ks'), deck.get('As')])) # == (1, '[As, Ks, Qs, Js, Ts]')
-    print(p1.handEval([deck.get(card) for card in ['2d', '6s', 'Kh', 'Qd', 'Ad', 'Ks', 'Td']])) # == (3, '[9s, 9h, 9d, 9c]') 
-    print(p1.handEval([deck.get('As'), deck.get('Ks'), deck.get('Qs'), deck.get('Qh'), deck.get('Js'), deck.get('Jh'), deck.get('Ts')])) # == (1, '[As, Ks, Qs, Js, Ts]')
-    print(p1.handEval([deck.get('Ks'), deck.get('Ts'), deck.get('8h'), deck.get('9d'), deck.get('7c'), deck.get('6s'), deck.get('8s')])) # == (6, '[10, 9, 8, 7, 6]')
-    print(p1.handEval([deck.get('Ks'), deck.get('Ts'), deck.get('8h'), deck.get('9d'), deck.get('8c'), deck.get('8s'), deck.get('6h')]))
+    table.log_moves = True
+    table.start_round()
+
+    # Preflop
+    p4.call()
+    p1.bet(30)
+    p2.call()
+    p3.call()
+    p4.call()
+
+    # # Flop
+    p2.check()
+    p3.bet(50)
+    p4.call()
+    p1.bet(150)
+    p2.fold()
+    p3.call()
+    p4.call()
+
+    # # Turn
+    p3.check()
+    p4.bet(200)
+    p1.call()
+    p3.fold()
+
+    # # River
+    p4.bet(300)
+    p1.call()
+
+    # # Showdown
+    p4.show_hand()
+    p1.fold()
+
+    print(table.player_queue)
+
+    # print(p1.handEval([Deck.get('9s'), Deck.get('Ts'), Deck.get('Js'), Deck.get('Ks'), Deck.get('As')])) # == (5, '[As, Ks, Js, Ts, 9s]')
+    # print(p1.handEval([Deck.get('Ts'), Deck.get('Qs'), Deck.get('Js'), Deck.get('Ks'), Deck.get('As')])) # == (1, '[As, Ks, Qs, Js, Ts]')
+    # print(p1.handEval([Deck.get(card) for card in ['2d', '6s', 'Kh', 'Qd', 'Ad', 'Ks', 'Td']])) # == (3, '[9s, 9h, 9d, 9c]') 
+    # print(p1.handEval([Deck.get('As'), Deck.get('Ks'), Deck.get('Qs'), Deck.get('Qh'), Deck.get('Js'), Deck.get('Jh'), Deck.get('Ts')])) # == (1, '[As, Ks, Qs, Js, Ts]')
+    # print(p1.handEval([Deck.get('Ks'), Deck.get('Ts'), Deck.get('8h'), Deck.get('9d'), Deck.get('7c'), Deck.get('6s'), Deck.get('8s')])) # == (6, '[10, 9, 8, 7, 6]')
+    # print(p1.handEval([Deck.get('Ks'), Deck.get('Ts'), Deck.get('8h'), Deck.get('9d'), Deck.get('8c'), Deck.get('8s'), Deck.get('6h')]))
 
     print('All tests passed.')

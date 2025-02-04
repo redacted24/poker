@@ -1,9 +1,5 @@
-try:
-    from poker.classes.game import *
-    from poker.classes.eval import *
-except:
-    from game import *      # type: ignore
-    from eval import *      # type: ignore
+from poker.classes.game import *
+from poker.classes.eval import *
 from random import random
 
 class Loki(Player):
@@ -163,7 +159,7 @@ class Loki(Player):
         betsize = int(self.balance*0.05)
         implied_pot_odds = (2*betsize)/((self.table.pot + 4*betsize)+2*betsize)
         if self.ppot > implied_pot_odds and self.table.round_stats['bet'] == 0:
-            self.semi_bluffing == True
+            self.semi_bluffing = True
             return betsize
         return False
     
@@ -337,6 +333,7 @@ class Loki(Player):
         self.number_of_play_actions = 0
         self.ehs = 0
         self.ppot = 0
+        self.IR = 0
 
 
 # Meme bots
@@ -391,13 +388,14 @@ class CopyCat(Player):
     def play(self):
         '''Play function for the bot.'''
         if self.table.last_move:
-            if self.table.last_move[1] == 'call':
+            action = self.table.last_move[1]
+            if action == 'call':
                 self.call()
-            elif self.table.last_move[1] == 'fold':
+            elif action == 'fold':
                 self.fold()
-            elif self.table.last_move[1] == 'bet':
-                self.bet(30)
-            elif self.table.last_move[1] == 'check':
+            elif action == 'bet':
+                self.bet(30)                    # Fixed amount for simplicity
+            elif action == 'check':
                 self.check()
         else:
             if self.position == 2:              # If player is big blind, they must check

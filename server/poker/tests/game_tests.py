@@ -1,7 +1,7 @@
 import unittest
-from poker.classes.bots import *
-from poker.classes.cards import *
-from poker.classes.game import *
+from bots import *
+from cards import *
+from game import *
 
 # ---
 class TestTableMethods(unittest.TestCase):

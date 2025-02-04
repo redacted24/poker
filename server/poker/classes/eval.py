@@ -1,10 +1,6 @@
-try:
-    from itertools import combinations
-    from poker.classes.cards import Deck, Cards
-    from poker.classes.game import Player
-except:
-    from cards import Deck, Cards       # type: ignore
-    from game import Player             # type: ignore
+from itertools import combinations
+from poker.classes.cards import Deck, Cards
+from poker.classes.game import Player
 
 class eval():
     def __init__(self, hand, board_cards):
@@ -147,14 +143,14 @@ class eval():
         return ppot, npot
 
 
+if __name__ == "__main__":
+    d = Deck()
 
-d = Deck()
+    hand = [d.get('9h'), d.get('7h')]
+    board = [d.get('8h'), d.get('6c'), d.get('4h')]
 
-hand = [d.get('9h'), d.get('7h')]
-board = [d.get('8h'), d.get('6c'), d.get('4h')]
+    e = eval(hand, board)
 
-e = eval(hand, board)
-
-# print(e.potential_hand_strength(1))
-# print(e.potential_hand_strength(2, only_ppot=True))
-print(e.potential_hand_strength(2))
+    # print(e.potential_hand_strength(1))
+    # print(e.potential_hand_strength(2, only_ppot=True))
+    print(e.potential_hand_strength(2))
