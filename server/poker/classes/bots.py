@@ -33,12 +33,14 @@ class Loki(Player):
         'moderate': {'make1': (25, 25), 'make2': (200, 25), 'make4': (580,0)},
         'loose': {'make1': (25, 10), 'make2': (175, 10), 'make4': (480,0)}
     }
+
     # The values for the thresholds of effective hand strength used to determine post-flop strategies. All vary by 0.05, depending on the tightness.
     ehs = {
         'tight': {'make2': 0.90, 'make1': 0.55},
         'moderate': {'make2': 0.85, 'make1': 0.50},
         'loose': {'make2': 0.80, 'make1': 0.45}
     }
+
     # The values for which the bots would bluff.
     bluff_percentage = {
         'tight': 0.04,
@@ -336,7 +338,7 @@ class Loki(Player):
         self.IR = 0
 
 
-# Meme bots
+# Simple bots
 class Better(Player):
     '''A bot that always bets 99$, or all of his balance if it is less than 99$.'''
     def play(self):

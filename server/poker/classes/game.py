@@ -1,11 +1,38 @@
+import json, os
 from poker.classes.cards import *
 
+# Game States
 PREFLOP = 0
 FLOP = 1
 TURN = 2
 RIVER = 3
 SHOWDOWN = 4
 RAKE = 5
+
+
+# Hand Types
+ROYAL_FLUSH = 10
+STRAIGHT_FLUSH = 9
+FOUR_OF_A_KIND = 8
+FULL_HOUSE = 7
+FLUSH = 6
+STRAIGHT = 5
+THREE_OF_A_KIND = 4
+TWO_PAIR = 3
+PAIR = 2
+HIGH_CARD = 1
+
+
+poker_hands = []
+
+dirname = os.path.dirname(__file__)
+
+fp = open(os.path.join(dirname, "poker_hands_5.json"))
+poker_hands.append(json.load(fp))
+fp = open(os.path.join(dirname, "poker_hands_6.json"))
+poker_hands.append(json.load(fp))
+fp = open(os.path.join(dirname, "poker_hands_7.json"))
+poker_hands.append(json.load(fp))
 
 
 class Board():
@@ -363,93 +390,59 @@ class Player():
             3. Two Pair
             2. Pair
             1. High Card'''
+            
+            def checkFlush(hand: list[Cards]):
+                suits = {}
 
-            def getOriginalStraight(values, hand):
-                winning_hand = []
                 for card in hand:
-                    if values and card.value == values[0]:
-                        winning_hand.append(card)
-                        values.pop(0)
+                    suits[card.suit] = suits.get(card.suit, []) + [card]
+                
+                for cards in suits.values():
+                    if len(cards) >= 5:
+                        return cards
 
-                if values:
-                    winning_hand.append(hand[0])
-                return winning_hand
-
-            def checkStraight(values: dict, hand):
-                sorted_values = sorted(values.keys(), reverse=True)
-                if 14 in sorted_values: sorted_values.append(1)
-                consecutive = 1
-                for i in range(0, len(sorted_values) - 1):
-                    if sorted_values[i] - 1 == sorted_values[i+1]:
-                        consecutive += 1
-                        if consecutive == 5:
-                            return getOriginalStraight(sorted_values[i-3:i+2], hand)
-                    else:
-                        consecutive = 1
                 return False
             
-            def checkFlush(suits: dict, hand: list[Cards]):
-                for suit, items in suits.items():
-                    if items >= 5:
-                        suited_cards = [card for card in hand if card.suit == suit]
-                        flush_values = {}
-                        for card in suited_cards:
-                            flush_values[card.value] = values.get(card.value, 0) + 1
-                        flush_straight = checkStraight(flush_values, suited_cards)
-                        return flush_straight, suited_cards
-                return False, False
+            def getOriginalValues(hand: list[Cards], poker_hand: str):
+                values_needed = [int(char, 16) for char in poker_hand]
 
-
-            def getOriginalValues(num_items, values, hand):
-                winning_hand = []
-                while num_items:
-                    for value, items in sorted(values.items(), key=lambda x: x[1]):
-                        if num_items and items >= num_items[0]:
-                            winning_hand += [card for card in hand if card.value == value]
-                            num_items.pop(0)
-
-                winning_hand = winning_hand[0:5]
-
-                for card in hand:
-                    if card not in winning_hand:
-                        if len(winning_hand) >= 5:
+                original_hand = []
+                for value in values_needed:
+                    for idx, card in enumerate(hand):
+                        if value == card.value:
+                            original_hand.append(hand.pop(idx))
                             break
-                        winning_hand.append(card)
 
-                return winning_hand
+                return original_hand
 
-            hand = self.hand() + river
-            values = {}
-            suits = {}
-            sorted_hand = sorted(hand, reverse=True, key=lambda c: c.value)
-            for card in sorted_hand:
-                values[card.value] = values.get(card.value, 0) + 1
-                suits[card.suit] = suits.get(card.suit, 0) + 1
 
-            flush_straight, flush = checkFlush(suits, sorted_hand)
-            straight = checkStraight(values, sorted_hand)
+            hand = sorted(self.hand() + river, key=lambda c: c.value)
 
-            if flush_straight and flush_straight[0].value == 14:
-                return 10, flush_straight
-            elif flush_straight:
-                    return 9, flush_straight
-            elif 4 in values.values():
-                return 8, getOriginalValues([4], values, sorted_hand)
-            elif len([v for v in values.values() if v == 3]) == 2 or (3 in values.values() and 2 in values.values()):
-                return 7, getOriginalValues([3, 2], values, sorted_hand)
-            elif flush:
-                return 6, flush[0:5]
-            elif straight:
-                return 5, straight
-            elif 3 in values.values():
-                return 4, getOriginalValues([3], values, sorted_hand)
-            elif len([v for v in values.values() if v == 2]) >= 2:
-                return 3, getOriginalValues([2, 2], values, sorted_hand)
-            elif 2 in values.values():
-                return 2, getOriginalValues([2], values, sorted_hand)
-            else:
-                return 1, sorted_hand[0:5]
+            converted_hand = ''.join([card.hex_value for card in hand])
 
+            hand_type, poker_hand = poker_hands[len(hand) - 5].get(converted_hand, [HIGH_CARD, None])
+
+            if (hand_type >= FULL_HOUSE):
+                return hand_type, getOriginalValues(hand, poker_hand)
+
+            flush_cards = checkFlush(hand)
+            if (flush_cards):
+                if hand_type == STRAIGHT:
+                    converted_hand = ''.join([card.hex_value for card in flush_cards])
+                    flush_hand_type, flush_poker_hand = poker_hands[len(flush_cards) - 5].get(converted_hand, [HIGH_CARD, None])
+                    if (flush_hand_type == STRAIGHT):
+                        return STRAIGHT_FLUSH + (flush_poker_hand[0] == 'E'), getOriginalValues(hand, flush_poker_hand)
+
+                return FLUSH, flush_cards[:-6:-1]
+
+            if hand_type == HIGH_CARD: return hand_type, hand[:-6:-1] 
+
+            return hand_type, getOriginalValues(hand, poker_hand)
+
+        def look(self):
+            '''Prints player hand.'''
+            print(f'Your hand is: {str(self.__hand)}')
+        
         def hand(self):
             '''Returns player hand'''
             return self.__hand
@@ -581,5 +574,12 @@ if __name__ == "__main__":
     p1.fold()
 
     print(table.player_queue)
+
+    print(p1.handEval([Deck.get('9s'), Deck.get('Ts'), Deck.get('Js'), Deck.get('Ks'), Deck.get('As')])) # == (5, '[As, Ks, Js, Ts, 9s]')
+    print(p1.handEval([Deck.get('Ts'), Deck.get('Qs'), Deck.get('Js'), Deck.get('Ks'), Deck.get('As')])) # == (1, '[As, Ks, Qs, Js, Ts]')
+    print(p1.handEval([Deck.get(card) for card in ['2d', '6s', 'Kh', 'Qd', 'Ad', 'Ks', 'Td']])) # == (3, '[9s, 9h, 9d, 9c]') 
+    print(p1.handEval([Deck.get('As'), Deck.get('Ks'), Deck.get('Qs'), Deck.get('Qh'), Deck.get('Js'), Deck.get('Jh'), Deck.get('Ts')])) # == (1, '[As, Ks, Qs, Js, Ts]')
+    print(p1.handEval([Deck.get('Ks'), Deck.get('Ts'), Deck.get('8h'), Deck.get('9d'), Deck.get('7c'), Deck.get('6s'), Deck.get('8s')])) # == (6, '[10, 9, 8, 7, 6]')
+    print(p1.handEval([Deck.get('Ks'), Deck.get('Ts'), Deck.get('8h'), Deck.get('9d'), Deck.get('8c'), Deck.get('8s'), Deck.get('6h')]))
 
     print('All tests passed.')

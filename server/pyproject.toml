@@ -1,6 +1,6 @@
 [project]
 name = "poker"
-version = "1.0.0"
+version = "2.0.0"
 description = "The playground for exciting poker plays!"
 dependencies = [
     "flask", "requests", "flask_socketio", "flask_cors"

@@ -7,6 +7,7 @@ class Cards:
         self.shortName = shortName          # Shortname of the card, e.g. As (for Ace of Spades)
         self.suit = suit                    
         self.value = value
+        self.hex_value = hex(value)[2:].upper()
         self.num = num
 
     def __repr__(self):
@@ -26,7 +27,7 @@ class Cards:
         if (flush_possible) :
             return ''.join(sorted([card.shortName for card in cards]))
         
-        return ''.join(sorted([str(card.value) for card in cards]))
+        return ''.join(sorted(card.hex_value for card in cards))
 
 class Deck:
     class DeckStack(list[Cards]):
@@ -75,8 +76,11 @@ class Deck:
         return self.__CARD_LOOKUP[shortName]
 
 
-    def __init__(self, shuffle=True):
-        self.deck = copy.deepcopy(Deck.__CLASSIC_DECK)
+    def __init__(self, shuffle=True, deck=None, bad_cards=[]):
+        bad_cards_nums = [card.num for card in bad_cards]
+
+        self.deck = [card for card in deck or Deck.__CLASSIC_DECK if card.num not in bad_cards_nums]
+
         if shuffle: self.shuffle()
 
     def __repr__(self):
@@ -96,6 +100,10 @@ class Deck:
     def burn(self):
         '''Removes top card of deck, doesn't return anything.'''
         self.deck.delete()
+    
+    def remove_card(self, cards: list[Cards]):
+        card_nums = [card.num for card in cards]
+        self.deck = [card for card in self.deck if card.num not in card_nums]
     
     def reset(self):
         '''Resets the deck, all discarded and played cards are put back into the deck.'''

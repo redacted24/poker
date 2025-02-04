@@ -8,44 +8,21 @@ class eval():
     def __init__(self, hand, board_cards):
         self.hand = hand
         self.board_cards = board_cards
-    
-    def remove_cards(self, deck, cards_to_remove):
-        new_deck = []
-        if type(deck) == list:
-            for card in deck:
-                to_add = True
-                for bad_card in cards_to_remove:
-                    if card.shortName == bad_card.shortName:
-                        to_add = False
-                        break
-                if to_add:
-                    new_deck.append(card)
-        else:
-            for card in deck.deck:
-                to_add = True
-                for bad_card in cards_to_remove:
-                    if card.shortName == bad_card.shortName:
-                        to_add = False
-                        break
-                if to_add:
-                    new_deck.append(card)
 
-        return new_deck
 
     def hand_strength(self):
         '''Determine the hand strength of your current cards + cards on the board'''
-        p1 = Player('player', True)
+        p1 = Player('player')
         p1.receive(self.hand)
         p1_rank = p1.handEval(self.board_cards)
 
-        d = Deck()
-        filtered_deck = self.remove_cards(d, self.hand + self.board_cards)
-        # print(filtered_deck)
+        d = Deck(shuffle=False, bad_cards=self.hand + self.board_cards)
+        print(d)
         
         win = tie = loss = 0
-        for i, c1 in enumerate(filtered_deck):
-            for c2 in filtered_deck[i+1:]:
-                p2 = Player('opponent', True)
+        for i, c1 in enumerate(d.deck):
+            for c2 in d.deck[i+1:]:
+                p2 = Player('opponent')
                 p2.receive([c1, c2])
                 p2_rank = p2.handEval(self.board_cards)
 
@@ -68,6 +45,7 @@ class eval():
         return max([suit for suit in suits.values()]) >= 3
 
     def potential_hand_strength(self, look_ahead, only_ppot=False):
+        start = 0
         '''Compute potential hand strength. look_ahead is an integer that specifies the number of cards to look ahead for. On turn, it should be one, and on flop, it should be 2.'''      
         hand_potentials = [[0] * 3 for _ in range(3)]
         
@@ -79,13 +57,11 @@ class eval():
         p1_rank_5 = p1.handEval(self.board_cards)
         flush_possible_p1 = eval.check_possible_flush(list(self.hand) + self.board_cards)
 
-        d = Deck()
+        d = Deck(shuffle=False, bad_cards=self.hand + self.board_cards)
         computed_p1_ranks = {}
         computed_p2_ranks = {}
 
-        filtered_deck = self.remove_cards(d, self.hand + self.board_cards)
-
-        for p2_hand in combinations(filtered_deck, 2):
+        for p2_hand in combinations(d.deck, 2):
             p2.clear_hand()
             p2.receive(list(p2_hand))
 
@@ -93,22 +69,23 @@ class eval():
             flush_possible_p2 = eval.check_possible_flush(list(p2_hand) + self.board_cards)
 
             if p1_rank_5 > p2_rank_5:
-                if only_ppot:
-                    continue    # ppot does not need cases were we are winning
-                else:
-                    i = 0       # We are ahead
+                if only_ppot: continue    # ppot does not need cases were we are winning
+                
+                i = 0           # We are ahead
             elif p1_rank_5 == p2_rank_5:
                 i = 1           # We are tied
             else:
                 i = 2           # We are behind
 
-            new_filtered_deck = self.remove_cards(filtered_deck, list(p2_hand))
+            new_d = Deck(shuffle=False, deck=d.deck, bad_cards=list(p2_hand))
 
-            for new_board_cards in list(combinations(new_filtered_deck, look_ahead)):
+            for new_board_cards in combinations(new_d.deck, look_ahead):
                 predicted_board_cards = self.board_cards + list(new_board_cards)
 
+                start_i = time()
                 hash_p1 = Cards.hash_list(new_board_cards, flush_possible_p1)
                 hash_p2 = Cards.hash_list(p2_hand + new_board_cards, flush_possible_p2)
+                start += time() - start_i
 
                 if hash_p1 in computed_p1_ranks:
                     p1_rank_7 = computed_p1_ranks[hash_p1]
@@ -121,13 +98,15 @@ class eval():
                 else:
                     p2_rank_7 = p2.handEval(predicted_board_cards)
                     computed_p2_ranks[hash_p2] = p2_rank_7
-            
+
+
                 if p1_rank_7 > p2_rank_7:
                     hand_potentials[i][0] += 1
                 elif p1_rank_7 == p2_rank_7:
                     hand_potentials[i][1] += 1
                 else:
                     hand_potentials[i][2] += 1
+
 
         print(hand_potentials)
 
@@ -142,22 +121,25 @@ class eval():
             ppot = 0
             npot = 0
             
+        print(start)
         return ppot, npot
 
 
 if __name__ == "__main__":
     d = Deck()
 
-    hand = [d.get('9h'), d.get('7h')]
+    hand = [d.get('7h'), d.get('9h')]
     board = [d.get('8h'), d.get('6c'), d.get('4h')]
 
     e = eval(hand, board)
 
-    start = time()
+    # print(e.hand_strength())
+
+    start_ii = time()
 
     # print(e.potential_hand_strength(1))
     # print(e.potential_hand_strength(2, only_ppot=True))
     print(e.potential_hand_strength(2))
 
 
-    print(time() - start)
+    print(time() - start_ii)
