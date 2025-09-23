@@ -1,9 +1,9 @@
 try:
     from itertools import combinations
-    from poker.classes.cards import Deck
+    from server.poker.classes.deck import Deck
     from poker.classes.game import Player
 except:
-    from cards import Deck      # type: ignore
+    from server.poker.classes.deck import Deck      # type: ignore
     from game import Player     # type: ignore
 
 class eval():
@@ -146,7 +146,3 @@ hand = [d.get('Ad'), d.get('Qc')]
 board = [d.get('3h'), d.get('4c'), d.get('Jh')]
 
 e = eval(hand, board)
-
-# print(e.potential_hand_strength(1))
-# print(e.potential_hand_strength(2, only_ppot=True))
-# print(e.potential_hand_strength(2))

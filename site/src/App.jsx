@@ -21,7 +21,9 @@ const App = () => {
 
     useEffect(() => {
         `Getting a username from the user, then setting a time to live of 1h`;
-        const socket = io("localhost:5000/");
+        const socket = io("https://localhost:8080", {
+            path: "/socket.io", // matches proxy key
+        });
         setSocketInstance(socket);
 
         if (!ls.get("username")) {

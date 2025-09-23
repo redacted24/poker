@@ -1,4 +1,4 @@
-from server.poker.classes.cards import *
+from server.poker.classes.deck import *
 from server.poker.classes.game import *
 
 deck = Deck()

@@ -1,6 +1,6 @@
 import unittest
 from poker.classes.bots import *
-from poker.classes.cards import *
+from server.poker.classes.deck import *
 from poker.classes.game import *
 
 # choose which test to run, and how many games you want them to play against.

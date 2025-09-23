@@ -1,7 +1,7 @@
 from flask import ( Blueprint, session, request )
 import pickle, requests
 
-from poker.classes.cards import *
+from server.poker.classes.deck import *
 from poker.classes.game import *
 from poker.classes.bots import *
 
